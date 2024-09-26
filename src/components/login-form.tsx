@@ -84,7 +84,7 @@ export function LoginForm() {
         />
 
         <Button type="submit" className="w-full ~text-lg/xl font-semibold ">
-          Submit
+          Login
         </Button>
       </form>
     </Form>
