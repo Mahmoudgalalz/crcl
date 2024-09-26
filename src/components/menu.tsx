@@ -15,7 +15,6 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import clsx from "clsx";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -60,10 +59,10 @@ export function Menu({ isOpen }: MenuProps) {
                           <TooltipTrigger asChild>
                             <Button
                               variant={active ? "secondary" : "ghost"}
-                              className={clsx(
+                              className={cn(
                                 "w-full justify-start h-10 mb-1 ",
                                 {
-                                  "bg-primary text-primary-foreground hover:bg-primary/90":
+                                  "bg-primary/90 text-primary-foreground hover:bg-primary/80":
                                     active,
                                 },
                                 isOpen ? "" : "p-0 items-center justify-center"
