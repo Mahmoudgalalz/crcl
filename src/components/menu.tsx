@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import clsx from "clsx";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -59,7 +60,14 @@ export function Menu({ isOpen }: MenuProps) {
                           <TooltipTrigger asChild>
                             <Button
                               variant={active ? "secondary" : "ghost"}
-                              className="w-full justify-start h-10 mb-1"
+                              className={clsx(
+                                "w-full justify-start h-10 mb-1 ",
+                                {
+                                  "bg-primary text-primary-foreground hover:bg-primary/90":
+                                    active,
+                                },
+                                isOpen ? "" : "p-0 items-center justify-center"
+                              )}
                               asChild
                             >
                               <Link href={href}>
@@ -70,16 +78,16 @@ export function Menu({ isOpen }: MenuProps) {
                                   {/* @ts-expect-error */}
                                   {Icon && <Icon size={30} />}
                                 </span>
-                                <p
-                                  className={cn(
-                                    "max-w-[200px] truncate",
-                                    isOpen === false
-                                      ? "-translate-x-96 opacity-0"
-                                      : "translate-x-0 opacity-100"
-                                  )}
-                                >
-                                  {label}
-                                </p>
+                                {isOpen === true && (
+                                  <p
+                                    className={cn(
+                                      "max-w-[200px] truncate",
+                                      "translate-x-0 opacity-100"
+                                    )}
+                                  >
+                                    {label}
+                                  </p>
+                                )}
                               </Link>
                             </Button>
                           </TooltipTrigger>
