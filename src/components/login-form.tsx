@@ -13,13 +13,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   username: z.string().min(2).max(50),
-  password: z.string().min(8).max(100),
+  password: z.string().min(4).max(100),
 });
 
 export function LoginForm() {
+  const router = useRouter();
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,7 +33,17 @@ export function LoginForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    // TODO: Implement login logic here
+    if (values.username === "admin" && values.password === "admin") {
+      router.push("/dashboard");
+    } else {
+      toast({
+        title: "Something went wrong!",
+        description:
+          "Your username or password is incorrect, please try again or contact your administrator.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (

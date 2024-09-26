@@ -15,13 +15,15 @@ const config: Config = {
     screens,
     extend: {
       colors: {
-        main: "#E1D1C5",
+        main: "#E1D1C5", // Keep existing colors
         mainAccent: "#C6AFA0",
         overlay: "rgba(0,0,0,0.5)",
 
-        bg: "#f8f9fa",
-        text: "#343a40",
-        border: "#ced4da",
+        // Update these colors to match the toast component
+        background: "#f8f9fa", // Updated to match toast
+        foreground: "#343a40", // Updated to match toast
+        destructive: "#dc2626", // Example color for destructive actions
+        "destructive-foreground": "#ffffff", // Example color for destructive text
 
         darkBg: "#343a40",
         darkText: "#f8f9fa",
