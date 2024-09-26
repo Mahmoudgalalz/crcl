@@ -5,6 +5,7 @@ import {
   PenBox,
   Users,
   BellDotIcon,
+  Settings,
 } from "lucide-react";
 
 type Submenu = {
@@ -95,6 +96,13 @@ export function getMenuList(pathname: string): Group[] {
               </svg>
             );
           },
+          submenus: [],
+        },
+        {
+          href: "/dashboard/settings",
+          label: "Settings",
+          active: pathname.includes("/dashboard/settings"),
+          icon: Settings,
           submenus: [],
         },
       ],
