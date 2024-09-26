@@ -3,6 +3,7 @@ import animate from "tailwindcss-animate";
 import fluid, { extract, screens } from "fluid-tailwind";
 
 const config: Config = {
+  darkMode: [],
   content: {
     files: [
       "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
