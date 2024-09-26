@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Ellipsis, LogOut } from "lucide-react";
+import { Ellipsis, LogOut, LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -66,7 +66,9 @@ export function Menu({ isOpen }: MenuProps) {
                                 <span
                                   className={cn(isOpen === false ? "" : "mr-4")}
                                 >
-                                  <Icon size={30} />
+                                  {/*  eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                                  {/* @ts-expect-error */}
+                                  {Icon && <Icon size={30} />}
                                 </span>
                                 <p
                                   className={cn(
@@ -92,7 +94,7 @@ export function Menu({ isOpen }: MenuProps) {
                   ) : (
                     <div className="w-full" key={index}>
                       <CollapseMenuButton
-                        icon={Icon}
+                        icon={Icon as LucideIcon}
                         label={label}
                         active={active}
                         submenus={submenus}
