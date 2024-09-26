@@ -50,7 +50,7 @@ export function LoginForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-full lg:w-2/5 "
+        className="space-y-6 w-full "
       >
         <FormField
           control={form.control}
@@ -83,10 +83,7 @@ export function LoginForm() {
           )}
         />
 
-        <Button
-          type="submit"
-          className="w-full ~text-lg/xl font-semibold text-black"
-        >
+        <Button type="submit" className="w-full ~text-lg/xl font-semibold ">
           Submit
         </Button>
       </form>
