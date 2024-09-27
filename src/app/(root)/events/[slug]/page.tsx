@@ -66,9 +66,9 @@ const events = [
   },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function EventPage({ params }: { params: { slug: string } }) {
-  const eventId = parseInt(params.slug);
-  const event = events.find((e) => e.id === eventId);
+  const event = events[0];
 
   if (!event) {
     notFound();
