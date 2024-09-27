@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { PlusCircle, MinusCircle } from "lucide-react";
 import { ContentLayout } from "@/components/admin-layout";
+import Link from "next/link";
 
 export default function CreateEventPage() {
   const router = useRouter();
@@ -45,16 +46,16 @@ export default function CreateEventPage() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // Here you would typically send the form data to your backend
+    // TODO: Implement form submission logic
     console.log("Form submitted");
-    // Redirect to events page after submission
+
     router.push("/events");
   };
 
   return (
     <ContentLayout title="Create Event">
-      <main className="h-full w-full flex justify-center items-center">
-        <div className="container mx-auto py-10">
+      <main className=" w-full flex justify-center items-center">
+        <div className="container mx-auto pb-10">
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle className="text-2xl">Create New Event</CardTitle>
@@ -132,8 +133,21 @@ export default function CreateEventPage() {
                   </Button>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full">
+              <CardFooter className="gap-4 flex-col-reverse lg:flex-row">
+                <Button
+                  type="button"
+                  className="w-full ~text-lg/xl"
+                  size="lg"
+                  variant="outline"
+                  asChild
+                >
+                  <Link href="/events">Discard</Link>
+                </Button>
+                <Button
+                  type="submit"
+                  className="w-full font-semibold ~text-lg/xl"
+                  size="lg"
+                >
                   Create Event
                 </Button>
               </CardFooter>
