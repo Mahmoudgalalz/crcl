@@ -147,6 +147,13 @@ export default function CreateEventPage() {
                   type="submit"
                   className="w-full font-semibold ~text-lg/xl"
                   size="lg"
+                  disabled={
+                    ticketTypes.length === 0 ||
+                    ticketTypes.some(
+                      (ticketType) =>
+                        !ticketType.name || ticketType.capacity <= 0
+                    )
+                  }
                 >
                   Create Event
                 </Button>
