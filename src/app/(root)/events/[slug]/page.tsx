@@ -76,7 +76,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
 
   return (
     <ContentLayout title={event.name}>
-      <div className="container mx-auto pb-10">
+      <div className="container mx-auto pb-10 w-fit">
         <Link href="/events">
           <Button variant="outline" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
