@@ -6,6 +6,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "instagram.fcai2-1.fna.fbcdn.net",
       },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
     ],
   },
 };
