@@ -2,7 +2,7 @@ import {
   LayoutGrid,
   LucideIcon,
   Ticket,
-  PenBox,
+  Newspaper,
   Users,
   BellDotIcon,
   Settings,
@@ -46,10 +46,10 @@ export function getMenuList(pathname: string): Group[] {
           submenus: [],
         },
         {
-          href: "/posts",
-          label: "Posts",
-          active: pathname.includes("/posts"),
-          icon: PenBox,
+          href: "/newspaper",
+          label: "Newspaper",
+          active: pathname.includes("/newspaper"),
+          icon: Newspaper,
           submenus: [],
         },
         {
