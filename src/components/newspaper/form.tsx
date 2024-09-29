@@ -219,6 +219,7 @@ export function NewspaperForm({
             className="w-full font-thin ~text-lg/xl"
             onClick={onDiscardFn}
             size="lg"
+            type="button"
           >
             Discard
           </Button>
