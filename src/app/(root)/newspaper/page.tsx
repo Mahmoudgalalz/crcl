@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ContentLayout } from "@/components/content-layout";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,16 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { CalendarIcon, MapPinIcon, DollarSignIcon } from "lucide-react";
 import Link from "next/link";
-import { NewspaperForm } from "@/components/newspaper/form";
+import { NewspaperForm } from "@/components/newspaper/newspaper-form";
+import { NewspaperItem } from "@/components/newspaper/newspaper-item";
 
 // Sample data
 const initialAnnouncements: Announcement[] = [
@@ -76,52 +68,12 @@ export default function PostsPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {announcements.map((announcement) => (
-            <Card key={announcement.id} className="flex flex-col">
-              <CardHeader>
-                <CardTitle>{announcement.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <Image
-                  src={announcement.images[0]}
-                  alt={announcement.title}
-                  className="w-full h-40 object-cover mb-4 rounded"
-                  width={600}
-                  height={400}
-                />
-                <p className="font-bold">{announcement.artist}</p>
-                <p className="text-sm text-gray-600 mb-2">
-                  {announcement.description}
-                </p>
-                <div className="flex items-center mb-1">
-                  <CalendarIcon className="w-4 h-4 mr-2" />
-                  <span>
-                    {new Date(announcement.dateTime).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex items-center mb-1">
-                  <MapPinIcon className="w-4 h-4 mr-2" />
-                  <span>{announcement.location}</span>
-                </div>
-                <div className="flex items-center">
-                  <DollarSignIcon className="w-4 h-4 mr-2" />
-                  <span>{announcement.pricing}</span>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() => handleEdit(announcement)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(announcement.id)}
-                >
-                  Delete
-                </Button>
-              </CardFooter>
-            </Card>
+            <NewspaperItem
+              key={announcement.id}
+              announcement={announcement}
+              handleEdit={handleEdit}
+              handleDelete={handleDelete}
+            />
           ))}
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
