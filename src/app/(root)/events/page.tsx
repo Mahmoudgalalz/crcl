@@ -9,161 +9,162 @@ import {
 } from "@/components/ui/card";
 import { CalendarIcon, TicketIcon, ArrowRight } from "lucide-react";
 import Link from "next/link";
+const events = [
+  {
+    id: 1,
+    name: "Summer Music Festival",
+    date: "2024-07-15",
+    ticketRequestsCount: 150,
+    slug: "summer-music-festival",
+  },
+  {
+    id: 2,
+    name: "Tech Conference 2024",
+    date: "2024-09-22",
+    ticketRequestsCount: 80,
+    slug: "tech-conference-2024",
+  },
+  {
+    id: 3,
+    name: "Food Expo",
+    date: "2024-08-05",
+    ticketRequestsCount: 200,
+    slug: "food-expo",
+  },
+  {
+    id: 4,
+    name: "International Film Festival",
+    date: "2024-10-10",
+    ticketRequestsCount: 120,
+    slug: "international-film-festival",
+  },
+  {
+    id: 1,
+    name: "Summer Music Festival",
+    date: "2024-07-15",
+    ticketRequestsCount: 150,
+    slug: "summer-music-festival",
+  },
+  {
+    id: 2,
+    name: "Tech Conference 2024",
+    date: "2024-09-22",
+    ticketRequestsCount: 80,
+    slug: "tech-conference-2024",
+  },
+  {
+    id: 3,
+    name: "Food Expo",
+    date: "2024-08-05",
+    ticketRequestsCount: 200,
+    slug: "food-expo",
+  },
+  {
+    id: 4,
+    name: "International Film Festival",
+    date: "2024-10-10",
+    ticketRequestsCount: 120,
+    slug: "international-film-festival",
+  },
+  {
+    id: 1,
+    name: "Summer Music Festival",
+    date: "2024-07-15",
+    ticketRequestsCount: 150,
+    slug: "summer-music-festival",
+  },
+  {
+    id: 2,
+    name: "Tech Conference 2024",
+    date: "2024-09-22",
+    ticketRequestsCount: 80,
+    slug: "tech-conference-2024",
+  },
+  {
+    id: 3,
+    name: "Food Expo",
+    date: "2024-08-05",
+    ticketRequestsCount: 200,
+    slug: "food-expo",
+  },
+  {
+    id: 4,
+    name: "International Film Festival",
+    date: "2024-10-10",
+    ticketRequestsCount: 120,
+    slug: "international-film-festival",
+  },
+  {
+    id: 1,
+    name: "Summer Music Festival",
+    date: "2024-07-15",
+    ticketRequestsCount: 150,
+    slug: "summer-music-festival",
+  },
+  {
+    id: 2,
+    name: "Tech Conference 2024",
+    date: "2024-09-22",
+    ticketRequestsCount: 80,
+    slug: "tech-conference-2024",
+  },
+  {
+    id: 3,
+    name: "Food Expo",
+    date: "2024-08-05",
+    ticketRequestsCount: 200,
+    slug: "food-expo",
+  },
+  {
+    id: 4,
+    name: "International Film Festival",
+    date: "2024-10-10",
+    ticketRequestsCount: 120,
+    slug: "international-film-festival",
+  },
+  {
+    id: 1,
+    name: "Summer Music Festival",
+    date: "2024-07-15",
+    ticketRequestsCount: 150,
+    slug: "summer-music-festival",
+  },
+  {
+    id: 2,
+    name: "Tech Conference 2024",
+    date: "2024-09-22",
+    ticketRequestsCount: 80,
+    slug: "tech-conference-2024",
+  },
+  {
+    id: 3,
+    name: "Food Expo",
+    date: "2024-08-05",
+    ticketRequestsCount: 200,
+    slug: "food-expo",
+  },
+  {
+    id: 4,
+    name: "International Film Festival",
+    date: "2024-10-10",
+    ticketRequestsCount: 120,
+    slug: "international-film-festival",
+  },
+];
 
 export default function EventsPage() {
-  const events = [
-    {
-      id: 1,
-      name: "Summer Music Festival",
-      date: "2024-07-15",
-      ticketRequestsCount: 150,
-      slug: "summer-music-festival",
-    },
-    {
-      id: 2,
-      name: "Tech Conference 2024",
-      date: "2024-09-22",
-      ticketRequestsCount: 80,
-      slug: "tech-conference-2024",
-    },
-    {
-      id: 3,
-      name: "Food Expo",
-      date: "2024-08-05",
-      ticketRequestsCount: 200,
-      slug: "food-expo",
-    },
-    {
-      id: 4,
-      name: "International Film Festival",
-      date: "2024-10-10",
-      ticketRequestsCount: 120,
-      slug: "international-film-festival",
-    },
-    {
-      id: 1,
-      name: "Summer Music Festival",
-      date: "2024-07-15",
-      ticketRequestsCount: 150,
-      slug: "summer-music-festival",
-    },
-    {
-      id: 2,
-      name: "Tech Conference 2024",
-      date: "2024-09-22",
-      ticketRequestsCount: 80,
-      slug: "tech-conference-2024",
-    },
-    {
-      id: 3,
-      name: "Food Expo",
-      date: "2024-08-05",
-      ticketRequestsCount: 200,
-      slug: "food-expo",
-    },
-    {
-      id: 4,
-      name: "International Film Festival",
-      date: "2024-10-10",
-      ticketRequestsCount: 120,
-      slug: "international-film-festival",
-    },
-    {
-      id: 1,
-      name: "Summer Music Festival",
-      date: "2024-07-15",
-      ticketRequestsCount: 150,
-      slug: "summer-music-festival",
-    },
-    {
-      id: 2,
-      name: "Tech Conference 2024",
-      date: "2024-09-22",
-      ticketRequestsCount: 80,
-      slug: "tech-conference-2024",
-    },
-    {
-      id: 3,
-      name: "Food Expo",
-      date: "2024-08-05",
-      ticketRequestsCount: 200,
-      slug: "food-expo",
-    },
-    {
-      id: 4,
-      name: "International Film Festival",
-      date: "2024-10-10",
-      ticketRequestsCount: 120,
-      slug: "international-film-festival",
-    },
-    {
-      id: 1,
-      name: "Summer Music Festival",
-      date: "2024-07-15",
-      ticketRequestsCount: 150,
-      slug: "summer-music-festival",
-    },
-    {
-      id: 2,
-      name: "Tech Conference 2024",
-      date: "2024-09-22",
-      ticketRequestsCount: 80,
-      slug: "tech-conference-2024",
-    },
-    {
-      id: 3,
-      name: "Food Expo",
-      date: "2024-08-05",
-      ticketRequestsCount: 200,
-      slug: "food-expo",
-    },
-    {
-      id: 4,
-      name: "International Film Festival",
-      date: "2024-10-10",
-      ticketRequestsCount: 120,
-      slug: "international-film-festival",
-    },
-    {
-      id: 1,
-      name: "Summer Music Festival",
-      date: "2024-07-15",
-      ticketRequestsCount: 150,
-      slug: "summer-music-festival",
-    },
-    {
-      id: 2,
-      name: "Tech Conference 2024",
-      date: "2024-09-22",
-      ticketRequestsCount: 80,
-      slug: "tech-conference-2024",
-    },
-    {
-      id: 3,
-      name: "Food Expo",
-      date: "2024-08-05",
-      ticketRequestsCount: 200,
-      slug: "food-expo",
-    },
-    {
-      id: 4,
-      name: "International Film Festival",
-      date: "2024-10-10",
-      ticketRequestsCount: 120,
-      slug: "international-film-festival",
-    },
-  ];
-
   return (
     <ContentLayout title="Events">
-      <div className="w-full flex justify-end items-center">
-        {" "}
-        <Button size="lg" asChild className="~text-lg/xl">
-          <Link href="/events/create" className="flex items-center gap-2">
-            <span className="font-semibold">Create Event</span>
-            <ArrowRight size={25} />
-          </Link>
-        </Button>
+      <div className="container mx-auto ">
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold ">Upcoming Events</h1>
+          <Button size="lg" asChild className="~text-lg/xl">
+            <Link href="/events/create" className="flex items-center gap-2">
+              <span className="font-semibold">Create Event</span>
+              <ArrowRight size={25} />
+            </Link>
+          </Button>
+        </div>
       </div>
       <div className="container mx-auto py-10">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
