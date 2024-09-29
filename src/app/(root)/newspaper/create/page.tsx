@@ -1,5 +1,5 @@
 "use client";
-import { NewspaperForm } from "@/components/newspaper/form";
+import { NewspaperForm } from "@/components/newspaper/newspaper-form";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ContentLayout } from "@/components/content-layout";
 
