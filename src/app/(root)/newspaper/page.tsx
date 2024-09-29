@@ -4,15 +4,12 @@ import Image from "next/image";
 import { ContentLayout } from "@/components/content-layout";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -22,18 +19,7 @@ import {
 } from "@/components/ui/card";
 import { CalendarIcon, MapPinIcon, DollarSignIcon } from "lucide-react";
 import Link from "next/link";
-
-type Announcement = {
-  id: number;
-  artist: string;
-  description: string;
-  images: string[];
-  title: string;
-  pricing: string;
-  location: string;
-  dateTime: string;
-  promoVideo?: string;
-};
+import { NewspaperForm } from "@/components/newspaper/form";
 
 // Sample data
 const initialAnnouncements: Announcement[] = [
@@ -67,18 +53,6 @@ export default function PostsPage() {
   const [editingAnnouncement, setEditingAnnouncement] =
     useState<Announcement | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const handleSave = (announcement: Announcement) => {
-    if (editingAnnouncement) {
-      setAnnouncements(
-        announcements.map((a) => (a.id === announcement.id ? announcement : a))
-      );
-    } else {
-      setAnnouncements([...announcements, { ...announcement, id: Date.now() }]);
-    }
-    setIsDialogOpen(false);
-    setEditingAnnouncement(null);
-  };
 
   const handleEdit = (announcement: Announcement) => {
     setEditingAnnouncement(announcement);
@@ -151,7 +125,7 @@ export default function PostsPage() {
           ))}
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>
                 {editingAnnouncement
@@ -159,134 +133,21 @@ export default function PostsPage() {
                   : "Create New Announcement"}
               </DialogTitle>
             </DialogHeader>
-            <AnnouncementForm
-              announcement={
-                editingAnnouncement || {
-                  id: 0,
-                  artist: "",
-                  description: "",
-                  images: [],
-                  title: "",
-                  pricing: "",
-                  location: "",
-                  dateTime: "",
-                }
-              }
-              onSave={handleSave}
+            <NewspaperForm
+              initialData={editingAnnouncement!}
+              onSubmitFn={() => {
+                setIsDialogOpen(false);
+                setEditingAnnouncement(null);
+                //TODO: Implement API call to update announcement
+              }}
+              onDiscardFn={() => {
+                setIsDialogOpen(false);
+                setEditingAnnouncement(null);
+              }}
             />
           </DialogContent>
         </Dialog>
       </div>
     </ContentLayout>
-  );
-}
-
-function AnnouncementForm({
-  announcement,
-  onSave,
-}: {
-  announcement: Announcement;
-  onSave: (announcement: Announcement) => void;
-}) {
-  const [formData, setFormData] = useState(announcement);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="title">Title</Label>
-        <Input
-          id="title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="artist">Artist</Label>
-        <Input
-          id="artist"
-          name="artist"
-          value={formData.artist}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="images">Image URL</Label>
-        <Input
-          id="images"
-          name="images"
-          value={formData.images[0]}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, images: [e.target.value] }))
-          }
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="pricing">Pricing</Label>
-        <Input
-          id="pricing"
-          name="pricing"
-          value={formData.pricing}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          name="location"
-          value={formData.location}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="dateTime">Date and Time</Label>
-        <Input
-          id="dateTime"
-          name="dateTime"
-          type="datetime-local"
-          value={formData.dateTime}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="promoVideo">Promo Video URL (Optional)</Label>
-        <Input
-          id="promoVideo"
-          name="promoVideo"
-          value={formData.promoVideo || ""}
-          onChange={handleChange}
-        />
-      </div>
-      <Button type="submit">Save Announcement</Button>
-    </form>
   );
 }
