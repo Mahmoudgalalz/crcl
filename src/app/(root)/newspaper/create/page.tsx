@@ -19,6 +19,7 @@ export default function CreateAnnouncement() {
             }}
             onDiscardFn={() => {
               // TODO: Implement the logic to discard the form
+              window.location.href = "/newspaper";
             }}
           />
         </Card>
