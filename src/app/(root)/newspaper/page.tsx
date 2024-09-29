@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { NewspaperForm } from "@/components/newspaper/newspaper-form";
 import { NewspaperItem } from "@/components/newspaper/newspaper-item";
+import { ArrowRight } from "lucide-react";
 
 // Sample data
 const initialAnnouncements: Announcement[] = [
@@ -57,16 +58,17 @@ export default function PostsPage() {
 
   return (
     <ContentLayout title="Newspaper">
-      <div className="container mx-auto p-4 ">
-        <div className="flex justify-between items-center mb-4 ">
+      <div className="container mx-auto ">
+        <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold ">Newspaper</h1>
-          <Button asChild>
-            <Link href="/newspaper/create">
-              <span className="font-semibold">Create New Announcement</span>
+          <Button size="lg" asChild className="~text-lg/xl">
+            <Link href="/newspaper/create" className="flex items-center gap-2">
+              <span className="font-semibold">Create Announcement</span>
+              <ArrowRight size={25} />
             </Link>
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-10">
           {announcements.map((announcement) => (
             <NewspaperItem
               key={announcement.id}
