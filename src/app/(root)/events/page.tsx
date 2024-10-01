@@ -10,11 +10,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { getEvents } from "@/lib/api/events";
 import { EventsGrid } from "@/components/event/events-grid";
+import { cookies } from "next/headers";
 
 export default async function EventsPage() {
-  const data = await getEvents();
+  const data = await fetch("http:localhost:2002/events", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cookies().get("token")?.value}`,
+    },
+  }).then((res) => res.json());
 
   return (
     <ContentLayout title="Events">
@@ -43,7 +49,7 @@ export default async function EventsPage() {
         </div>
       </div>
 
-      <EventsGrid events={data} />
+      <EventsGrid events={data.events} />
     </ContentLayout>
   );
 }
