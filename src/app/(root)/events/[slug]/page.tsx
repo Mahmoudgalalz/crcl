@@ -25,8 +25,18 @@ import {
   ArrowLeft,
   Calendar,
   MapPin,
+  Edit,
 } from "lucide-react";
 import { ContentLayout } from "@/components/admin-layout";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { EventForm } from "@/components/event/event-form";
 
 const events = [
   {
@@ -74,6 +84,18 @@ export default function EventPage({ params }: { params: { slug: string } }) {
     notFound();
   }
 
+  const formattedEvent = {
+    eventName: event.name,
+    eventDate: event.date,
+    eventTime: event.time,
+    eventLocation: event.location,
+    eventDescription: event.description,
+    ticketTypes: event.ticketTypes.map(({ name, capacity }) => ({
+      name,
+      capacity,
+    })),
+  };
+
   return (
     <ContentLayout title={event.name}>
       <div className="container mx-auto pb-10 w-fit">
@@ -83,10 +105,39 @@ export default function EventPage({ params }: { params: { slug: string } }) {
             Back to Events
           </Button>
         </Link>
-
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-3xl">{event.name}</CardTitle>
+            <CardTitle className=" flex items-center justify-between">
+              <div className="flex items-end gap-2">
+                <h1 className="~text-2xl/3xl">{event.name}</h1>
+                <Badge variant="outline" className="mb-1">
+                  Drafted
+                </Badge>
+              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <Edit size={20} />
+                    <span className="font-semibold">Edit Event</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Edit Event</DialogTitle>
+                    <DialogDescription>
+                      Edit the event details.
+                    </DialogDescription>
+                    <EventForm
+                      initialData={formattedEvent}
+                      onSubmitFn={async () => {
+                        "use server";
+                        // TODO: Implement onSubmitFn
+                      }}
+                    />
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </CardTitle>
             <CardDescription className="text-zinc-800">
               <div className="flex items-center mt-2">
                 <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
