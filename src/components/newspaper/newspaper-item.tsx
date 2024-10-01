@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 import Image from "next/image";
+import { Announcement } from "@/lib/types";
 
 export function NewspaperItem({
   announcement,
