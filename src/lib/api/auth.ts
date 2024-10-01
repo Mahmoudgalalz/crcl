@@ -1,3 +1,5 @@
+// import { createSession } from "../session";
+import { loginServer, logoutServer } from "../actions";
 import { axiosInstance } from "./instance";
 import { ApiSuccessResponse } from "@/lib/types";
 
@@ -12,6 +14,7 @@ export async function login(username: string, password: string) {
   });
 
   if (res.data.status === "success") {
+    loginServer(res.data.data.access_token);
     localStorage.setItem("token", res.data.data.access_token);
   } else {
     throw new Error("Invalid username or password");
@@ -21,6 +24,7 @@ export async function login(username: string, password: string) {
 }
 
 export async function logout() {
+  logoutServer();
   localStorage.removeItem("token");
   window.location.href = "/";
 }
