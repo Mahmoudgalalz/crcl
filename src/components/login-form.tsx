@@ -18,7 +18,7 @@ import { login } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  username: z.string().min(2).max(50),
+  email: z.string().min(2).max(50).email(),
   password: z.string().min(4).max(100),
 });
 
@@ -28,14 +28,14 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const loggedIn = await login(values.username, values.password);
+      const loggedIn = await login(values.email, values.password);
       if (loggedIn) router.push("/dashboard");
       console.log(loggedIn);
     } catch {
@@ -56,12 +56,12 @@ export function LoginForm() {
       >
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem className="w-full ">
-              <FormLabel className="~text-lg/xl">Username</FormLabel>
+              <FormLabel className="~text-lg/xl">Email</FormLabel>
               <FormControl>
-                <Input placeholder="Type your username" {...field} />
+                <Input placeholder="Type your email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

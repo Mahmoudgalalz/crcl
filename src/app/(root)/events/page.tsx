@@ -40,8 +40,27 @@ export default async function EventsPage() {
                 <DialogDescription>Create a new event.</DialogDescription>
               </DialogHeader>
               <EventForm
-                onSubmitFn={async () => {
+                onSubmitFn={async (formValues) => {
                   "use server";
+                  await fetch("http://localhost:2002/events", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${cookies().get("token")?.value}`,
+                    },
+                    body: JSON.stringify({
+                      title: formValues.title,
+                      description: formValues.description,
+                      location: formValues.location,
+                      date: formValues.date,
+                      time: formValues.time,
+                      status: "DRAFTED",
+                      capacity: formValues.capacity,
+                      artists: formValues.artists,
+                      createdBy: "John Doe",
+                      image: formValues.image,
+                    }),
+                  });
                 }}
               />
             </DialogContent>

@@ -3,13 +3,13 @@ import { loginServer, logoutServer } from "../actions";
 import { axiosInstance } from "./instance";
 import { ApiSuccessResponse } from "@/lib/types";
 
-export async function login(username: string, password: string) {
+export async function login(email: string, password: string) {
   try {
     const res = await axiosInstance.post<
       ApiSuccessResponse<{ access_token: string }>
     >("/auth/admin/login", {
-      admin: username,
-      password: password,
+      email,
+      password,
     });
 
     if (res.data.status === "success") {
