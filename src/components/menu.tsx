@@ -16,12 +16,14 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { logout } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 interface MenuProps {
   isOpen: boolean | undefined;
 }
 
 export function Menu({ isOpen }: MenuProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const menuList = getMenuList(pathname);
 
@@ -120,6 +122,7 @@ export function Menu({ isOpen }: MenuProps) {
                   <Button
                     onClick={() => {
                       logout();
+                      router.push("/");
                     }}
                     variant="outline"
                     className="w-full justify-center h-10 mt-5 hover:bg-red-500 hover:text-white"

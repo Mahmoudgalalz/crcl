@@ -21,8 +21,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 export function UserNav() {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -73,6 +75,7 @@ export function UserNav() {
           className="hover:cursor-pointer"
           onClick={() => {
             logout();
+            router.push("/");
           }}
         >
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
