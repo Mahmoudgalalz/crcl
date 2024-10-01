@@ -1,5 +1,5 @@
 import { AnEvent, ApiSuccessResponse } from "../types";
-import axiosInstance from "./instance";
+import { axiosInstance } from "./instance";
 
 export async function getEvents() {
   try {
