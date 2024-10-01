@@ -1,7 +1,6 @@
 "use client";
 import { Label } from "@/components/ui/label";
-import { MinusCircle, PlusCircle } from "lucide-react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -16,23 +15,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { z } from "zod";
+import { ImageUpload } from "../image-upload";
+import { ImageFile } from "@/lib/types";
+import { uploadImage } from "@/lib/api/upload-image";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  eventName: z.string().min(2).max(50),
-  eventDate: z.string().min(2).max(50),
-  eventTime: z.string().min(2).max(50),
-  eventLocation: z.string().min(2).max(50),
-  eventDescription: z.string().min(2).max(50),
-  ticketTypes: z
-    .array(
-      z.object({
-        name: z.string().min(2).max(50),
-        capacity: z.number().min(1),
-      })
-    )
-    .min(1),
+  title: z.string().min(2).max(50),
+  date: z.string().min(2).max(50).date(),
+  time: z.string().min(2).max(50),
+  location: z.string().min(2).max(50),
+  description: z.string().min(2).max(50),
+  image: z.string().optional(),
+  capacity: z.number().min(1),
+  artists: z.string().min(2).max(50),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -43,66 +41,69 @@ export function EventForm({
   onDiscardFn,
 }: {
   initialData?: FormValues;
-  onSubmitFn: (data: FormValues) => Promise<unknown>;
+  onSubmitFn: (data: FormValues & { artists: string[] }) => Promise<unknown>;
   onDiscardFn?: () => void;
 }) {
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      eventName: "",
-      eventDate: "",
-      eventTime: "",
-      eventLocation: "",
-      eventDescription: "",
-      ticketTypes: [],
+      title: "",
+      date: "",
+      time: "",
+      location: "",
+      description: "",
+      capacity: 1,
+      artists: "",
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "ticketTypes",
-  });
-
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      const ticketTypes = value.ticketTypes || [];
-      const isValid =
-        ticketTypes.length > 0 &&
-        ticketTypes.every(
-          (ticket) =>
-            ticket?.name?.length !== undefined &&
-            ticket?.name?.length >= 2 &&
-            ticket?.capacity !== undefined &&
-            ticket?.capacity >= 1
-        );
-      setIsSubmitDisabled(!isValid);
-    });
-    return () => subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.watch]);
-
-  //TODO: Implement form submission logic here
+  const [image, setImage] = useState<ImageFile[]>([]);
   async function onSubmit(values: FormValues) {
-    await onSubmitFn(values).then(() => {
+    if (image.length > 0) {
+      try {
+        const res = await uploadImage(image[0]);
+        values.image = res?.url ?? "";
+      } catch (error) {
+        console.error("Image upload failed", error);
+        values.image = "";
+      }
+    }
+
+    const data = {
+      ...values,
+      date: new Date(values.date).toISOString(),
+      artists: values.artists.split(",").map((artist) => artist.trim()),
+    };
+
+    console.log(data);
+
+    await onSubmitFn(data as FormValues & { artists: string[] }).then((res) => {
+      console.log(res);
       toast({
         title: "Event created successfully",
         description: "New event has been created successfully",
       });
+      router.push("/events");
     });
-
-    console.log(values);
   }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Image</Label>
+            <ImageUpload
+              images={image}
+              setImages={setImage}
+              register={form.register}
+            />
+          </div>
           <FormField
             control={form.control}
-            name="eventName"
+            name="title"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Event Name</FormLabel>
@@ -116,7 +117,7 @@ export function EventForm({
           <div className="flex flex-col md:flex-row gap-4 w-full">
             <FormField
               control={form.control}
-              name="eventDate"
+              name="date"
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Event Date</FormLabel>
@@ -129,7 +130,7 @@ export function EventForm({
             />
             <FormField
               control={form.control}
-              name="eventTime"
+              name="time"
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Event Time</FormLabel>
@@ -143,7 +144,7 @@ export function EventForm({
           </div>
           <FormField
             control={form.control}
-            name="eventLocation"
+            name="location"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Event Location</FormLabel>
@@ -156,7 +157,7 @@ export function EventForm({
           />
           <FormField
             control={form.control}
-            name="eventDescription"
+            name="description"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Event Description</FormLabel>
@@ -167,78 +168,33 @@ export function EventForm({
               </FormItem>
             )}
           />
-          <div>
-            <Label>Ticket Types</Label>
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex items-end space-x-2 mt-2">
-                <FormField
-                  control={form.control}
-                  name={`ticketTypes.${index}.name`}
-                  render={({ field }) => (
-                    <FormItem className="flex-grow">
-                      <FormControl>
-                        <Input {...field} placeholder="Ticket type name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Controller
-                  name={`ticketTypes.${index}.capacity`}
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem className="w-24">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="number"
-                          placeholder="Capacity"
-                          onChange={(e) =>
-                            field.onChange(e.target.valueAsNumber)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => remove(index)}
-                  disabled={index === 0}
-                >
-                  <MinusCircle className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => append({ name: "", capacity: 0 })}
-              className="mt-2"
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Add Ticket Type
-            </Button>
-          </div>
+          <FormField
+            control={form.control}
+            name="artists"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Artists</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter artist names, separated by commas"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </CardContent>
         <CardFooter className="gap-4 flex-col-reverse lg:flex-row">
           <Button
             type="button"
             className="w-full "
             variant="outline"
-            asChild
             onClick={onDiscardFn}
           >
             Discard
           </Button>
-          <Button
-            type="submit"
-            className="w-full font-semibold "
-            disabled={isSubmitDisabled}
-          >
+          <Button type="submit" className="w-full font-semibold ">
             {initialData ? "Update" : "Create"} Event
           </Button>
         </CardFooter>

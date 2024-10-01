@@ -30,3 +30,28 @@ export async function getEvents() {
     };
   }
 }
+
+export async function createEvent(event: AnEvent) {
+  const token =
+    typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+  try {
+    const response = await axiosInstance.post<
+      ApiSuccessResponse<{
+        event: AnEvent;
+      }>
+    >("/events", event, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data: {
+      event: AnEvent;
+    } = response.data.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+    return {} as unknown as {
+      event: AnEvent;
+    };
+  }
+}

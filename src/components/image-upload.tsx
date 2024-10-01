@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Upload, X } from "lucide-react";
 import { type ChangeEvent, type DragEvent } from "react";
+import { ImageFile } from "@/lib/types";
 
 export function ImageUpload({
   images,
