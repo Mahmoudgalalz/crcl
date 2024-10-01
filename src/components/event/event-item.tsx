@@ -2,7 +2,6 @@ import { CalendarIcon, Users } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { AnEvent } from "@/lib/types";
-import { Badge } from "../ui/badge";
 import {
   Card,
   CardContent,
@@ -10,8 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { EventStatusBadge } from "../status-badge";
 
 export function EventItem({ event }: { event: AnEvent }) {
   return (
@@ -27,18 +26,7 @@ export function EventItem({ event }: { event: AnEvent }) {
           />
           <CardTitle className="flex items-center justify-between">
             <h2>{event.title}</h2>
-            <Badge
-              variant="outline"
-              className={cn(
-                event.status === "PUBLISHED"
-                  ? "bg-green-500 text-emerald-50"
-                  : "",
-
-                event.status === "DRAFTED" ? "bg-yellow-500" : ""
-              )}
-            >
-              {event.status}
-            </Badge>
+            <EventStatusBadge status={event.status} />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col gap-4">
@@ -54,7 +42,7 @@ export function EventItem({ event }: { event: AnEvent }) {
           </div>
           <div className="flex items-center text-sm text-muted-foreground">
             <Users className="mr-2 h-4 w-4" />
-            {event.capacity} Person
+            {event.capacity} Capacity
           </div>
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
