@@ -13,9 +13,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { login } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   username: z.string().min(2).max(50),
@@ -36,8 +36,8 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const loggedIn = await login(values.username, values.password);
-      console.log(loggedIn);
       if (loggedIn) router.push("/dashboard");
+      console.log(loggedIn);
     } catch {
       toast({
         title: "Something went wrong!",
