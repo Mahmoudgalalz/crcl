@@ -13,6 +13,7 @@ import Link from "next/link";
 import { NewspaperForm } from "@/components/newspaper/newspaper-form";
 import { NewspaperItem } from "@/components/newspaper/newspaper-item";
 import { ArrowRight } from "lucide-react";
+import { Announcement } from "@/lib/types";
 
 // Sample data
 const initialAnnouncements: Announcement[] = [

@@ -17,6 +17,7 @@ import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { z } from "zod";
+import { ImageFile } from "@/lib/types";
 
 type Announcement = {
   id: number;
