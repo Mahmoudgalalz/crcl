@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { login } from "@/lib/api/auth";
 
 const formSchema = z.object({
   username: z.string().min(2).max(50),
@@ -32,11 +33,12 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // TODO: Implement login logic here
-    if (values.username === "admin" && values.password === "admin") {
-      router.push("/dashboard");
-    } else {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const loggedIn = await login(values.username, values.password);
+      console.log(loggedIn);
+      if (loggedIn) router.push("/dashboard");
+    } catch {
       toast({
         title: "Something went wrong!",
         description:

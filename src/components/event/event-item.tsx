@@ -18,7 +18,7 @@ export function EventItem({ event }: { event: AnEvent }) {
       <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
         <CardHeader>
           <Image
-            src={"https://placehold.co/600x400/EEE/31343C"}
+            src={event.image ?? "https://placehold.co/600x400/EEE/31343C"}
             alt={event.title}
             width={600}
             height={400}

@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { logout } from "@/lib/api/auth";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -117,7 +118,9 @@ export function Menu({ isOpen }: MenuProps) {
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => {}}
+                    onClick={() => {
+                      logout();
+                    }}
                     variant="outline"
                     className="w-full justify-center h-10 mt-5 hover:bg-red-500 hover:text-white"
                   >
