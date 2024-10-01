@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +11,7 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
+  // TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -20,8 +19,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  CheckCircle,
-  XCircle,
+  // CheckCircle,
+  // XCircle,
   ArrowLeft,
   Calendar,
   MapPin,
@@ -37,67 +36,35 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { EventForm } from "@/components/event/event-form";
-
-const events = [
-  {
-    id: 1,
-    name: "Summer Music Festival",
-    date: "2023-07-15",
-    time: "12:00 PM",
-    location: "Central Park, New York",
-    description: "Join us for a day of music and fun in the sun!",
-    ticketTypes: [
-      { name: "General Admission", capacity: 5000, available: 3000 },
-      { name: "VIP", capacity: 500, available: 100 },
-    ],
-    ticketRequests: [
-      {
-        id: 101,
-        name: "John Doe",
-        email: "john@example.com",
-        status: "pending",
-        type: "General Admission",
-      },
-      {
-        id: 102,
-        name: "Jane Smith",
-        email: "jane@example.com",
-        status: "approved",
-        type: "VIP",
-      },
-      {
-        id: 103,
-        name: "Alice Johnson",
-        email: "alice@example.com",
-        status: "denied",
-        type: "General Admission",
-      },
-    ],
-  },
-];
+import { AnEvent } from "@/lib/types";
+import { cookies } from "next/headers";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function EventPage({ params }: { params: { slug: string } }) {
-  const event = events[0];
-
-  if (!event) {
-    notFound();
-  }
+export default async function EventPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const event: AnEvent = await fetch(
+    `http://localhost:2002/events/${params.id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookies().get("token")?.value}`,
+      },
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => res.data.event);
 
   const formattedEvent = {
-    eventName: event.name,
-    eventDate: event.date,
-    eventTime: event.time,
-    eventLocation: event.location,
-    eventDescription: event.description,
-    ticketTypes: event.ticketTypes.map(({ name, capacity }) => ({
-      name,
-      capacity,
-    })),
+    ...event,
+    date: event.date.toString(),
   };
 
   return (
-    <ContentLayout title={event.name}>
+    <ContentLayout title={event.title}>
       <div className="container mx-auto pb-10 w-fit">
         <Link href="/events">
           <Button variant="outline" className="mb-6">
@@ -105,11 +72,11 @@ export default function EventPage({ params }: { params: { slug: string } }) {
             Back to Events
           </Button>
         </Link>
-        <Card className="mb-6">
+        <Card className="mb-6 max-w-3xl min-w-[600px]">
           <CardHeader>
             <CardTitle className=" flex items-center justify-between">
               <div className="flex items-end gap-2">
-                <h1 className="~text-2xl/3xl">{event.name}</h1>
+                <h1 className="~text-2xl/3xl">{event.title}</h1>
                 <Badge variant="outline" className="mb-1">
                   Drafted
                 </Badge>
@@ -128,7 +95,11 @@ export default function EventPage({ params }: { params: { slug: string } }) {
                       Edit the event details.
                     </DialogDescription>
                     <EventForm
-                      initialData={formattedEvent}
+                      initialData={{
+                        ...formattedEvent,
+                        date: formattedEvent.date,
+                        artists: formattedEvent.artists.join(", "),
+                      }}
                       onSubmitFn={async () => {
                         "use server";
                         // TODO: Implement onSubmitFn
@@ -142,7 +113,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
               <div className="flex items-center mt-2">
                 <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="flex-grow">
-                  {event.date} at {event.time}
+                  {event.date.toString().split("T")[0]} at {event.time}
                 </span>
               </div>
               <div className="flex items-center mt-2">
@@ -156,7 +127,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
             <Separator className="my-4" />
             <h3 className="text-xl font-semibold mb-2">Ticket Types</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {event.ticketTypes.map((type, index) => (
+              {/* {event.ticketTypes.map((type, index) => (
                 <Card key={index}>
                   <CardHeader>
                     <CardTitle>{type.name}</CardTitle>
@@ -172,7 +143,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))} */}
             </div>
           </CardContent>
         </Card>
@@ -195,7 +166,7 @@ export default function EventPage({ params }: { params: { slug: string } }) {
                 </TableHeader>
                 <TableBody>
                   {/* TODO: The click on row should view a modal with the user info */}
-                  {event.ticketRequests.map((request) => (
+                  {/* {event.ticketRequests.map((request) => (
                     <TableRow key={request.id}>
                       <TableCell>{request.name}</TableCell>
                       <TableCell>{request.email}</TableCell>
@@ -236,14 +207,14 @@ export default function EventPage({ params }: { params: { slug: string } }) {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))} */}
                 </TableBody>
               </Table>
             </div>
           </CardContent>
           <CardFooter>
             <p className="text-sm text-muted-foreground">
-              Total requests: {event.ticketRequests.length}
+              {/* Total requests: {event.ticketRequests.length} */}
             </p>
           </CardFooter>
         </Card>
