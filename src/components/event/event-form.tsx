@@ -190,7 +190,10 @@ export function EventForm({
             type="button"
             className="w-full "
             variant="outline"
-            onClick={onDiscardFn}
+            onClick={() => {
+              onDiscardFn?.();
+              window.location.reload();
+            }}
           >
             Discard
           </Button>
