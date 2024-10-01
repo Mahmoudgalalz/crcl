@@ -1,4 +1,5 @@
 import { ContentLayout } from "@/components/content-layout";
+import { EventForm } from "@/components/event/event-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,7 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CalendarIcon, TicketIcon, ArrowRight } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CalendarIcon, TicketIcon, Plus } from "lucide-react";
 import Link from "next/link";
 const events = [
   {
@@ -156,14 +165,27 @@ export default function EventsPage() {
   return (
     <ContentLayout title="Events">
       <div className="container mx-auto ">
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold ">Upcoming Events</h1>
-          <Button size="lg" asChild className="~text-lg/xl">
-            <Link href="/events/create" className="flex items-center gap-2">
-              <span className="font-semibold">Create Event</span>
-              <ArrowRight size={25} />
-            </Link>
-          </Button>
+        <div className="flex justify-between items-center ">
+          <h1 className="~text-2xl/3xl font-bold ">Upcoming Events</h1>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="gap-x-2 items-center justify-center">
+                <span className="font-semibold">Create Event</span>
+                <Plus size={20} />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Event</DialogTitle>
+                <DialogDescription>Create a new event.</DialogDescription>
+              </DialogHeader>
+              <EventForm
+                onSubmitFn={async () => {
+                  "use server";
+                }}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       <div className="container mx-auto py-10">
