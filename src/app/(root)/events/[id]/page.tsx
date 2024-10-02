@@ -33,6 +33,8 @@ import { AnEvent } from "@/lib/types";
 import { cookies } from "next/headers";
 import { EventStatusBadge } from "@/components/status-badge";
 import Image from "next/image";
+import { TicketTypeForm } from "@/components/event/ticket-type-form";
+import { TicketTypeItem } from "@/components/event/ticket-type-item";
 
 export default async function EventPage({
   params,
@@ -172,28 +174,36 @@ export default async function EventPage({
                       Add a new ticket type.
                     </DialogDescription>
                   </DialogHeader>
+                  <TicketTypeForm
+                    onSubmitFn={async (formValues) => {
+                      "use server";
+                      const res = await fetch(
+                        `http://localhost:2002/events/${event.id}/tickets`,
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${
+                              cookies().get("token")?.value
+                            }`,
+                          },
+                          body: JSON.stringify({
+                            title: formValues.title,
+                            price: Number(formValues.price),
+                            capacity: Number(formValues.capacity),
+                            description: formValues.description,
+                          }),
+                        }
+                      ).then((res) => res.json());
+                      return res;
+                    }}
+                  />
                 </DialogContent>
               </Dialog>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
               {event.tickets.map((type, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle>{type.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex justify-between">
-                      <span>Capacity:</span>
-                      <span>{type.capacity}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Available:</span>
-                      <span>
-                        {type.capacity - (type.TicketPurchase?.length ?? 0)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <TicketTypeItem ticket={type} key={index} />
               ))}
             </div>
           </CardContent>
