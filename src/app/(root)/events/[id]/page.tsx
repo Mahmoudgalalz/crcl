@@ -4,19 +4,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  // TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   // CheckCircle,
@@ -25,6 +15,9 @@ import {
   Calendar,
   MapPin,
   Edit,
+  Mic2Icon,
+  Plus,
+  Users2,
 } from "lucide-react";
 import { ContentLayout } from "@/components/admin-layout";
 import {
@@ -38,8 +31,11 @@ import {
 import { EventForm } from "@/components/event/event-form";
 import { AnEvent } from "@/lib/types";
 import { cookies } from "next/headers";
+import { EventStatusBadge } from "@/components/status-badge";
+import Image from "next/image";
+import { TicketTypeForm } from "@/components/event/ticket-type-form";
+import { TicketTypeItem } from "@/components/event/ticket-type-item";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default async function EventPage({
   params,
 }: {
@@ -58,10 +54,15 @@ export default async function EventPage({
     .then((res) => res.json())
     .then((res) => res.data.event);
 
-  const formattedEvent = {
-    ...event,
-    date: event.date.toString(),
-  };
+  const image = event.image?.includes("https://127.0.0.1")
+    ? event.image.replace("https://", "http://")
+    : "/placeholder.jpg";
+
+  console.log(event.image);
+
+  const remainingEventCapacity =
+    event.capacity -
+    event.tickets.reduce((acc, ticket) => acc + ticket.capacity, 0);
 
   return (
     <ContentLayout title={event.title}>
@@ -72,14 +73,19 @@ export default async function EventPage({
             Back to Events
           </Button>
         </Link>
-        <Card className="mb-6 max-w-3xl min-w-[600px]">
+        <Card className="mb-6 max-w-3xl min-w-[800px]">
           <CardHeader>
+            <Image
+              src={image!}
+              alt={event.title}
+              width={600}
+              height={400}
+              className="rounded-md h-48 w-full object-cover mb-2"
+            />
             <CardTitle className=" flex items-center justify-between">
-              <div className="flex items-end gap-2">
+              <div className="flex items-center gap-2">
                 <h1 className="~text-2xl/3xl">{event.title}</h1>
-                <Badge variant="outline" className="mb-1">
-                  Drafted
-                </Badge>
+                <EventStatusBadge status={event.status} />
               </div>
               <Dialog>
                 <DialogTrigger asChild>
@@ -88,21 +94,45 @@ export default async function EventPage({
                     <span className="font-semibold">Edit Event</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-3xl">
                   <DialogHeader>
                     <DialogTitle>Edit Event</DialogTitle>
                     <DialogDescription>
                       Edit the event details.
                     </DialogDescription>
                     <EventForm
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      //@ts-expect-error
                       initialData={{
-                        ...formattedEvent,
-                        date: formattedEvent.date,
-                        artists: formattedEvent.artists.join(", "),
+                        ...event,
+                        artists: event.artists.join(", "),
                       }}
-                      onSubmitFn={async () => {
+                      onSubmitFn={async (formValues) => {
                         "use server";
-                        // TODO: Implement onSubmitFn
+                        console.log(
+                          JSON.stringify({
+                            ...formValues,
+                            image: formValues.image ?? event.image,
+                          })
+                        );
+                        const res = await fetch(
+                          `http://localhost:2002/events/${params.id}`,
+                          {
+                            method: "PUT",
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${
+                                cookies().get("token")?.value
+                              }`,
+                            },
+                            body: JSON.stringify({
+                              ...formValues,
+                              image: formValues.image ?? event.image,
+                            }),
+                          }
+                        ).then((res) => res.json());
+
+                        return res;
                       }}
                     />
                   </DialogHeader>
@@ -110,6 +140,10 @@ export default async function EventPage({
               </Dialog>
             </CardTitle>
             <CardDescription className="text-zinc-800">
+              <div className="flex items-center mt-2">
+                <Mic2Icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="flex-grow">{event.artists.join(", ")}</span>
+              </div>
               <div className="flex items-center mt-2">
                 <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="flex-grow">
@@ -120,103 +154,68 @@ export default async function EventPage({
                 <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="flex-grow">{event.location}</span>
               </div>
+              <div className="flex items-center mt-2">
+                <Users2 className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="flex-grow">{event.capacity} Capacity</span>
+              </div>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">{event.description}</p>
             <Separator className="my-4" />
-            <h3 className="text-xl font-semibold mb-2">Ticket Types</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* {event.ticketTypes.map((type, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle>{type.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex justify-between">
-                      <span>Capacity:</span>
-                      <span>{type.capacity}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Available:</span>
-                      <span>{type.available}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))} */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold mb-2">Ticket Types</h3>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="p-2">
+                    <Plus size={20} />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Ticket Type</DialogTitle>
+                    <DialogDescription>
+                      Add a new ticket type.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <TicketTypeForm
+                    remainingEventCapacity={remainingEventCapacity}
+                    onSubmitFn={async (formValues) => {
+                      "use server";
+                      const res = await fetch(
+                        `http://localhost:2002/events/${event.id}/tickets`,
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${
+                              cookies().get("token")?.value
+                            }`,
+                          },
+                          body: JSON.stringify({
+                            title: formValues.title,
+                            price: Number(formValues.price),
+                            capacity: Number(formValues.capacity),
+                            description: formValues.description,
+                          }),
+                        }
+                      ).then((res) => res.json());
+                      return res;
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+              {event.tickets.map((type, index) => (
+                <TicketTypeItem
+                  ticket={type}
+                  key={index}
+                  remainingEventCapacity={remainingEventCapacity}
+                />
+              ))}
             </div>
           </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Ticket Requests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {/* TODO: The click on row should view a modal with the user info */}
-                  {/* {event.ticketRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.name}</TableCell>
-                      <TableCell>{request.email}</TableCell>
-                      <TableCell>{request.type}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            request.status === "approved"
-                              ? "secondary"
-                              : request.status === "denied"
-                              ? "destructive"
-                              : "default"
-                          }
-                        >
-                          {request.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-24"
-                            disabled={request.status !== "pending"}
-                          >
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-24"
-                            disabled={request.status !== "pending"}
-                          >
-                            <XCircle className="mr-2 h-4 w-4" />
-                            Deny
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))} */}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <p className="text-sm text-muted-foreground">
-              {/* Total requests: {event.ticketRequests.length} */}
-            </p>
-          </CardFooter>
         </Card>
       </div>
     </ContentLayout>
