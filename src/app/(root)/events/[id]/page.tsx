@@ -60,6 +60,10 @@ export default async function EventPage({
 
   console.log(event.image);
 
+  const remainingEventCapacity =
+    event.capacity -
+    event.tickets.reduce((acc, ticket) => acc + ticket.capacity, 0);
+
   return (
     <ContentLayout title={event.title}>
       <div className="container mx-auto pb-10 w-fit">
@@ -175,6 +179,7 @@ export default async function EventPage({
                     </DialogDescription>
                   </DialogHeader>
                   <TicketTypeForm
+                    remainingEventCapacity={remainingEventCapacity}
                     onSubmitFn={async (formValues) => {
                       "use server";
                       const res = await fetch(
@@ -203,7 +208,11 @@ export default async function EventPage({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
               {event.tickets.map((type, index) => (
-                <TicketTypeItem ticket={type} key={index} />
+                <TicketTypeItem
+                  ticket={type}
+                  key={index}
+                  remainingEventCapacity={remainingEventCapacity}
+                />
               ))}
             </div>
           </CardContent>
