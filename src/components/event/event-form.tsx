@@ -21,16 +21,24 @@ import { ImageUpload } from "../image-upload";
 import { ImageFile } from "@/lib/types";
 import { uploadImage } from "@/lib/api/upload-image";
 import { useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const formSchema = z.object({
   title: z.string().min(2).max(50),
-  date: z.string().min(2).max(50).date(),
+  date: z.string().min(2).max(50),
   time: z.string().min(2).max(50),
   location: z.string().min(2).max(50),
   description: z.string().min(2).max(50),
   image: z.string().optional(),
   capacity: z.number().min(1),
   artists: z.string().min(2).max(50),
+  status: z.enum(["DRAFTED", "PUBLISHED", "ENDED", "CANCELLED", "DELETED"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,15 +57,20 @@ export function EventForm({
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      title: "",
-      date: "",
-      time: "",
-      location: "",
-      description: "",
-      capacity: 1,
-      artists: "",
-    },
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          date: new Date(initialData.date).toISOString().split("T")[0],
+        }
+      : {
+          title: "",
+          date: "",
+          time: "",
+          location: "",
+          description: "",
+          capacity: 1,
+          artists: "",
+        },
   });
 
   const [image, setImage] = useState<ImageFile[]>([]);
@@ -74,7 +87,8 @@ export function EventForm({
 
     const data = {
       ...values,
-      date: new Date(values.date).toISOString(),
+      capacity: parseInt(values.capacity.toString()),
+      date: initialData ? new Date(values.date).toISOString() : values.date,
       artists: values.artists.split(",").map((artist) => artist.trim()),
     };
 
@@ -86,7 +100,11 @@ export function EventForm({
         title: "Event created successfully",
         description: "New event has been created successfully",
       });
-      router.push("/events");
+      if (initialData) {
+        window.location.reload();
+      } else {
+        router.push("/events");
+      }
     });
   }
   return (
@@ -114,13 +132,82 @@ export function EventForm({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="artists"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Artists</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter artist names, separated by commas"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-col md:flex-row gap-4 w-full">
+            <FormField
+              control={form.control}
+              name="capacity"
+              render={({ field }) => (
+                <FormItem className="flex-1 w-full">
+                  <FormLabel>Capacity</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        field.onChange(isNaN(value) ? 1 : value); // Ensure a number is passed
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem className=" flex-1 w-full">
+                  <FormLabel>Status</FormLabel>
+
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="DRAFTED">Drafted</SelectItem>
+                      {/* TODO: Disable published if the event don't have tickets */}
+                      <SelectItem value="PUBLISHED">Published</SelectItem>
+                      <SelectItem value="ENDED">Ended</SelectItem>
+                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                      <SelectItem value="DELETED">Deleted</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <div className="flex flex-col md:flex-row gap-4 w-full">
             <FormField
               control={form.control}
               name="date"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Event Date</FormLabel>
+                  <FormLabel> Date</FormLabel>
                   <FormControl>
                     <Input {...field} type="date" />
                   </FormControl>
@@ -133,7 +220,7 @@ export function EventForm({
               name="time"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Event Time</FormLabel>
+                  <FormLabel> Time</FormLabel>
                   <FormControl>
                     <Input {...field} type="time" />
                   </FormControl>
@@ -147,7 +234,7 @@ export function EventForm({
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Event Location</FormLabel>
+                <FormLabel> Location</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -160,25 +247,9 @@ export function EventForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Event Description</FormLabel>
+                <FormLabel> Description</FormLabel>
                 <FormControl>
                   <Textarea {...field} className="h-32" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="artists"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Artists</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Enter artist names, separated by commas"
-                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
