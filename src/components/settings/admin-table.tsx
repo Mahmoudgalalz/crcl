@@ -93,6 +93,7 @@ export function AdminsTable({ admins }: { admins: SuperUser[] }) {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleRevokeAccess(admin.id)}
+                    disabled={admin.name === "root"}
                   >
                     <UserX className="mr-2 h-4 w-4" />
                     Revoke Access
