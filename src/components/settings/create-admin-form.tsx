@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { createAdmin } from "@/lib/api/admins";
+import { SuperUser } from "@/lib/types";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
@@ -24,9 +26,14 @@ export function CreateAdminForm() {
   });
 
   async function onSubmit(data: FormValues) {
-    toast({
-      title: "Success",
-      description: "Admin created successfully",
+    await createAdmin(data as SuperUser).then((res) => {
+      console.log(res);
+      toast({
+        title: "Success",
+        description: "Admin created successfully",
+      });
+      // form.reset();
+      window.location.reload();
     });
   }
   return (
