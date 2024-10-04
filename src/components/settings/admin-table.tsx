@@ -20,17 +20,18 @@ import {
   TableCell,
   Table,
 } from "../ui/table";
+import { deleteAdmin } from "@/lib/api/admins";
+import { SuperUser } from "@/lib/types";
 
-export function AdminsTable({
-  admins,
-}: {
-  admins: {
-    id: string;
-    name: string;
-    email: string;
-  }[];
-}) {
-  console.log(admins);
+export function AdminsTable({ admins }: { admins: SuperUser[] }) {
+  const handleRevokeAccess = async (id: string) => {
+    console.log("Revoke access to admin with id: ", id);
+    console.log(admins);
+    await deleteAdmin(id).then(() => {
+      window.location.reload();
+    });
+  };
+
   return (
     <CardContent>
       <Table>
@@ -91,7 +92,7 @@ export function AdminsTable({
                   <Button
                     variant="destructive"
                     size="sm"
-                    // onClick={() => handleRevokeAccess(admin.id)}
+                    onClick={() => handleRevokeAccess(admin.id)}
                   >
                     <UserX className="mr-2 h-4 w-4" />
                     Revoke Access
