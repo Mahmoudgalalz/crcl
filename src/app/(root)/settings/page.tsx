@@ -9,9 +9,10 @@ import {
 import { CreateAdminForm } from "@/components/settings/create-admin-form";
 import { cookies } from "next/headers";
 import { AdminsTable } from "@/components/settings/admin-table";
+import { SuperUser } from "@/lib/types";
 
 export default async function SettingsPage() {
-  const admins = await fetch("http://localhost:2002/admin", {
+  const admins: SuperUser[] = await fetch("http://localhost:2002/admin", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

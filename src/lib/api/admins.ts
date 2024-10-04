@@ -13,3 +13,16 @@ export async function createAdmin(admin: SuperUser) {
     };
   }
 }
+
+export async function deleteAdmin(id: string) {
+  try {
+    const response = await axiosInstance.delete<SuperUser>(`/admin/${id}`);
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+    return {} as unknown as {
+      event: SuperUser;
+    };
+  }
+}
