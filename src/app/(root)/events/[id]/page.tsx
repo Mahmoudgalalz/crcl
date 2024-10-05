@@ -175,6 +175,9 @@ export default function EventPage({ params }: { params: { id: string } }) {
                       refetch();
                       setAddTicketTypeDialogOpen(false);
                     }}
+                    onDiscardFn={() => {
+                      setAddTicketTypeDialogOpen(false);
+                    }}
                   />
                 </DialogContent>
               </Dialog>

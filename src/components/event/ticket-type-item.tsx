@@ -70,6 +70,9 @@ export function TicketTypeItem({
             setDialogOpen(false);
           }}
           initialData={displayTicket}
+          onDiscardFn={() => {
+            setDialogOpen(false);
+          }}
         />
       </DialogContent>
     </Dialog>

@@ -40,6 +40,7 @@ export function TicketTypeForm({
     price: z.number(),
     capacity: z
       .number()
+      .min(1)
       .max(
         initialData?.capacity !== undefined
           ? initialData.capacity + remainingEventCapacity
@@ -70,7 +71,7 @@ export function TicketTypeForm({
           : "New ticket has been created successfully",
       });
     });
-  } //TODO: Cap the capacity of tickets by the remaining of the event capacity
+  }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-4">

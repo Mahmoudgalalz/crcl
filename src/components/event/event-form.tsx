@@ -92,18 +92,19 @@ export function EventForm({
       artists: values.artists.split(",").map((artist) => artist.trim()),
     };
 
-    console.log(data);
-
     await onSubmitFn({
       ...data,
       date: new Date(data.date),
     } as unknown as FormValues & {
       artists: string[];
-    }).then((res) => {
-      console.log(res);
+    }).then(() => {
       toast({
-        title: "Event created successfully",
-        description: "New event has been created successfully",
+        title: initialData
+          ? "Event updated successfully"
+          : "Event created successfully",
+        description: initialData
+          ? ""
+          : "New event has been created successfully",
       });
       if (!initialData) {
         router.push("/events");
