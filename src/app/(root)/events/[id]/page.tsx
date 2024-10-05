@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,8 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  // CheckCircle,
-  // XCircle,
   ArrowLeft,
   Calendar,
   MapPin,
@@ -29,40 +28,36 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { EventForm } from "@/components/event/event-form";
-import { AnEvent } from "@/lib/types";
-import { cookies } from "next/headers";
 import { EventStatusBadge } from "@/components/status-badge";
 import Image from "next/image";
 import { TicketTypeForm } from "@/components/event/ticket-type-form";
 import { TicketTypeItem } from "@/components/event/ticket-type-item";
+import { useQuery } from "@tanstack/react-query";
+import { createTicketType, getEvent, updateEvent } from "@/lib/api/events";
+import { AnEvent, Ticket } from "@/lib/types";
+import { useState } from "react";
 
-export default async function EventPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const event: AnEvent = await fetch(
-    `http://localhost:2002/events/${params.id}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${cookies().get("token")?.value}`,
-      },
-    }
-  )
-    .then((res) => res.json())
-    .then((res) => res.data.event);
+export default function EventPage({ params }: { params: { id: string } }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { data: event, refetch } = useQuery({
+    queryKey: ["event", params.id],
+    queryFn: () => getEvent(params.id),
+    select: (data) => data.event,
+  });
 
-  const image = event.image?.includes("https://127.0.0.1")
-    ? event.image.replace("https://", "http://")
+  const image = event?.image?.includes("https://127.0.0.1")
+    ? event?.image?.replace("https://", "http://")
     : "/placeholder.jpg";
 
-  console.log(event.image);
-
   const remainingEventCapacity =
+    event?.capacity &&
+    event?.tickets &&
     event.capacity -
-    event.tickets.reduce((acc, ticket) => acc + ticket.capacity, 0);
+      event.tickets.reduce((acc, ticket) => acc + ticket.capacity, 0);
+
+  if (!event) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ContentLayout title={event.title}>
@@ -76,7 +71,7 @@ export default async function EventPage({
         <Card className="mb-6 max-w-3xl min-w-[800px]">
           <CardHeader>
             <Image
-              src={image!}
+              src={image}
               alt={event.title}
               width={600}
               height={400}
@@ -87,7 +82,7 @@ export default async function EventPage({
                 <h1 className="~text-2xl/3xl">{event.title}</h1>
                 <EventStatusBadge status={event.status} />
               </div>
-              <Dialog>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="gap-2">
                     <Edit size={20} />
@@ -107,32 +102,19 @@ export default async function EventPage({
                         ...event,
                         artists: event.artists.join(", "),
                       }}
-                      onSubmitFn={async (formValues) => {
-                        "use server";
-                        console.log(
-                          JSON.stringify({
-                            ...formValues,
-                            image: formValues.image ?? event.image,
-                          })
-                        );
-                        const res = await fetch(
-                          `http://localhost:2002/events/${params.id}`,
+                      onSubmitFn={async (data) => {
+                        await updateEvent(
                           {
-                            method: "PUT",
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${
-                                cookies().get("token")?.value
-                              }`,
-                            },
-                            body: JSON.stringify({
-                              ...formValues,
-                              image: formValues.image ?? event.image,
-                            }),
-                          }
-                        ).then((res) => res.json());
-
-                        return res;
+                            ...data,
+                            createdBy: "root",
+                          } as unknown as AnEvent,
+                          event.id
+                        );
+                        refetch();
+                        setDialogOpen(false);
+                      }}
+                      onDiscardFn={() => {
+                        setDialogOpen(false);
                       }}
                     />
                   </DialogHeader>
@@ -179,29 +161,10 @@ export default async function EventPage({
                     </DialogDescription>
                   </DialogHeader>
                   <TicketTypeForm
-                    remainingEventCapacity={remainingEventCapacity}
-                    onSubmitFn={async (formValues) => {
-                      "use server";
-                      const res = await fetch(
-                        `http://localhost:2002/events/${event.id}/tickets`,
-                        {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${
-                              cookies().get("token")?.value
-                            }`,
-                          },
-                          body: JSON.stringify({
-                            title: formValues.title,
-                            price: Number(formValues.price),
-                            capacity: Number(formValues.capacity),
-                            description: formValues.description,
-                          }),
-                        }
-                      ).then((res) => res.json());
-                      return res;
-                    }}
+                    remainingEventCapacity={remainingEventCapacity!}
+                    onSubmitFn={(ticket, ticketId) =>
+                      createTicketType(ticket as Ticket, event.id)
+                    }
                   />
                 </DialogContent>
               </Dialog>
@@ -211,7 +174,7 @@ export default async function EventPage({
                 <TicketTypeItem
                   ticket={type}
                   key={index}
-                  remainingEventCapacity={remainingEventCapacity}
+                  remainingEventCapacity={remainingEventCapacity!}
                 />
               ))}
             </div>

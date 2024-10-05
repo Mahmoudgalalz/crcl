@@ -1,3 +1,4 @@
+"use client";
 import { ContentLayout } from "@/components/content-layout";
 import { EventForm } from "@/components/event/event-form";
 import { Button } from "@/components/ui/button";
@@ -11,23 +12,25 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { EventsGrid } from "@/components/event/events-grid";
-import { cookies } from "next/headers";
+import { useQuery } from "@tanstack/react-query";
+import { createEvent, getEvents } from "@/lib/api/events";
+import { AnEvent } from "@/lib/types";
+import { useState } from "react";
 
-export default async function EventsPage() {
-  const data = await fetch("http:localhost:2002/events", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies().get("token")?.value}`,
-    },
-  }).then((res) => res.json());
+export default function EventsPage() {
+  const [dialogOpen, setDialogOpen] = useState(false);
 
+  const { data: eventsData, refetch } = useQuery({
+    queryKey: ["events"],
+    queryFn: getEvents,
+    refetchOnWindowFocus: true,
+  });
   return (
     <ContentLayout title="Events">
       <div className="container mx-auto ">
         <div className="flex justify-between items-center ">
           <h1 className="~text-2xl/3xl font-bold ">Upcoming Events</h1>
-          <Dialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-x-2 items-center justify-center">
                 <span className="font-semibold">Create Event</span>
@@ -40,27 +43,16 @@ export default async function EventsPage() {
                 <DialogDescription>Create a new event.</DialogDescription>
               </DialogHeader>
               <EventForm
-                onSubmitFn={async (formValues) => {
-                  "use server";
-                  await fetch("http://localhost:2002/events", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${cookies().get("token")?.value}`,
-                    },
-                    body: JSON.stringify({
-                      title: formValues.title,
-                      description: formValues.description,
-                      location: formValues.location,
-                      date: formValues.date,
-                      time: formValues.time,
-                      status: "DRAFTED",
-                      capacity: formValues.capacity,
-                      artists: formValues.artists,
-                      createdBy: "John Doe",
-                      image: formValues.image,
-                    }),
-                  });
+                onSubmitFn={async (data) => {
+                  await createEvent({
+                    ...data,
+                    createdBy: "root",
+                  } as unknown as AnEvent);
+                  refetch();
+                  setDialogOpen(false);
+                }}
+                onDiscardFn={() => {
+                  setDialogOpen(false);
                 }}
               />
             </DialogContent>
@@ -68,7 +60,7 @@ export default async function EventsPage() {
         </div>
       </div>
 
-      <EventsGrid events={data.events} />
+      <EventsGrid events={eventsData?.events} />
     </ContentLayout>
   );
 }

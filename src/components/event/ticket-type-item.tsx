@@ -1,5 +1,6 @@
+"use client";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { AnEvent } from "@/lib/types";
+import { Ticket } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -9,13 +10,13 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { TicketTypeForm } from "./ticket-type-form";
-import { cookies } from "next/headers";
+import { updateTicketType } from "@/lib/api/events";
 
 export function TicketTypeItem({
   ticket,
   remainingEventCapacity,
 }: {
-  ticket: AnEvent["tickets"][0];
+  ticket: Ticket;
   remainingEventCapacity: number;
 }) {
   return (
@@ -44,23 +45,9 @@ export function TicketTypeItem({
         </DialogHeader>
         <TicketTypeForm
           remainingEventCapacity={remainingEventCapacity}
-          onSubmitFn={async (data) => {
-            "use server";
-            const res = await fetch(
-              `http://localhost:2002/events/tickets/${ticket.id}`,
-              {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${cookies().get("token")?.value}`,
-                },
-                body: JSON.stringify({
-                  ...data,
-                }),
-              }
-            ).then((res) => res.json());
-
-            return res;
+          onSubmitFn={async (formValues) => {
+            await updateTicketType(formValues as unknown as Ticket, ticket.id);
+            console.log(ticket);
           }}
           initialData={ticket}
         />

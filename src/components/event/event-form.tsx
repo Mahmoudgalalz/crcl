@@ -94,15 +94,18 @@ export function EventForm({
 
     console.log(data);
 
-    await onSubmitFn(data as FormValues & { artists: string[] }).then((res) => {
+    await onSubmitFn({
+      ...data,
+      date: new Date(data.date),
+    } as unknown as FormValues & {
+      artists: string[];
+    }).then((res) => {
       console.log(res);
       toast({
         title: "Event created successfully",
         description: "New event has been created successfully",
       });
-      if (initialData) {
-        window.location.reload();
-      } else {
+      if (!initialData) {
         router.push("/events");
       }
     });
@@ -263,7 +266,6 @@ export function EventForm({
             variant="outline"
             onClick={() => {
               onDiscardFn?.();
-              window.location.reload();
             }}
           >
             Discard
