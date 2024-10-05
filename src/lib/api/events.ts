@@ -79,12 +79,14 @@ export async function updateEvent(event: AnEvent, eventId: string) {
 }
 
 export async function createTicketType(ticket: Ticket, eventId: string) {
+  const { id, ...ticketData } = ticket;
   try {
     const response = await axiosInstance.post(
       `/events/${eventId}/tickets`,
-      ticket
+      ticketData
     );
     const data = response.data;
+    console.log(response);
     return data;
   } catch (error) {
     console.error(error);
@@ -94,15 +96,15 @@ export async function createTicketType(ticket: Ticket, eventId: string) {
   }
 }
 
-export async function updateTicketType(ticket: Ticket, ticketId: string) {
-  console.log(ticket.id);
+export async function updateTicketType(ticket: Ticket) {
+  console.log(ticket);
   try {
-    const response = await axiosInstance.post(
-      `/events/tickets/${ticketId}`,
+    const response = await axiosInstance.put(
+      `/events/tickets/${ticket.id}`,
       ticket
     );
     const data = response.data;
-    return data;
+    return data.data;
   } catch (error) {
     console.error(error);
     return {} as unknown as {

@@ -38,7 +38,9 @@ import { AnEvent, Ticket } from "@/lib/types";
 import { useState } from "react";
 
 export default function EventPage({ params }: { params: { id: string } }) {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
+  const [addTicketTypeDialogOpen, setAddTicketTypeDialogOpen] = useState(false);
+
   const { data: event, refetch } = useQuery({
     queryKey: ["event", params.id],
     queryFn: () => getEvent(params.id),
@@ -82,7 +84,10 @@ export default function EventPage({ params }: { params: { id: string } }) {
                 <h1 className="~text-2xl/3xl">{event.title}</h1>
                 <EventStatusBadge status={event.status} />
               </div>
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <Dialog
+                open={editEventDialogOpen}
+                onOpenChange={setEditEventDialogOpen}
+              >
                 <DialogTrigger asChild>
                   <Button className="gap-2">
                     <Edit size={20} />
@@ -111,10 +116,10 @@ export default function EventPage({ params }: { params: { id: string } }) {
                           event.id
                         );
                         refetch();
-                        setDialogOpen(false);
+                        setEditEventDialogOpen(false);
                       }}
                       onDiscardFn={() => {
-                        setDialogOpen(false);
+                        setEditEventDialogOpen(false);
                       }}
                     />
                   </DialogHeader>
@@ -147,7 +152,10 @@ export default function EventPage({ params }: { params: { id: string } }) {
             <Separator className="my-4" />
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold mb-2">Ticket Types</h3>
-              <Dialog>
+              <Dialog
+                open={addTicketTypeDialogOpen}
+                onOpenChange={setAddTicketTypeDialogOpen}
+              >
                 <DialogTrigger asChild>
                   <Button variant="outline" className="p-2">
                     <Plus size={20} />
@@ -162,9 +170,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
                   </DialogHeader>
                   <TicketTypeForm
                     remainingEventCapacity={remainingEventCapacity!}
-                    onSubmitFn={(ticket, ticketId) =>
-                      createTicketType(ticket as Ticket, event.id)
-                    }
+                    onSubmitFn={async (ticket) => {
+                      await createTicketType(ticket as Ticket, event.id);
+                      refetch();
+                      setAddTicketTypeDialogOpen(false);
+                    }}
                   />
                 </DialogContent>
               </Dialog>

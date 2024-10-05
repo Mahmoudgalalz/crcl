@@ -11,6 +11,8 @@ import {
 } from "../ui/dialog";
 import { TicketTypeForm } from "./ticket-type-form";
 import { updateTicketType } from "@/lib/api/events";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 
 export function TicketTypeItem({
   ticket,
@@ -19,21 +21,36 @@ export function TicketTypeItem({
   ticket: Ticket;
   remainingEventCapacity: number;
 }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { mutate, data: updatedTicket } = useMutation({
+    mutationKey: ["ticket", ticket.id],
+    mutationFn: (formValues: Partial<Ticket>) =>
+      updateTicketType({
+        ...formValues,
+        id: ticket.id,
+      } as Ticket),
+    onSuccess: (updatedTicket) => {
+      return updatedTicket;
+    },
+  });
+
+  const displayTicket = updatedTicket || ticket;
+
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger>
         <Card className="hover:shadow-lg transition-all">
           <CardHeader>
-            <CardTitle>{ticket.title}</CardTitle>
+            <CardTitle>{displayTicket.title}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between">
               <span>Price:</span>
-              <span>{ticket.price}</span>
+              <span>{displayTicket.price}</span>
             </div>
             <div className="flex justify-between">
               <span>Capacity:</span>
-              <span>{ticket.capacity}</span>
+              <span>{displayTicket.capacity}</span>
             </div>
           </CardContent>
         </Card>
@@ -46,10 +63,13 @@ export function TicketTypeItem({
         <TicketTypeForm
           remainingEventCapacity={remainingEventCapacity}
           onSubmitFn={async (formValues) => {
-            await updateTicketType(formValues as unknown as Ticket, ticket.id);
-            console.log(ticket);
+            console.log(formValues);
+            if (formValues.id) {
+              mutate(formValues as Partial<Ticket>);
+            }
+            setDialogOpen(false);
           }}
-          initialData={ticket}
+          initialData={displayTicket}
         />
       </DialogContent>
     </Dialog>
