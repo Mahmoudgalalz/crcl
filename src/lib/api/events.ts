@@ -79,6 +79,7 @@ export async function updateEvent(event: AnEvent, eventId: string) {
 }
 
 export async function createTicketType(ticket: Ticket, eventId: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, ...ticketData } = ticket;
   try {
     const response = await axiosInstance.post(
