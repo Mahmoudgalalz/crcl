@@ -47,10 +47,12 @@ export function EventForm({
   initialData,
   onSubmitFn,
   onDiscardFn,
+  isThereTicketTypes,
 }: {
   initialData?: FormValues;
   onSubmitFn: (data: FormValues & { artists: string[] }) => Promise<unknown>;
   onDiscardFn?: () => void;
+  isThereTicketTypes: boolean;
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -152,7 +154,7 @@ export function EventForm({
               </FormItem>
             )}
           />
-          <div className="flex flex-col md:flex-row gap-4 w-full">
+          <div className="flex flex-col md:flex-row gap-4 w-full items-center">
             <FormField
               control={form.control}
               name="capacity"
@@ -165,7 +167,7 @@ export function EventForm({
                       type="number"
                       onChange={(e) => {
                         const value = parseInt(e.target.value);
-                        field.onChange(isNaN(value) ? 1 : value); // Ensure a number is passed
+                        field.onChange(isNaN(value) ? 1 : value);
                       }}
                     />
                   </FormControl>
@@ -181,7 +183,7 @@ export function EventForm({
                   <FormLabel>Status</FormLabel>
 
                   <Select
-                    defaultValue={field.value}
+                    defaultValue={initialData ? field.value : "DRAFTED"}
                     onValueChange={field.onChange}
                   >
                     <FormControl>
@@ -189,13 +191,44 @@ export function EventForm({
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="h-full">
                       <SelectItem value="DRAFTED">Drafted</SelectItem>
-                      {/* TODO: Disable published if the event don't have tickets */}
-                      <SelectItem value="PUBLISHED">Published</SelectItem>
-                      <SelectItem value="ENDED">Ended</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                      <SelectItem value="DELETED">Deleted</SelectItem>
+                      <SelectItem
+                        value="PUBLISHED"
+                        disabled={
+                          initialData
+                            ? isThereTicketTypes
+                              ? false
+                              : true
+                            : true
+                        }
+                      >
+                        Published
+                      </SelectItem>
+                      <SelectItem
+                        value="ENDED"
+                        disabled={
+                          initialData
+                            ? isThereTicketTypes
+                              ? false
+                              : true
+                            : true
+                        }
+                      >
+                        Ended
+                      </SelectItem>
+                      <SelectItem
+                        value="CANCELLED"
+                        disabled={initialData ? false : true}
+                      >
+                        Cancelled
+                      </SelectItem>
+                      <SelectItem
+                        value="DELETED"
+                        disabled={initialData ? false : true}
+                      >
+                        Deleted
+                      </SelectItem>
                     </SelectContent>
                   </Select>
 

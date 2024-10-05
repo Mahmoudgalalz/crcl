@@ -121,6 +121,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                       onDiscardFn={() => {
                         setEditEventDialogOpen(false);
                       }}
+                      isThereTicketTypes={event.tickets.length > 0}
                     />
                   </DialogHeader>
                 </DialogContent>
