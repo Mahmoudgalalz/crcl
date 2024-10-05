@@ -1,20 +1,19 @@
 import { isAxiosError } from "axios";
 import { loginServer, logoutServer } from "../actions";
 import { axiosInstance } from "./instance";
-import { ApiSuccessResponse } from "@/lib/types";
 
 export async function login(email: string, password: string) {
   try {
-    const res = await axiosInstance.post<
-      ApiSuccessResponse<{ access_token: string }>
-    >("/auth/admin/login", {
+    const res = await axiosInstance.post("/auth/admin/login", {
       email,
       password,
     });
 
-    if (res.data.status === "success") {
-      loginServer(res.data.data.access_token);
-      localStorage.setItem("token", res.data.data.access_token);
+    console.log(res.data);
+
+    if (res.status === 200) {
+      loginServer(res.data.access_token);
+      localStorage.setItem("token", res.data.access_token);
       return true;
     } else {
       throw new Error("Login failed");
