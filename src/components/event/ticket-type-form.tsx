@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 type InitialData = {
-  id: string;
+  id: string | null;
   title: string;
   description: string;
   price: number;
@@ -30,7 +30,7 @@ export function TicketTypeForm({
   remainingEventCapacity,
 }: {
   initialData?: Partial<InitialData>;
-  onSubmitFn: (ticket: InitialData, ticketId: string) => Promise<unknown>;
+  onSubmitFn: (ticket: InitialData) => Promise<unknown>;
   onDiscardFn?: () => void;
   remainingEventCapacity: number;
 }) {
@@ -57,19 +57,20 @@ export function TicketTypeForm({
 
   async function onSubmit(data: FormValues) {
     const ticketData: InitialData = {
-      id: initialData?.id || "",
+      id: initialData?.id ?? null,
       ...data,
     };
-    await onSubmitFn(ticketData, initialData?.id || "").then((res) => {
-      console.log(res);
+    await onSubmitFn(ticketData).then(() => {
       toast({
-        title: "Ticket created successfully",
-        description: "New ticket has been created successfully",
+        title: initialData
+          ? "Ticket updated successfully"
+          : "Ticket created successfully",
+        description: initialData
+          ? ""
+          : "New ticket has been created successfully",
       });
     });
-  }
-  //TODO: Cap the capacity of tickets by the remaining of the event capacity
-
+  } //TODO: Cap the capacity of tickets by the remaining of the event capacity
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-4">
