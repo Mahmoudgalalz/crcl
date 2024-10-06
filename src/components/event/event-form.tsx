@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { ImageUpload } from "../image-upload";
 import { ImageFile } from "@/lib/types";
@@ -57,6 +57,7 @@ export function EventForm({
   const { toast } = useToast();
   const router = useRouter();
 
+  console.log("init data", initialData);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData
@@ -76,6 +77,7 @@ export function EventForm({
   });
 
   const [image, setImage] = useState<ImageFile[]>([]);
+
   async function onSubmit(values: FormValues) {
     if (image.length > 0) {
       try {
@@ -113,6 +115,15 @@ export function EventForm({
       }
     });
   }
+
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    setIsDirty(form.formState.isDirty);
+    console.log(isDirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.watch()]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -304,7 +315,11 @@ export function EventForm({
           >
             Discard
           </Button>
-          <Button type="submit" className="w-full font-semibold ">
+          <Button
+            type="submit"
+            className="w-full font-semibold"
+            disabled={!isDirty}
+          >
             {initialData ? "Update" : "Create"} Event
           </Button>
         </CardFooter>
