@@ -3,20 +3,13 @@ import { AnEvent, ApiSuccessResponse, Ticket } from "../types";
 import { axiosInstance } from "./instance";
 
 export async function getEvents() {
-  const token =
-    typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
-  console.log(token);
   try {
     const response = await axiosInstance.get<
       ApiSuccessResponse<{
         events: AnEvent[];
         total: number;
       }>
-    >("/events", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    >("/events");
     const data: {
       events: AnEvent[];
       total: number;

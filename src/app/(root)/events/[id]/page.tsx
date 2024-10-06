@@ -32,14 +32,16 @@ import { EventStatusBadge } from "@/components/status-badge";
 import Image from "next/image";
 import { TicketTypeForm } from "@/components/event/ticket-type-form";
 import { TicketTypeItem } from "@/components/event/ticket-type-item";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTicketType, getEvent, updateEvent } from "@/lib/api/events";
-import { AnEvent, Ticket } from "@/lib/types";
+import { AnEvent, EventStatus, Ticket } from "@/lib/types";
 import { useState } from "react";
 
 export default function EventPage({ params }: { params: { id: string } }) {
   const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
   const [addTicketTypeDialogOpen, setAddTicketTypeDialogOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const { data: event, refetch } = useQuery({
     queryKey: ["event", params.id],
@@ -57,12 +59,39 @@ export default function EventPage({ params }: { params: { id: string } }) {
     event.capacity -
       event.tickets.reduce((acc, ticket) => acc + ticket.capacity, 0);
 
-  if (!event) {
-    return <div>Loading...</div>;
-  }
+  const { mutate: mutateEvent } = useMutation({
+    mutationKey: ["event", params.id],
+    mutationFn: async (formValues: Partial<AnEvent>) => {
+      try {
+        return await updateEvent(
+          {
+            ...formValues,
+            createdBy: "root",
+          } as AnEvent,
+          params.id
+        );
+      } catch (error) {
+        console.error("Error updating event:", error);
+        throw new Error("Failed to update event");
+      }
+    },
+    onMutate: async (newEventData) => {
+      await queryClient.cancelQueries({ queryKey: ["event", params.id] });
+
+      const previousEvent = queryClient.getQueryData(["event", params.id]);
+
+      queryClient.setQueryData(["event", params.id], {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-expect-error
+        event: { ...newEventData, tickets: previousEvent.event.tickets },
+      });
+
+      return { previousEvent };
+    },
+  });
 
   return (
-    <ContentLayout title={event.title}>
+    <ContentLayout title={event?.title ?? ""}>
       <div className="container mx-auto pb-10 w-fit">
         <Link href="/events">
           <Button variant="outline" className="mb-6">
@@ -74,15 +103,17 @@ export default function EventPage({ params }: { params: { id: string } }) {
           <CardHeader>
             <Image
               src={image}
-              alt={event.title}
+              alt={event?.title ?? ""}
               width={600}
               height={400}
               className="rounded-md h-48 w-full object-cover mb-2"
             />
             <CardTitle className=" flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h1 className="~text-2xl/3xl">{event.title}</h1>
-                <EventStatusBadge status={event.status} />
+                <h1 className="~text-2xl/3xl">{event?.title ?? ""}</h1>
+                <EventStatusBadge
+                  status={event?.status ?? ("" as EventStatus)}
+                />
               </div>
               <Dialog
                 open={editEventDialogOpen}
@@ -105,23 +136,20 @@ export default function EventPage({ params }: { params: { id: string } }) {
                       //@ts-expect-error
                       initialData={{
                         ...event,
-                        artists: event.artists.join(", "),
+                        artists: event?.artists.join(", ") ?? "",
                       }}
                       onSubmitFn={async (data) => {
-                        await updateEvent(
-                          {
-                            ...data,
-                            createdBy: "root",
-                          } as unknown as AnEvent,
-                          event.id
-                        );
-                        refetch();
+                        const eventData = {
+                          ...data,
+                          date: new Date(data.date),
+                        };
+                        mutateEvent(eventData as Partial<AnEvent>);
                         setEditEventDialogOpen(false);
                       }}
                       onDiscardFn={() => {
                         setEditEventDialogOpen(false);
                       }}
-                      isThereTicketTypes={event.tickets.length > 0}
+                      isThereTicketTypes={(event?.tickets?.length ?? 0) > 0}
                     />
                   </DialogHeader>
                 </DialogContent>
@@ -130,26 +158,29 @@ export default function EventPage({ params }: { params: { id: string } }) {
             <CardDescription className="text-zinc-800">
               <div className="flex items-center mt-2">
                 <Mic2Icon className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="flex-grow">{event.artists.join(", ")}</span>
+                <span className="flex-grow">{event?.artists.join(", ")}</span>
               </div>
               <div className="flex items-center mt-2">
                 <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="flex-grow">
-                  {event.date.toString().split("T")[0]} at {event.time}
+                  {event?.date
+                    ? new Date(event.date).toISOString().split("T")[0]
+                    : "N/A"}{" "}
+                  at {event?.time}
                 </span>
               </div>
               <div className="flex items-center mt-2">
                 <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="flex-grow">{event.location}</span>
+                <span className="flex-grow">{event?.location}</span>
               </div>
               <div className="flex items-center mt-2">
                 <Users2 className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="flex-grow">{event.capacity} Capacity</span>
+                <span className="flex-grow">{event?.capacity} Capacity</span>
               </div>
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">{event.description}</p>
+            <p className="text-muted-foreground">{event?.description}</p>
             <Separator className="my-4" />
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold mb-2">Ticket Types</h3>
@@ -172,7 +203,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                   <TicketTypeForm
                     remainingEventCapacity={remainingEventCapacity!}
                     onSubmitFn={async (ticket) => {
-                      await createTicketType(ticket as Ticket, event.id);
+                      await createTicketType(ticket as Ticket, event?.id ?? "");
                       refetch();
                       setAddTicketTypeDialogOpen(false);
                     }}
@@ -184,13 +215,14 @@ export default function EventPage({ params }: { params: { id: string } }) {
               </Dialog>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-              {event.tickets.map((type, index) => (
-                <TicketTypeItem
-                  ticket={type}
-                  key={index}
-                  remainingEventCapacity={remainingEventCapacity!}
-                />
-              ))}
+              {event &&
+                event?.tickets?.map((type, index) => (
+                  <TicketTypeItem
+                    ticket={type}
+                    key={index}
+                    remainingEventCapacity={remainingEventCapacity!}
+                  />
+                ))}
             </div>
           </CardContent>
         </Card>
