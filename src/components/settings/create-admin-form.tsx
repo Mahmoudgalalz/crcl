@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createAdmin } from "@/lib/api/admins";
 import { SuperUser } from "@/lib/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
@@ -19,23 +20,35 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function CreateAdminForm() {
+  const queryClient = useQueryClient();
+
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
 
-  async function onSubmit(data: FormValues) {
-    await createAdmin(data as SuperUser).then((res) => {
-      console.log(res);
-      toast({
-        title: "Success",
-        description: "Admin created successfully",
+  const { mutate } = useMutation({
+    mutationKey: ["admins"],
+    mutationFn: (formValues: Partial<SuperUser>) =>
+      createAdmin(formValues as SuperUser),
+    onMutate: (formValues: Partial<SuperUser>) => {
+      queryClient.setQueryData(["admins"], (old: SuperUser[]) => {
+        return [...old, formValues];
       });
-      // form.reset();
-      window.location.reload();
-    });
+    },
+    onSuccess() {
+      toast({
+        title: "Admin created!",
+        description: "Admin created successfully!",
+      });
+    },
+  });
+
+  async function onSubmit(data: FormValues) {
+    mutate(data);
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>

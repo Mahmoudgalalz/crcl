@@ -1,15 +1,25 @@
 import { SuperUser } from "../types";
 import { axiosInstance } from "./instance";
 
+export async function getAdmins() {
+  try {
+    const response = await axiosInstance.get<SuperUser[]>("/admin");
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function createAdmin(admin: SuperUser) {
   try {
-    const response = await axiosInstance.post<SuperUser>("/admin", admin);
+    const response = await axiosInstance.post<SuperUser>("/users/super", admin);
     const data = response.data;
     return data;
   } catch (error) {
     console.error(error);
     return {} as unknown as {
-      event: SuperUser;
+      admin: SuperUser;
     };
   }
 }
@@ -21,9 +31,6 @@ export async function deleteAdmin(id: string) {
     return data;
   } catch (error) {
     console.error(error);
-    return {} as unknown as {
-      event: SuperUser;
-    };
   }
 }
 
@@ -37,7 +44,7 @@ export async function changePasswordAdmin(id: string, newPassword: string) {
   } catch (error) {
     console.error(error);
     return {} as unknown as {
-      event: SuperUser;
+      admin: SuperUser;
     };
   }
 }
