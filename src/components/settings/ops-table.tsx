@@ -1,15 +1,23 @@
-"use client";
 import {
   Dialog,
   DialogTrigger,
   DialogContent,
   DialogTitle,
   DialogDescription,
+  DialogHeader,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Lock, UserX } from "lucide-react";
+import { UserX, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "../ui/card";
-import { DialogHeader, DialogFooter } from "../ui/dialog";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  Form,
+} from "../ui/form";
 import { Input } from "../ui/input";
 import {
   TableHeader,
@@ -19,21 +27,13 @@ import {
   TableCell,
   Table,
 } from "../ui/table";
-import { changePasswordAdmin, deleteAdmin, getAdmins } from "@/lib/api/admins";
-import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { getOps } from "@/lib/api/users";
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   newPassword: z.string().min(8),
@@ -41,36 +41,13 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function AdminsTable() {
-  const queryClient = useQueryClient();
-
-  const { data: admins } = useQuery({
-    queryKey: ["admins"],
-    queryFn: getAdmins,
+export function OpsTable() {
+  const { data: ops } = useQuery({
+    queryKey: ["ops"],
+    queryFn: getOps,
   });
 
-  const { mutate: deleteAdminMutation } = useMutation({
-    mutationFn: deleteAdmin,
-    onMutate: async (deletedAdmin) => {
-      await queryClient.cancelQueries({ queryKey: ["admins"] });
-
-      const admins = queryClient.getQueryData(["admins"]);
-
-      queryClient.setQueryData(["admins"], {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
-        admins: admins.admins.filter((admin) => admin.id !== deletedAdmin.id),
-      });
-
-      return { admins };
-    },
-    onSuccess: () => {
-      toast({
-        title: "Admin deleted successfully",
-        description: "The admin has been deleted successfully",
-      });
-    },
-  });
+  const { toast } = useToast();
 
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
@@ -81,48 +58,40 @@ export function AdminsTable() {
     },
   });
 
-  const handleRevokeAccess = async (id: string) => {
-    console.log("Revoke access to admin with id: ", id);
-    console.log(admins);
-    await deleteAdmin(id).then(() => {
-      deleteAdminMutation(id);
-      toast({
-        title: "Admin deleted successfully",
-        description: "The admin has been deleted successfully",
-      });
-    });
-  };
-
-  const handleChangePassword = async (
-    values: FormValues,
-    id: string,
-    name: string
-  ) => {
-    await changePasswordAdmin(id, values.newPassword).then(() => {
-      toast({
-        title: "Password changed successfully",
-        description:
-          "Password has been changed successfully for admin with name: " + name,
-      });
+  const onSubmit = async (values: FormValues) => {
+    try {
+      // await changePasswordOps(values.newPassword);
       setPasswordDialogOpen(false);
-    });
+      toast({
+        title: "Password changed",
+        description: "Your password has been changed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Something went wrong.",
+        description: error as string,
+        variant: "destructive",
+      });
+    }
   };
-
   return (
     <CardContent>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
+            {/* <TableHead>Name</TableHead> */}
             <TableHead>Email</TableHead>
+            <TableHead>Type</TableHead>
+
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {admins?.map((admin) => (
-            <TableRow key={admin.id}>
-              <TableCell>{admin.name}</TableCell>
-              <TableCell>{admin.email}</TableCell>
+          {ops?.map((opsUser) => (
+            <TableRow key={opsUser.id}>
+              {/* <TableCell>{opsUser.email}</TableCell> */}
+              <TableCell>{opsUser.email}</TableCell>
+              <TableCell>{opsUser.type}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
                   <Dialog
@@ -139,13 +108,13 @@ export function AdminsTable() {
                       <DialogHeader>
                         <DialogTitle>Change Password</DialogTitle>
                         <DialogDescription>
-                          Set a new password for {admin.email}
+                          Set a new password for {opsUser.email}
                         </DialogDescription>
                       </DialogHeader>
                       <Form {...form}>
                         <form
                           onSubmit={form.handleSubmit((values) =>
-                            handleChangePassword(values, admin.id, admin.name)
+                            onSubmit(values)
                           )}
                         >
                           <FormField
@@ -171,8 +140,7 @@ export function AdminsTable() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleRevokeAccess(admin.id)}
-                    disabled={admin.name === "root"}
+                    // onClick={() => handleRevokeAccess(opsUser.id)}
                   >
                     <UserX className="mr-2 h-4 w-4" />
                     Revoke Access

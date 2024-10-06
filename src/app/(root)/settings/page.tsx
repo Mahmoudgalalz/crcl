@@ -1,3 +1,4 @@
+"use client";
 import { ContentLayout } from "@/components/content-layout";
 import {
   Card,
@@ -7,12 +8,12 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { CreateAdminForm } from "@/components/settings/create-admin-form";
-import { cookies } from "next/headers";
 import { AdminsTable } from "@/components/settings/admin-table";
-import { SuperUser } from "@/lib/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OpsTable } from "@/components/settings/ops-table";
+import { CreateOpsUserForm } from "@/components/settings/create-ops-user-form";
 
-export default async function SettingsPage() {
+export default function SettingsPage() {
   return (
     <ContentLayout title="Settings">
       <div className="container mx-auto ">
@@ -34,14 +35,7 @@ export default async function SettingsPage() {
   );
 }
 
-async function AdminsTab() {
-  const admins: SuperUser[] = await fetch("http://localhost:2002/admin", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${cookies().get("token")?.value}`,
-    },
-  }).then((res) => res.json());
+function AdminsTab() {
   return (
     <>
       <Card className="mb-4">
@@ -51,7 +45,7 @@ async function AdminsTab() {
             View and manage system administrators
           </CardDescription>
         </CardHeader>
-        <AdminsTable admins={admins} />
+        <AdminsTable />
       </Card>
       <Card>
         <CardHeader>
@@ -68,15 +62,29 @@ async function AdminsTab() {
   );
 }
 
-async function OpsTab() {
+function OpsTab() {
   return (
-    <Card className="mb-4">
-      <CardHeader>
-        <CardTitle>Opreations users Management</CardTitle>
-        <CardDescription className="text-zinc-700">
-          View and manage opreations users
-        </CardDescription>
-      </CardHeader>
-    </Card>
+    <>
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Opreations users Management</CardTitle>
+          <CardDescription className="text-zinc-700">
+            View and manage opreations users
+          </CardDescription>
+        </CardHeader>
+        <OpsTable />
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Opreation user</CardTitle>
+          <CardDescription className="text-zinc-700">
+            Add a new opreation user whether it is a booth or an reader
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CreateOpsUserForm />
+        </CardContent>
+      </Card>
+    </>
   );
 }
