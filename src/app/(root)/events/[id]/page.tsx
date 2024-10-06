@@ -43,7 +43,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
 
   const queryClient = useQueryClient();
 
-  const { data: event, refetch } = useQuery({
+  const { data: event } = useQuery({
     queryKey: ["event", params.id],
     queryFn: () => getEvent(params.id),
     select: (data) => data.event,
@@ -84,6 +84,36 @@ export default function EventPage({ params }: { params: { id: string } }) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-expect-error
         event: { ...newEventData, tickets: previousEvent.event.tickets },
+      });
+
+      return { previousEvent };
+    },
+  });
+
+  const { mutate: createTicket } = useMutation({
+    mutationKey: ["event", params.id],
+    mutationFn: async (formValues: Partial<Ticket>) => {
+      try {
+        return await createTicketType(formValues as Ticket, event?.id ?? "");
+      } catch (error) {
+        console.error("Error create ticket:", error);
+        throw new Error("Failed to create ticket");
+      }
+    },
+    onMutate: async (newTicketData) => {
+      await queryClient.cancelQueries({ queryKey: ["event", params.id] });
+
+      const previousEvent = queryClient.getQueryData(["event", params.id]);
+
+      queryClient.setQueryData(["event", params.id], {
+        event: {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
+          ...previousEvent.event,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
+          tickets: [...previousEvent.event.tickets, newTicketData],
+        },
       });
 
       return { previousEvent };
@@ -203,8 +233,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                   <TicketTypeForm
                     remainingEventCapacity={remainingEventCapacity!}
                     onSubmitFn={async (ticket) => {
-                      await createTicketType(ticket as Ticket, event?.id ?? "");
-                      refetch();
+                      createTicket(ticket as Ticket);
                       setAddTicketTypeDialogOpen(false);
                     }}
                     onDiscardFn={() => {
