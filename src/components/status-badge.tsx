@@ -11,6 +11,8 @@ export function EventStatusBadge({ status }: { status: EventStatus }) {
         status === "PUBLISHED" ? "bg-green-500 text-emerald-50" : "",
 
         status === "DRAFTED" ? "bg-yellow-500 text-yellow-50" : "",
+        status === "DELETED" ? "bg-red-500 text-red-50" : "",
+
         "tracking-wider text-xs font-light mt-1"
       )}
     >

@@ -189,7 +189,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                           const eventData = {
                             ...data,
                             date: new Date(data.date),
-                            image: data.image ?? ""
+                            image: data.image ?? "",
                           };
                           mutateEvent(eventData as Partial<AnEvent>);
                           setEditEventDialogOpen(false);
@@ -233,7 +233,6 @@ export default function EventPage({ params }: { params: { id: string } }) {
                       defaultValue={event?.status}
                       onValueChange={(value) => {
                         mutateEvent({
-                          ...event,
                           status: value as EventStatus,
                         });
                         setEventStatusDialog(false);
@@ -260,7 +259,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                         >
                           Ended
                         </SelectItem>
-                        <SelectItem value="CANCLED">Cancelled</SelectItem>
+                        <SelectItem value="CANCLED">Canceled</SelectItem>
                         <SelectItem value="DELETED">Deleted</SelectItem>
                       </SelectContent>
                     </Select>
@@ -271,7 +270,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
             <CardDescription className="text-zinc-800">
               <div className="flex items-center mt-2">
                 <Mic2Icon className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="flex-grow">{event?.artists.join(", ")}</span>
+                <span className="flex-grow">{event?.artists?.join(", ")}</span>
               </div>
               <div className="flex items-center mt-2">
                 <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />

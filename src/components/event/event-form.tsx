@@ -78,6 +78,7 @@ export function EventForm({
           description: "",
           capacity: undefined,
           artists: [],
+          image: "",
         },
   });
 
@@ -124,11 +125,10 @@ export function EventForm({
   const watch = useWatch({
     control: form.control,
   });
-
   useEffect(() => {
-    setIsDirty(form.formState.isDirty);
+    setIsDirty(form.formState.isDirty || image.length > 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch]);
+  }, [watch.artists, image]);
 
   const [artists, setArtists] = useState<Tag[]>(initialData?.artists ?? []);
 
