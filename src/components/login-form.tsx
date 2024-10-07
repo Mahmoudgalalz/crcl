@@ -15,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { login } from "@/lib/api/auth";
-import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().min(2).max(50).email(),
@@ -23,7 +22,6 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
-  const router = useRouter();
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,7 +34,7 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const loggedIn = await login(values.email, values.password);
-      if (loggedIn) router.push("/dashboard");
+      if (loggedIn) window.location.href = "/dashboard";
       console.log(loggedIn);
     } catch {
       toast({

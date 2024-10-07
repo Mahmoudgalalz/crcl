@@ -1,6 +1,6 @@
 "use client";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { ImageUpload } from "../image-upload";
 import { ImageFile } from "@/lib/types";
@@ -47,10 +47,12 @@ export function EventForm({
   initialData,
   onSubmitFn,
   onDiscardFn,
+  isThereTicketTypes,
 }: {
   initialData?: FormValues;
   onSubmitFn: (data: FormValues & { artists: string[] }) => Promise<unknown>;
   onDiscardFn?: () => void;
+  isThereTicketTypes: boolean;
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -68,12 +70,13 @@ export function EventForm({
           time: "",
           location: "",
           description: "",
-          capacity: 1,
+          capacity: undefined,
           artists: "",
         },
   });
 
   const [image, setImage] = useState<ImageFile[]>([]);
+
   async function onSubmit(values: FormValues) {
     if (image.length > 0) {
       try {
@@ -92,21 +95,37 @@ export function EventForm({
       artists: values.artists.split(",").map((artist) => artist.trim()),
     };
 
-    console.log(data);
-
-    await onSubmitFn(data as FormValues & { artists: string[] }).then((res) => {
-      console.log(res);
+    await onSubmitFn({
+      ...data,
+      date: new Date(data.date),
+    } as unknown as FormValues & {
+      artists: string[];
+    }).then(() => {
       toast({
-        title: "Event created successfully",
-        description: "New event has been created successfully",
+        title: initialData
+          ? "Event updated successfully"
+          : "Event created successfully",
+        description: initialData
+          ? ""
+          : "New event has been created successfully",
       });
-      if (initialData) {
-        window.location.reload();
-      } else {
+      if (!initialData) {
         router.push("/events");
       }
     });
   }
+
+  const [isDirty, setIsDirty] = useState(false);
+
+  const watch = useWatch({
+    control: form.control,
+  });
+
+  useEffect(() => {
+    setIsDirty(form.formState.isDirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -148,7 +167,7 @@ export function EventForm({
               </FormItem>
             )}
           />
-          <div className="flex flex-col md:flex-row gap-4 w-full">
+          <div className="flex flex-col md:flex-row gap-4 w-full items-center">
             <FormField
               control={form.control}
               name="capacity"
@@ -161,7 +180,7 @@ export function EventForm({
                       type="number"
                       onChange={(e) => {
                         const value = parseInt(e.target.value);
-                        field.onChange(isNaN(value) ? 1 : value); // Ensure a number is passed
+                        field.onChange(isNaN(value) ? 1 : value);
                       }}
                     />
                   </FormControl>
@@ -177,7 +196,7 @@ export function EventForm({
                   <FormLabel>Status</FormLabel>
 
                   <Select
-                    defaultValue={field.value}
+                    defaultValue={initialData ? field.value : "DRAFTED"}
                     onValueChange={field.onChange}
                   >
                     <FormControl>
@@ -185,13 +204,44 @@ export function EventForm({
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="h-full">
                       <SelectItem value="DRAFTED">Drafted</SelectItem>
-                      {/* TODO: Disable published if the event don't have tickets */}
-                      <SelectItem value="PUBLISHED">Published</SelectItem>
-                      <SelectItem value="ENDED">Ended</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                      <SelectItem value="DELETED">Deleted</SelectItem>
+                      <SelectItem
+                        value="PUBLISHED"
+                        disabled={
+                          initialData
+                            ? isThereTicketTypes
+                              ? false
+                              : true
+                            : true
+                        }
+                      >
+                        Published
+                      </SelectItem>
+                      <SelectItem
+                        value="ENDED"
+                        disabled={
+                          initialData
+                            ? isThereTicketTypes
+                              ? false
+                              : true
+                            : true
+                        }
+                      >
+                        Ended
+                      </SelectItem>
+                      <SelectItem
+                        value="CANCELLED"
+                        disabled={initialData ? false : true}
+                      >
+                        Cancelled
+                      </SelectItem>
+                      <SelectItem
+                        value="DELETED"
+                        disabled={initialData ? false : true}
+                      >
+                        Deleted
+                      </SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -263,12 +313,15 @@ export function EventForm({
             variant="outline"
             onClick={() => {
               onDiscardFn?.();
-              window.location.reload();
             }}
           >
             Discard
           </Button>
-          <Button type="submit" className="w-full font-semibold ">
+          <Button
+            type="submit"
+            className="w-full font-semibold"
+            disabled={!isDirty}
+          >
             {initialData ? "Update" : "Create"} Event
           </Button>
         </CardFooter>
