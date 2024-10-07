@@ -57,6 +57,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
     select: (data) => data.event,
   });
 
+  console.log(event);
+
   const image = event?.image?.includes("https://127.0.0.1")
     ? event?.image?.replace("https://", "http://")
     : "/placeholder.jpg";
@@ -74,7 +76,6 @@ export default function EventPage({ params }: { params: { id: string } }) {
         return await updateEvent(
           {
             ...formValues,
-            createdBy: "root",
           } as AnEvent,
           params.id
         );
@@ -83,7 +84,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
         throw new Error("Failed to update event");
       }
     },
-    onMutate: async (newEventData) => {
+    onSuccess: async (newEventData) => {
+      console.log(newEventData);
       await queryClient.cancelQueries({ queryKey: ["event", params.id] });
 
       const previousEvent = queryClient.getQueryData(["event", params.id]);
@@ -183,9 +185,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
                           ],
                         }}
                         onSubmitFn={async (data) => {
+                          console.log(data);
                           const eventData = {
                             ...data,
                             date: new Date(data.date),
+                            image: data.image ?? ""
                           };
                           mutateEvent(eventData as Partial<AnEvent>);
                           setEditEventDialogOpen(false);
@@ -256,7 +260,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                         >
                           Ended
                         </SelectItem>
-                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                        <SelectItem value="CANCLED">Cancelled</SelectItem>
                         <SelectItem value="DELETED">Deleted</SelectItem>
                       </SelectContent>
                     </Select>

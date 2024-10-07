@@ -20,7 +20,6 @@ import { z } from "zod";
 import { ImageUpload } from "../image-upload";
 import { ImageFile } from "@/lib/types";
 import { uploadImage } from "@/lib/api/upload-image";
-import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -45,7 +44,7 @@ const formSchema = z.object({
     })
   ),
   status: z
-    .enum(["DRAFTED", "PUBLISHED", "ENDED", "CANCELLED", "DELETED"])
+    .enum(["DRAFTED", "PUBLISHED", "ENDED", "CANCLED", "DELETED"])
     .optional(),
 });
 
@@ -63,7 +62,6 @@ export function EventForm({
   isThereTicketTypes: boolean;
 }) {
   const { toast } = useToast();
-  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -118,9 +116,6 @@ export function EventForm({
           ? ""
           : "New event has been created successfully",
       });
-      if (!initialData) {
-        // router.push("/events");
-      }
     });
   }
 

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { EventsGrid } from "@/components/event/events-grid";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createEvent, getEvents } from "@/lib/api/events";
 import { AnEvent } from "@/lib/types";
 import { useState } from "react";
@@ -20,10 +20,51 @@ import { useState } from "react";
 export default function EventsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: eventsData, refetch } = useQuery({
+  const queryClient = useQueryClient();
+
+  const { data: eventsData } = useQuery({
     queryKey: ["events"],
     queryFn: getEvents,
     refetchOnWindowFocus: true,
+    select(data) {
+      return data.events;
+    },
+  });
+
+  const { mutate: mutateTocreateEvent } = useMutation({
+    mutationFn: async (formValues: Partial<AnEvent>) => {
+      console.log(formValues);
+      try {
+        return await createEvent({
+          ...formValues,
+          createdBy: "root",
+        } as AnEvent);
+      } catch (error) {
+        console.error("Error updating event:", error);
+        throw new Error("Failed to update event");
+      }
+    },
+    onSuccess: async (newEventData) => {
+      await queryClient.cancelQueries({ queryKey: ["events"] });
+
+      const previousEvents = queryClient.getQueryData(["events"]);
+
+      console.log(newEventData);
+
+      console.log(previousEvents);
+
+      queryClient.setQueryData(["events"], {
+        events: [
+          // Change 'eventsData' to 'events'
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
+          ...(previousEvents.events ?? []),
+          newEventData,
+        ],
+      });
+
+      return { previousEvents };
+    },
   });
   return (
     <ContentLayout title="Events">
@@ -44,12 +85,9 @@ export default function EventsPage() {
               </DialogHeader>
               <EventForm
                 onSubmitFn={async (data) => {
-                  await createEvent({
-                    ...data,
-                    createdBy: "root",
-                  } as unknown as AnEvent);
-                  refetch();
-                  // setDialogOpen(false);
+                  console.log(data);
+                  mutateTocreateEvent(data as unknown as AnEvent);
+                  setDialogOpen(false);
                 }}
                 onDiscardFn={() => {
                   setDialogOpen(false);
@@ -61,7 +99,7 @@ export default function EventsPage() {
         </div>
       </div>
 
-      <EventsGrid events={eventsData?.events} />
+      <EventsGrid events={eventsData} />
     </ContentLayout>
   );
 }
