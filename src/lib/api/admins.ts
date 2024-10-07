@@ -13,8 +13,8 @@ export async function getAdmins() {
 
 export async function createAdmin(admin: SuperUser) {
   try {
-    const response = await axiosInstance.post<SuperUser>("/users/super", admin);
-    const data = response.data;
+    const response = await axiosInstance.post("/users/super", admin);
+    const data = response.data.data;
     return data;
   } catch (error) {
     console.error(error);
@@ -26,6 +26,7 @@ export async function createAdmin(admin: SuperUser) {
 
 export async function deleteAdmin(id: string) {
   try {
+    console.log("Deleting admin with ID:", id);
     const response = await axiosInstance.delete<SuperUser>(`/admin/${id}`);
     const data = response.data;
     return data;

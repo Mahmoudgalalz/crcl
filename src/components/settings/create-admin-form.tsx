@@ -29,15 +29,14 @@ export function CreateAdminForm() {
   });
 
   const { mutate } = useMutation({
-    mutationKey: ["admins"],
     mutationFn: (formValues: Partial<SuperUser>) =>
       createAdmin(formValues as SuperUser),
-    onMutate: (formValues: Partial<SuperUser>) => {
+
+    onSuccess(newAdmin) {
+      console.log(newAdmin);
       queryClient.setQueryData(["admins"], (old: SuperUser[]) => {
-        return [...old, formValues];
+        return [...old, newAdmin];
       });
-    },
-    onSuccess() {
       toast({
         title: "Admin created!",
         description: "Admin created successfully!",
