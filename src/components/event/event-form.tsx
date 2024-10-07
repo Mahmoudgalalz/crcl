@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Tag, TagInput } from "emblor";
 
 const formSchema = z.object({
   title: z.string().min(2).max(50),
@@ -37,8 +38,15 @@ const formSchema = z.object({
   description: z.string().min(2).max(50),
   image: z.string().optional(),
   capacity: z.number().min(1),
-  artists: z.string().min(2).max(50),
-  status: z.enum(["DRAFTED", "PUBLISHED", "ENDED", "CANCELLED", "DELETED"]),
+  artists: z.array(
+    z.object({
+      id: z.string(),
+      text: z.string(),
+    })
+  ),
+  status: z
+    .enum(["DRAFTED", "PUBLISHED", "ENDED", "CANCELLED", "DELETED"])
+    .optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -71,7 +79,7 @@ export function EventForm({
           location: "",
           description: "",
           capacity: undefined,
-          artists: "",
+          artists: [],
         },
   });
 
@@ -91,8 +99,9 @@ export function EventForm({
     const data = {
       ...values,
       capacity: parseInt(values.capacity.toString()),
-      date: initialData ? new Date(values.date).toISOString() : values.date,
-      artists: values.artists.split(",").map((artist) => artist.trim()),
+      date: new Date(values.date).toISOString(),
+      artists: values.artists.map((artist) => artist.text),
+      status: initialData?.status ?? "DRAFTED",
     };
 
     await onSubmitFn({
@@ -110,7 +119,7 @@ export function EventForm({
           : "New event has been created successfully",
       });
       if (!initialData) {
-        router.push("/events");
+        // router.push("/events");
       }
     });
   }
@@ -125,6 +134,10 @@ export function EventForm({
     setIsDirty(form.formState.isDirty);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch]);
+
+  const [artists, setArtists] = useState<Tag[]>(initialData?.artists ?? []);
+
+  const { setValue } = form;
 
   return (
     <Form {...form}>
@@ -158,9 +171,19 @@ export function EventForm({
               <FormItem>
                 <FormLabel>Artists</FormLabel>
                 <FormControl>
-                  <Input
+                  <TagInput
+                    activeTagIndex={null}
+                    setActiveTagIndex={() => {}}
                     {...field}
-                    placeholder="Enter artist names, separated by commas"
+                    placeholder="Enter an artist and seperate with comma, "
+                    tags={artists}
+                    setTags={(newTags) => {
+                      setArtists(newTags);
+                      setValue("artists", newTags as [Tag, ...Tag[]]);
+                    }}
+                    styleClasses={{
+                      input: "!shadow-none h-full",
+                    }}
                   />
                 </FormControl>
                 <FormMessage />

@@ -25,6 +25,7 @@ export async function getEvents() {
 }
 
 export async function createEvent(event: AnEvent) {
+  console.log(event);
   try {
     const response = await axiosInstance.post("/events", event);
     const data = response.data.data;

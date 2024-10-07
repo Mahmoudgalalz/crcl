@@ -175,7 +175,12 @@ export default function EventPage({ params }: { params: { id: string } }) {
                         //@ts-expect-error
                         initialData={{
                           ...event,
-                          artists: event?.artists.join(", ") ?? "",
+                          artists: [
+                            ...(event?.artists?.map((artist, idx) => ({
+                              id: String(idx),
+                              text: artist,
+                            })) ?? []),
+                          ],
                         }}
                         onSubmitFn={async (data) => {
                           const eventData = {
