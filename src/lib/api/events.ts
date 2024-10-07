@@ -9,7 +9,7 @@ export async function getEvents() {
         events: AnEvent[];
         total: number;
       }>
-    >("/events");
+    >("/events?limit=50");
     const data: {
       events: AnEvent[];
       total: number;
@@ -59,6 +59,7 @@ export async function getEvent(id: string) {
 }
 
 export async function updateEvent(event: AnEvent, eventId: string) {
+  console.log(event);
   try {
     const response = await axiosInstance.put(`/events/${eventId}`, event);
     const data = response.data.data;
