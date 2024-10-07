@@ -49,11 +49,12 @@ export default function EventsPage() {
                     createdBy: "root",
                   } as unknown as AnEvent);
                   refetch();
-                  setDialogOpen(false);
+                  // setDialogOpen(false);
                 }}
                 onDiscardFn={() => {
                   setDialogOpen(false);
                 }}
+                isThereTicketTypes={false}
               />
             </DialogContent>
           </Dialog>
