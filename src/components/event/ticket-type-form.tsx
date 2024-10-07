@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useState } from "react";
 
 type InitialData = {
   id: string | null;
@@ -72,6 +73,18 @@ export function TicketTypeForm({
       });
     });
   }
+
+  const [isDirty, setIsDirty] = useState(false);
+
+  const watch = useWatch({
+    control: form.control,
+  });
+
+  useEffect(() => {
+    setIsDirty(form.formState.isDirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-4">
@@ -171,7 +184,9 @@ export function TicketTypeForm({
           >
             Discard
           </Button>
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={!isDirty}>
+            Submit
+          </Button>
         </div>
       </form>
     </Form>

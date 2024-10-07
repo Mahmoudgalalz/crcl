@@ -1,6 +1,6 @@
 "use client";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -57,7 +57,6 @@ export function EventForm({
   const { toast } = useToast();
   const router = useRouter();
 
-  console.log("init data", initialData);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData
@@ -71,7 +70,7 @@ export function EventForm({
           time: "",
           location: "",
           description: "",
-          capacity: 1,
+          capacity: undefined,
           artists: "",
         },
   });
@@ -118,11 +117,14 @@ export function EventForm({
 
   const [isDirty, setIsDirty] = useState(false);
 
+  const watch = useWatch({
+    control: form.control,
+  });
+
   useEffect(() => {
     setIsDirty(form.formState.isDirty);
-    console.log(isDirty);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.watch()]);
+  }, [watch]);
 
   return (
     <Form {...form}>
