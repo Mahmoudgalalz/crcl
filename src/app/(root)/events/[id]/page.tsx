@@ -36,10 +36,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTicketType, getEvent, updateEvent } from "@/lib/api/events";
 import { AnEvent, EventStatus, Ticket } from "@/lib/types";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function EventPage({ params }: { params: { id: string } }) {
   const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
   const [addTicketTypeDialogOpen, setAddTicketTypeDialogOpen] = useState(false);
+  const [eventStatusDialog, setEventStatusDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -145,45 +153,111 @@ export default function EventPage({ params }: { params: { id: string } }) {
                   status={event?.status ?? ("" as EventStatus)}
                 />
               </div>
-              <Dialog
-                open={editEventDialogOpen}
-                onOpenChange={setEditEventDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Edit size={20} />
-                    <span className="font-semibold">Edit Event</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-3xl">
-                  <DialogHeader>
-                    <DialogTitle>Edit Event</DialogTitle>
-                    <DialogDescription>
-                      Edit the event details.
-                    </DialogDescription>
-                    <EventForm
-                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                      //@ts-expect-error
-                      initialData={{
-                        ...event,
-                        artists: event?.artists.join(", ") ?? "",
+              <div className="flex gap-4 items-center flex-row-reverse">
+                <Dialog
+                  open={editEventDialogOpen}
+                  onOpenChange={setEditEventDialogOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button className="gap-2">
+                      <Edit size={20} />
+                      <span className="font-semibold">Edit Event</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle>Edit Event</DialogTitle>
+                      <DialogDescription>
+                        Edit the event details.
+                      </DialogDescription>
+                      <EventForm
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        //@ts-expect-error
+                        initialData={{
+                          ...event,
+                          artists: event?.artists.join(", ") ?? "",
+                        }}
+                        onSubmitFn={async (data) => {
+                          const eventData = {
+                            ...data,
+                            date: new Date(data.date),
+                          };
+                          mutateEvent(eventData as Partial<AnEvent>);
+                          setEditEventDialogOpen(false);
+                        }}
+                        onDiscardFn={() => {
+                          setEditEventDialogOpen(false);
+                        }}
+                        isThereTicketTypes={(event?.tickets?.length ?? 0) > 0}
+                      />
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+                <Dialog
+                  open={eventStatusDialog}
+                  onOpenChange={setEventStatusDialog}
+                >
+                  <DialogTrigger asChild>
+                    <Button className="gap-2" variant="outline">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1.7rem"
+                        height="1.7rem"
+                        viewBox="0 0 24 24"
+                      >
+                        <g fill="#000000">
+                          <path d="M5.636 5.636a1 1 0 0 0-1.414-1.414c-4.296 4.296-4.296 11.26 0 15.556a1 1 0 0 0 1.414-1.414a9 9 0 0 1 0-12.728zm14.142-1.414a1 1 0 1 0-1.414 1.414a9 9 0 0 1 0 12.728a1 1 0 1 0 1.414 1.414c4.296-4.296 4.296-11.26 0-15.556zM8.464 8.464A1 1 0 0 0 7.05 7.05a7 7 0 0 0 0 9.9a1 1 0 0 0 1.414-1.414a5 5 0 0 1 0-7.072zM16.95 7.05a1 1 0 1 0-1.414 1.414a5 5 0 0 1 0 7.072a1 1 0 0 0 1.414 1.414a7 7 0 0 0 0-9.9zM11 12a1 1 0 1 1 2 0a1 1 0 0 1-2 0zm1-3a3 3 0 1 0 0 6a3 3 0 0 0 0-6z" />
+                        </g>
+                      </svg>
+                      <span className="font-semibold">Change Status</span>
+                    </Button>
+                  </DialogTrigger>
+
+                  <DialogContent className="max-w-xl ">
+                    <DialogHeader>
+                      <DialogTitle>Change Event Status</DialogTitle>
+                      <DialogDescription>
+                        Change the event status.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Select
+                      defaultValue={event?.status}
+                      onValueChange={(value) => {
+                        mutateEvent({
+                          ...event,
+                          status: value as EventStatus,
+                        });
+                        setEventStatusDialog(false);
                       }}
-                      onSubmitFn={async (data) => {
-                        const eventData = {
-                          ...data,
-                          date: new Date(data.date),
-                        };
-                        mutateEvent(eventData as Partial<AnEvent>);
-                        setEditEventDialogOpen(false);
-                      }}
-                      onDiscardFn={() => {
-                        setEditEventDialogOpen(false);
-                      }}
-                      isThereTicketTypes={(event?.tickets?.length ?? 0) > 0}
-                    />
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="h-full">
+                        <SelectItem value="DRAFTED">Drafted</SelectItem>
+                        <SelectItem
+                          value="PUBLISHED"
+                          disabled={
+                            (event?.tickets?.length ?? 0) > 0 ? false : true
+                          }
+                        >
+                          Published
+                        </SelectItem>
+                        <SelectItem
+                          value="ENDED"
+                          disabled={
+                            (event?.tickets?.length ?? 0) > 0 ? false : true
+                          }
+                        >
+                          Ended
+                        </SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                        <SelectItem value="DELETED">Deleted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardTitle>
             <CardDescription className="text-zinc-800">
               <div className="flex items-center mt-2">
