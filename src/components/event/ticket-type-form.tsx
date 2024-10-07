@@ -13,9 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useState } from "react";
 
 type InitialData = {
+  id: string | null;
   title: string;
   description: string;
   price: number;
@@ -29,7 +31,7 @@ export function TicketTypeForm({
   remainingEventCapacity,
 }: {
   initialData?: Partial<InitialData>;
-  onSubmitFn: (data: InitialData) => Promise<unknown>;
+  onSubmitFn: (ticket: InitialData) => Promise<unknown>;
   onDiscardFn?: () => void;
   remainingEventCapacity: number;
 }) {
@@ -39,6 +41,7 @@ export function TicketTypeForm({
     price: z.number(),
     capacity: z
       .number()
+      .min(1)
       .max(
         initialData?.capacity !== undefined
           ? initialData.capacity + remainingEventCapacity
@@ -55,17 +58,32 @@ export function TicketTypeForm({
   });
 
   async function onSubmit(data: FormValues) {
-    await onSubmitFn(data).then((res) => {
-      console.log(res);
+    const ticketData: InitialData = {
+      id: initialData?.id ?? null,
+      ...data,
+    };
+    await onSubmitFn(ticketData).then(() => {
       toast({
-        title: "Ticket created successfully",
-        description: "New ticket has been created successfully",
+        title: initialData
+          ? "Ticket updated successfully"
+          : "Ticket created successfully",
+        description: initialData
+          ? ""
+          : "New ticket has been created successfully",
       });
-      window.location.reload();
     });
   }
 
-  //TODO: Cap the capacity of tickets by the remaining of the event capacity
+  const [isDirty, setIsDirty] = useState(false);
+
+  const watch = useWatch({
+    control: form.control,
+  });
+
+  useEffect(() => {
+    setIsDirty(form.formState.isDirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch]);
 
   return (
     <Form {...form}>
@@ -162,13 +180,13 @@ export function TicketTypeForm({
             variant="secondary"
             onClick={() => {
               onDiscardFn?.();
-
-              window.location.reload();
             }}
           >
             Discard
           </Button>
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={!isDirty}>
+            Submit
+          </Button>
         </div>
       </form>
     </Form>
