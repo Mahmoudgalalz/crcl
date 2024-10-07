@@ -18,6 +18,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   if (!token) {
     router.push("/");
   }
+
+  if (token && window.location.pathname === "/") {
+    router.push("/dashboard");
+  }
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );

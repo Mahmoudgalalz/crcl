@@ -27,13 +27,14 @@ import {
   TableCell,
   Table,
 } from "../ui/table";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getOps } from "@/lib/api/users";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
+import { User } from "@/lib/types";
 
 const formSchema = z.object({
   newPassword: z.string().min(8),
@@ -42,6 +43,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function OpsTable() {
+  const queryClient = useQueryClient();
   const { data: ops } = useQuery({
     queryKey: ["ops"],
     queryFn: getOps,
@@ -74,6 +76,28 @@ export function OpsTable() {
       });
     }
   };
+
+  const { mutate: deleteOpsUser } = useMutation({
+    mutationKey: ["ops"],
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-expect-error
+    mutationFn: (id: string) => {
+      console.log("Mutation started");
+      return console.log("Mutation ended");
+    },
+
+    onMutate: (id: string) => {
+      queryClient.setQueryData(["ops"], (old: User[]) => {
+        return old.filter((user) => user.id !== id);
+      });
+    },
+    onSuccess() {
+      toast({
+        title: "Opreation User deleted!",
+        description: "Opreation User deleted successfully!",
+      });
+    },
+  });
   return (
     <CardContent>
       <Table>
@@ -140,7 +164,11 @@ export function OpsTable() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    // onClick={() => handleRevokeAccess(opsUser.id)}
+                    onClick={() => {
+                      console.log("Here", opsUser.id);
+                      deleteOpsUser(opsUser.id);
+                      console.log("Done");
+                    }}
                   >
                     <UserX className="mr-2 h-4 w-4" />
                     Revoke Access

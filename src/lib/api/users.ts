@@ -33,3 +33,14 @@ export async function createUser(user: Partial<User>) {
     console.error(error);
   }
 }
+
+export async function deleteUser(id: string) {
+  try {
+    const res = await axiosInstance.delete<User>(`/users/${id}`);
+    console.log(res);
+    const data: User = res.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}

@@ -3,10 +3,19 @@ import { axiosInstance } from "./instance";
 
 export async function login(email: string, password: string) {
   try {
-    const res = await axiosInstance.post("/auth/admin/login", {
-      email,
-      password,
-    });
+    const res = await axiosInstance.post(
+      "/auth/admin/login",
+      {
+        email,
+        password,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: null,
+        },
+      }
+    );
 
     console.log(res.data);
 
