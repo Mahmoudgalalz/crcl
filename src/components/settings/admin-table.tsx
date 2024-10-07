@@ -34,6 +34,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { SuperUser } from "@/lib/types";
 
 const formSchema = z.object({
   newPassword: z.string().min(8),
@@ -50,21 +51,23 @@ export function AdminsTable() {
   });
 
   const { mutate: deleteAdminMutation } = useMutation({
-    mutationFn: deleteAdmin,
-    onMutate: async (deletedAdmin) => {
+    mutationFn: (id: string) => deleteAdmin(id),
+
+    onSuccess: async (deletedAdmin) => {
       await queryClient.cancelQueries({ queryKey: ["admins"] });
 
       const admins = queryClient.getQueryData(["admins"]);
 
-      queryClient.setQueryData(["admins"], {
+      console.log("Deleted admin: ", deletedAdmin);
+
+      console.log("Admins: ", admins);
+
+      queryClient.setQueryData(["admins"], (old: SuperUser[]) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-expect-error
-        admins: admins.admins.filter((admin) => admin.id !== deletedAdmin.id),
+        return old.filter((admin) => admin.id !== deletedAdmin.id);
       });
 
-      return { admins };
-    },
-    onSuccess: () => {
       toast({
         title: "Admin deleted successfully",
         description: "The admin has been deleted successfully",
@@ -81,16 +84,8 @@ export function AdminsTable() {
     },
   });
 
-  const handleRevokeAccess = async (id: string) => {
-    console.log("Revoke access to admin with id: ", id);
-    console.log(admins);
-    await deleteAdmin(id).then(() => {
-      deleteAdminMutation(id);
-      toast({
-        title: "Admin deleted successfully",
-        description: "The admin has been deleted successfully",
-      });
-    });
+  const handleRevokeAccess = (id: string) => {
+    deleteAdminMutation(id);
   };
 
   const handleChangePassword = async (
@@ -180,7 +175,7 @@ export function AdminsTable() {
                 </div>
               </TableCell>
             </TableRow>
-          ))}{" "}
+          ))}
         </TableBody>
       </Table>
     </CardContent>
