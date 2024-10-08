@@ -27,7 +27,6 @@ import { z } from "zod";
 import { ImageFile, Newspaper } from "@/lib/types";
 import { uploadImage } from "@/lib/api/upload-image";
 import { toast } from "@/hooks/use-toast";
-import image from "next/image";
 
 const formSchema = z.object({
   description: z.string().min(2).max(200),
@@ -52,7 +51,7 @@ export function NewspaperForm({
     defaultValues: initialData || {
       title: "",
       description: "",
-      image: undefined,
+      image: "",
       status: "DRAFTED",
     },
   });
@@ -60,9 +59,10 @@ export function NewspaperForm({
   const [images, setImages] = useState<ImageFile[]>([]);
 
   const onSubmit = async (values: FormValues) => {
+    console.log(values);
     if (images.length > 0) {
       try {
-        const res = await uploadImage(images[0]);
+        const res = await uploadImage(images[images.length - 1]);
         values.image = res?.url ?? "";
       } catch (error) {
         console.error("Image upload failed", error);
@@ -90,7 +90,7 @@ export function NewspaperForm({
   useEffect(() => {
     setIsDirty(form.formState.isDirty || images.length > 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch, image]);
+  }, [watch, images]);
 
   return (
     <Form {...form}>

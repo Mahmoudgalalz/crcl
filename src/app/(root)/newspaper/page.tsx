@@ -53,7 +53,7 @@ export default function NewspaperPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <ContentLayout title="Newspaper">
+    <ContentLayout title="Newspapers">
       <div className="container mx-auto ">
         <div className="flex justify-between items-center">
           <h1 className="~text-2xl/3xl font-bold">Newspapers</h1>
