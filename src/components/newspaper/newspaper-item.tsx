@@ -1,4 +1,4 @@
-import { CalendarIcon, CalendarArrowUp } from "lucide-react";
+import { CalendarIcon, CalendarArrowUp, Edit } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { useState } from "react";
+import { NewspaperForm } from "./newspaper-form";
 
 export function NewspaperItem({
   newspaper,
@@ -48,6 +49,7 @@ export function NewspaperItem({
       id: string;
       formValues: Partial<Newspaper>;
     }) => {
+      console.log(formValues);
       try {
         return await updateNewspaper(id, formValues);
       } catch (error) {
@@ -84,6 +86,8 @@ export function NewspaperItem({
     : "/placeholder.jpg";
 
   const [isChangeStatus, setIsChangeStatus] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
   return (
     <Card key={newspaper.id} className="flex flex-col">
       <CardHeader>
@@ -118,19 +122,35 @@ export function NewspaperItem({
             {new Date(newspaper.updatedAt).toLocaleString()}
           </span>
         </div>
-        {/*   <div className="flex items-center mb-1">
-          <MapPinIcon className="w-4 h-4 mr-2" />
-          <span>{newspaper.location}</span>
-        </div>
-        <div className="flex items-center">
-          <DollarSignIcon className="w-4 h-4 mr-2" />
-          <span>{newspaper.pricing}</span>
-        </div> */}
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={() => {}}>
-          Edit
-        </Button>
+      <CardFooter className="flex justify-between flex-row-reverse">
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Edit size={20} />
+              <span className="font-semibold">Edit Newspaper</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Edit Newspaper</DialogTitle>
+              <DialogDescription>Edit the newspaper details.</DialogDescription>
+              <NewspaperForm
+                initialData={newspaper}
+                onSubmitFn={async (formValues: Partial<Newspaper>) => {
+                  mutateNewspaper({
+                    id: newspaper.id,
+                    formValues,
+                  });
+                  setIsEditing(false);
+                }}
+                onDiscardFn={() => {
+                  setIsEditing(false);
+                }}
+              />
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
         <Dialog open={isChangeStatus} onOpenChange={setIsChangeStatus}>
           <DialogTrigger asChild>
             <Button className="gap-2" variant="outline">
