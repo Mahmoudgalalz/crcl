@@ -16,55 +16,55 @@ import {
 } from "@/components/ui/dialog";
 
 import Image from "next/image";
-import { Announcement } from "@/lib/types";
+import { Newspaper } from "@/lib/types";
 
 export function NewspaperItem({
-  announcement,
-  handleEdit,
-  handleDelete,
-}: {
-  announcement: Announcement;
-  handleEdit: (announcement: Announcement) => void;
-  handleDelete: (id: number) => void;
+  newspaper,
+}: // handleEdit,
+// handleDelete,
+{
+  newspaper: Newspaper;
+  // handleEdit: (announcement: Announcement) => void;
+  // handleDelete: (id: number) => void;
 }) {
   return (
-    <Card key={announcement.id} className="flex flex-col">
+    <Card key={newspaper.id} className="flex flex-col">
       <CardHeader>
-        <CardTitle>{announcement.title}</CardTitle>
+        <CardTitle>{newspaper.title}</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        <Image
-          src={announcement.images[0]}
-          alt={announcement.title}
+        {/* <Image
+          src={newspaper.image!}
+          alt={newspaper.title}
           className="w-full h-40 object-cover mb-4 rounded"
           width={600}
           height={400}
-        />
-        <p className="font-bold">{announcement.artist}</p>
-        <p className="text-sm text-gray-600 mb-2">{announcement.description}</p>
+        /> */}
+        {/* <p className="font-bold">{newspaper.\}</p> */}
+        <p className="text-sm text-gray-600 mb-2">{newspaper.description}</p>
         <div className="flex items-center mb-1">
           <CalendarIcon className="w-4 h-4 mr-2" />
-          <span>{new Date(announcement.dateTime).toLocaleString()}</span>
+          {/* <span>{new Date(newspaper.).toLocaleString()}</span> */}
         </div>
         <div className="flex items-center mb-1">
           <MapPinIcon className="w-4 h-4 mr-2" />
-          <span>{announcement.location}</span>
+          {/* <span>{newspaper.location}</span> */}
         </div>
         <div className="flex items-center">
           <DollarSignIcon className="w-4 h-4 mr-2" />
-          <span>{announcement.pricing}</span>
+          {/* <span>{newspaper.pricing}</span> */}
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={() => handleEdit(announcement)}>
+        <Button variant="outline" onClick={() => {}}>
           Edit
         </Button>
         <Dialog>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Delete Announcement</DialogTitle>
+              <DialogTitle>Delete newspaper</DialogTitle>
             </DialogHeader>
-            <p>Are you sure you want to delete this announcement?</p>
+            <p>Are you sure you want to delete this newspaper?</p>
             <div className="flex items-center gap-2">
               <Button variant="outline" className="flex-1">
                 Cancel
@@ -72,7 +72,7 @@ export function NewspaperItem({
               <Button
                 variant="destructive"
                 className="flex-1"
-                onClick={() => handleDelete(announcement.id)}
+                // onClick={() => handleDelete(newspaper.id)}
               >
                 Delete
               </Button>
