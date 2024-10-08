@@ -23,6 +23,20 @@ export async function getOps() {
   }
 }
 
+export async function getUsers() {
+  try {
+    const res = await axiosInstance.get<{
+      status: string;
+      message: string;
+      data: User[];
+    }>("/users?types=USER");
+
+    return res.data.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function createUser(user: Partial<User>) {
   try {
     const res = await axiosInstance.post<User>("/users", user);
