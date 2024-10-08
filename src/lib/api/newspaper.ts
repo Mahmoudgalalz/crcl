@@ -28,3 +28,20 @@ export async function createNewspaper(newspaper: Partial<Newspaper>) {
     console.error(error);
   }
 }
+
+export async function updateNewspaper(
+  id: string,
+  formValues: Partial<Newspaper>
+) {
+  try {
+    const response = await axiosInstance.put<ApiSuccessResponse<Newspaper>>(
+      `/newspaper/${id}`,
+      formValues
+    );
+    const data = response.data.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+    return {} as unknown as Newspaper;
+  }
+}
