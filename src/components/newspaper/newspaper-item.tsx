@@ -118,10 +118,10 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
           </span>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between flex-row-reverse">
+      <CardFooter className="flex justify-between xl:flex-row-reverse flex-col gap-4 ">
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2 w-full">
               <Edit size={20} />
               <span className="font-semibold">Edit Newspaper</span>
             </Button>
@@ -148,7 +148,7 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
         </Dialog>
         <Dialog open={isChangeStatus} onOpenChange={setIsChangeStatus}>
           <DialogTrigger asChild>
-            <Button className="gap-2" variant="outline">
+            <Button className="gap-2 w-full" variant="outline">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="1.7rem"

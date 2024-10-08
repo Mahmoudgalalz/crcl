@@ -80,7 +80,7 @@ export default function NewspaperPage() {
             </DialogContent>
           </Dialog>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 py-10">
           {newspapers
             ?.sort((a, b) => {
               const statusOrder = { DRAFTED: 1, PUBLISHED: 2, DELETED: 3 };
