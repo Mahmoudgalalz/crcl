@@ -89,6 +89,22 @@ export default function EventPage({ params }: { params: { id: string } }) {
       await queryClient.cancelQueries({ queryKey: ["event", params.id] });
 
       const previousEvent = queryClient.getQueryData(["event", params.id]);
+      const eventsData = queryClient.getQueryData(["events"]) as {
+        events: AnEvent[];
+      };
+      const events = eventsData?.events ?? [];
+
+      queryClient.setQueryData(["events"], {
+        events: events.map((event) => {
+          if (event.id === params.id) {
+            return {
+              ...event,
+              ...newEventData,
+            };
+          }
+          return event;
+        }),
+      });
 
       queryClient.setQueryData(["event", params.id], {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
