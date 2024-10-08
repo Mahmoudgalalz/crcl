@@ -28,7 +28,7 @@ import {
   Table,
 } from "../ui/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getOps } from "@/lib/api/users";
+import { deleteUser, getOps } from "@/lib/api/users";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -79,11 +79,9 @@ export function OpsTable() {
 
   const { mutate: deleteOpsUser } = useMutation({
     mutationKey: ["ops"],
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-expect-error
     mutationFn: (id: string) => {
       console.log("Mutation started");
-      return console.log("Mutation ended");
+      return deleteUser(id);
     },
 
     onMutate: (id: string) => {
@@ -103,7 +101,7 @@ export function OpsTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            {/* <TableHead>Name</TableHead> */}
+            <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Type</TableHead>
 
@@ -113,7 +111,7 @@ export function OpsTable() {
         <TableBody>
           {ops?.map((opsUser) => (
             <TableRow key={opsUser.id}>
-              {/* <TableCell>{opsUser.email}</TableCell> */}
+              <TableCell>{opsUser.name}</TableCell>
               <TableCell>{opsUser.email}</TableCell>
               <TableCell>{opsUser.type}</TableCell>
               <TableCell>
