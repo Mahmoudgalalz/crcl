@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-// import Link from "next/link";
 import { NewspaperForm } from "@/components/newspaper/newspaper-form";
 import { NewspaperItem } from "@/components/newspaper/newspaper-item";
 import { Plus } from "lucide-react";
@@ -73,12 +72,9 @@ export default function NewspaperPage() {
                 onSubmitFn={async (data) => {
                   mutateTocreateNewspaper(data);
                   setIsDialogOpen(false);
-                  // setEditingAnnouncement(null);
-                  //TODO: Implement API call to update announcement
                 }}
                 onDiscardFn={() => {
                   setIsDialogOpen(false);
-                  // setEditingAnnouncement(null);
                 }}
               />
             </DialogContent>
@@ -86,12 +82,7 @@ export default function NewspaperPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-10">
           {newspapers?.map((newspaper) => (
-            <NewspaperItem
-              key={newspaper.id}
-              newspaper={newspaper}
-              // handleEdit={handleEdit}
-              // handleDelete={handleDelete}
-            />
+            <NewspaperItem key={newspaper.id} newspaper={newspaper} />
           ))}
         </div>
       </div>
