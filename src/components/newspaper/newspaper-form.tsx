@@ -1,6 +1,6 @@
 "use client";
 import { Label } from "@radix-ui/react-label";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { ImageUpload } from "../image-upload";
 import { Button } from "../ui/button";
 import { CardContent, CardFooter } from "../ui/card";
@@ -12,34 +12,28 @@ import {
   FormMessage,
   Form,
 } from "../ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
-import { ImageFile } from "@/lib/types";
-
-type Announcement = {
-  id: number;
-  artist: string;
-  description: string;
-  images: string[];
-  title: string;
-  pricing: string;
-  location: string;
-  dateTime: string;
-  promoVideo?: string;
-};
+import { ImageFile, Newspaper } from "@/lib/types";
+import { uploadImage } from "@/lib/api/upload-image";
+import { toast } from "@/hooks/use-toast";
+import image from "next/image";
 
 const formSchema = z.object({
-  artist: z.string().min(2).max(50),
   description: z.string().min(2).max(200),
   title: z.string().min(2).max(50),
-  pricing: z.string().min(2).max(50),
-  location: z.string().min(2).max(50),
-  dateTime: z.string().min(2).max(50),
-  promoVideo: z.string().min(2).max(50),
-  images: z.array(z.string()).min(1),
+  image: z.string().optional(),
+  status: z.enum(["DRAFTED", "PUBLISHED", "DELETED"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,64 +43,67 @@ export function NewspaperForm({
   onSubmitFn,
   onDiscardFn,
 }: {
-  initialData?: Announcement;
-  onSubmitFn: (data: Announcement) => void;
+  initialData?: Newspaper;
+  onSubmitFn: (data: Newspaper) => Promise<unknown>;
   onDiscardFn: () => void;
 }) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      artist: "",
-      description: "",
       title: "",
-      pricing: "",
-      location: "",
-      dateTime: "",
-      promoVideo: "",
-      images: [],
+      description: "",
+      image: undefined,
+      status: "DRAFTED",
     },
   });
 
   const [images, setImages] = useState<ImageFile[]>([]);
 
-  const handleImageUpload = async () => {
-    try {
-      const imageURLs = await Promise.all(
-        images.map(async (image) => {
-          const formData = new FormData();
-          formData.append("file", image.file);
-
-          // TODO: Replace the mock upload logic
-          const response = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
-
-          const data = await response.json();
-          return data.imageUrl;
-        })
-      );
-
-      return imageURLs;
-    } catch (error) {
-      console.error("Error uploading images:", error);
-    }
-  };
   const onSubmit = async (values: FormValues) => {
-    const imageURLs = await handleImageUpload();
-    const newAnnouncement: Announcement = {
-      ...values,
-      id: Date.now(),
-      images: imageURLs || [],
-    };
+    if (images.length > 0) {
+      try {
+        const res = await uploadImage(images[0]);
+        values.image = res?.url ?? "";
+      } catch (error) {
+        console.error("Image upload failed", error);
+        values.image = "";
+      }
+    }
 
-    onSubmitFn(newAnnouncement);
+    await onSubmitFn(values as Newspaper).then(() => {
+      toast({
+        title: initialData
+          ? "Newspaper updated successfully"
+          : "Newspaper created successfully",
+        description: initialData
+          ? ""
+          : "New newspaper has been created successfully",
+      });
+    });
   };
+
+  const [isDirty, setIsDirty] = useState(false);
+
+  const watch = useWatch({
+    control: form.control,
+  });
+  useEffect(() => {
+    setIsDirty(form.formState.isDirty || images.length > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch, image]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Image</Label>
+            <ImageUpload
+              images={images}
+              setImages={setImages}
+              register={form.register}
+            />
+          </div>
           <div className="flex items-center space-x-2">
             <FormField
               control={form.control}
@@ -123,59 +120,37 @@ export function NewspaperForm({
             />
             <FormField
               control={form.control}
-              name="artist"
+              name="status"
               render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Artist</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                <FormItem className=" flex-1 w-full">
+                  <FormLabel>Status</FormLabel>
+
+                  <Select
+                    defaultValue={initialData ? field.value : "DRAFTED"}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="h-full">
+                      <SelectItem value="DRAFTED">Drafted</SelectItem>
+                      <SelectItem value="PUBLISHED">Published</SelectItem>
+                      <SelectItem
+                        value="DELETED"
+                        disabled={initialData ? false : true}
+                      >
+                        Deleted
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          <div className="flex items-center space-x-2 w-full">
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="pricing"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Pricing</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <FormField
-            control={form.control}
-            name="dateTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date and Time</FormLabel>
-                <FormControl>
-                  <Input {...field} type="datetime-local" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}
@@ -190,47 +165,24 @@ export function NewspaperForm({
               </FormItem>
             )}
           />
-
-          <div className="space-y-2">
-            <Label>Banners</Label>
-            <ImageUpload
-              images={images}
-              setImages={setImages}
-              register={form.register}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="promoVideo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Promo Video Link (Optional)</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </CardContent>
-        <CardFooter className="gap-4">
+        <CardFooter className="gap-4 flex-col-reverse lg:flex-row">
           <Button
-            variant="outline"
-            className="w-full font-thin ~text-lg/xl"
-            onClick={onDiscardFn}
-            size="lg"
             type="button"
+            className="w-full "
+            variant="outline"
+            onClick={() => {
+              onDiscardFn?.();
+            }}
           >
             Discard
           </Button>
           <Button
             type="submit"
-            className="w-full font-semibold ~text-lg/xl"
-            size="lg"
-            disabled={form.formState.isSubmitting || images.length < 1}
+            className="w-full font-semibold"
+            disabled={!isDirty}
           >
-            {initialData ? "Update" : "Create"} Announcement
+            {initialData ? "Update" : "Create"} Newspaper
           </Button>
         </CardFooter>
       </form>
