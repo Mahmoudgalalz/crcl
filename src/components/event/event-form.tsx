@@ -128,7 +128,7 @@ export function EventForm({
   useEffect(() => {
     setIsDirty(form.formState.isDirty || image.length > 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch.artists, image]);
+  }, [watch, image]);
 
   const [artists, setArtists] = useState<Tag[]>(initialData?.artists ?? []);
 
