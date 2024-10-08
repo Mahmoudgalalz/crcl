@@ -28,7 +28,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { EventForm } from "@/components/event/event-form";
-import { EventStatusBadge } from "@/components/status-badge";
+import { StatusBadge } from "@/components/status-badge";
 import Image from "next/image";
 import { TicketTypeForm } from "@/components/event/ticket-type-form";
 import { TicketTypeItem } from "@/components/event/ticket-type-item";
@@ -167,9 +167,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
             <CardTitle className=" flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h1 className="~text-2xl/3xl">{event?.title ?? ""}</h1>
-                <EventStatusBadge
-                  status={event?.status ?? ("" as EventStatus)}
-                />
+                <StatusBadge status={event?.status ?? ("" as EventStatus)} />
               </div>
               <div className="flex gap-4 items-center flex-row-reverse">
                 <Dialog

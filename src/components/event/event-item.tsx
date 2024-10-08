@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import Image from "next/image";
-import { EventStatusBadge } from "../status-badge";
+import { StatusBadge } from "../status-badge";
 
 export function EventItem({ event }: { event: AnEvent }) {
   const image = event.image?.includes("https://127.0.0.1")
@@ -29,7 +29,7 @@ export function EventItem({ event }: { event: AnEvent }) {
           />
           <CardTitle className="flex items-center justify-between">
             <h2>{event.title}</h2>
-            <EventStatusBadge status={event.status} />
+            <StatusBadge status={event.status} />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col gap-4">
