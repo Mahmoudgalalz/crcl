@@ -81,9 +81,16 @@ export default function NewspaperPage() {
           </Dialog>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-10">
-          {newspapers?.map((newspaper) => (
-            <NewspaperItem key={newspaper.id} newspaper={newspaper} />
-          ))}
+          {newspapers
+            ?.sort((a, b) => {
+              const statusOrder = { DRAFTED: 1, PUBLISHED: 2, DELETED: 3 };
+              return (
+                (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0)
+              );
+            })
+            .map((newspaper) => (
+              <NewspaperItem key={newspaper.id} newspaper={newspaper} />
+            ))}
         </div>
       </div>
     </ContentLayout>

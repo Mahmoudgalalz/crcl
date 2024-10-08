@@ -31,15 +31,7 @@ import {
 import { useState } from "react";
 import { NewspaperForm } from "./newspaper-form";
 
-export function NewspaperItem({
-  newspaper,
-}: // handleEdit,
-// handleDelete,
-{
-  newspaper: Newspaper;
-  // handleEdit: (announcement: Announcement) => void;
-  // handleDelete: (id: number) => void;
-}) {
+export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
   const queryClient = useQueryClient();
   const { mutate: mutateNewspaper } = useMutation({
     mutationFn: async ({
@@ -49,9 +41,13 @@ export function NewspaperItem({
       id: string;
       formValues: Partial<Newspaper>;
     }) => {
-      console.log(formValues);
       try {
-        return await updateNewspaper(id, formValues);
+        return await updateNewspaper(id, {
+          title: formValues.title,
+          description: formValues.description,
+          image: formValues.image,
+          status: formValues.status,
+        });
       } catch (error) {
         console.error("Error updating Newspaper:", error);
         throw new Error("Failed to update Newspaper");
@@ -104,7 +100,6 @@ export function NewspaperItem({
           width={600}
           height={400}
         />
-        {/* <p className="font-bold">{newspaper.\}</p> */}
         <p className="text-sm text-gray-600 mb-2 line-clamp-3 text-balance overflow-ellipsis">
           {newspaper.description}
         </p>
