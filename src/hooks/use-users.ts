@@ -1,16 +1,48 @@
 import { toast } from "@/hooks/use-toast";
 import { type User, type UserStatus } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "@/lib/api/users";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUsers, updateUser } from "@/lib/api/users";
 import { useState } from "react";
 
 export function useUsers() {
-  const { data: usersData } = useQuery({
+  const queryClient = useQueryClient();
+  const { data: users } = useQuery({
     queryKey: ["users"],
     queryFn: getUsers,
   });
 
-  const [users, setUsers] = useState<User[]>(usersData || []);
+  const { mutate: mutateToupdateUser } = useMutation({
+    mutationFn: async ({
+      id,
+      updatedData,
+    }: {
+      id: string;
+      updatedData: Partial<User>;
+    }) => await updateUser(id, updatedData),
+    onSuccess: async (modUser) => {
+      console.log("Mutation started");
+      console.log(modUser);
+      await queryClient.cancelQueries({ queryKey: ["users"] });
+
+      const users: User[] | undefined = queryClient.getQueryData(["users"]);
+
+      if (users) {
+        queryClient.setQueryData(
+          ["users"],
+          users.map((user: User) => {
+            if (user.id === modUser?.id) {
+              return modUser;
+            } else {
+              return user;
+            }
+          })
+        );
+      }
+
+      return users;
+    },
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
   const [topUpAmount, setTopUpAmount] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -19,28 +51,22 @@ export function useUsers() {
     setSearchTerm(event.target.value);
   };
 
-  const filteredUsers = users.filter(
+  const filteredUsers = users?.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.number.includes(searchTerm)
   );
 
-  const toggleUserStatus = (userId: string) => {
-    setUsers(
-      users.map((user) => {
-        if (user.id === userId) {
-          return {
-            ...user,
-            status:
-              user.status === "ACTIVE"
-                ? ("BLOCKED" as UserStatus)
-                : ("ACTIVE" as UserStatus),
-          };
-        }
-        return user;
-      })
-    );
+  const toggleUserStatus = (userId: string, user: User) => {
+    const newStatus = user.status === "ACTIVE" ? "BLOCKED" : "ACTIVE";
+    mutateToupdateUser({
+      id: userId,
+      updatedData: { status: newStatus as UserStatus },
+    });
+    toast({
+      title: `${user.name} is now ${newStatus}`,
+    });
   };
 
   const handleTopUp = () => {
@@ -54,23 +80,23 @@ export function useUsers() {
         });
         return;
       }
-      setUsers(
-        users.map((user) => {
-          if (user.id === selectedUser.id) {
-            return {
-              ...user,
-              wallet: {
-                ...user.wallet!,
-                balance: (user.wallet?.balance || 0) + amount,
-                id: user.wallet?.id || 0,
-                userId: user.wallet?.userId || "",
-                user: user.wallet?.user || ({} as User),
-              },
-            };
-          }
-          return user;
-        })
-      );
+      // setUsers(
+      //   users.map((user) => {
+      //     if (user.id === selectedUser.id) {
+      //       return {
+      //         ...user,
+      //         wallet: {
+      //           ...user.wallet!,
+      //           balance: (user.wallet?.balance || 0) + amount,
+      //           id: user.wallet?.id || 0,
+      //           userId: user.wallet?.userId || "",
+      //           user: user.wallet?.user || ({} as User),
+      //         },
+      //       };
+      //     }
+      //     return user;
+      //   })
+      // );
       setTopUpAmount("");
       setSelectedUser(null);
       toast({

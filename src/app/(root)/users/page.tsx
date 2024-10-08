@@ -63,7 +63,7 @@ export default function UsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((user) => (
+            {filteredUsers?.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
                 <TableCell className="font-medium">{user.name}</TableCell>
@@ -157,7 +157,7 @@ export default function UsersPage() {
                       variant={
                         user.status === "ACTIVE" ? "destructive" : "default"
                       }
-                      onClick={() => toggleUserStatus(user.id)}
+                      onClick={() => toggleUserStatus(user.id, user)}
                     >
                       {user.status === "ACTIVE" ? (
                         <UserX className="mr-2 h-4 w-4" />
