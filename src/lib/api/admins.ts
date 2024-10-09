@@ -3,8 +3,8 @@ import { axiosInstance } from "./instance";
 
 export async function getAdmins() {
   try {
-    const response = await axiosInstance.get<SuperUser[]>("/admin");
-    const data = response.data;
+    const response = await axiosInstance.get("/users/super/users");
+    const data = response.data.data;
     return data;
   } catch (error) {
     console.error(error);
