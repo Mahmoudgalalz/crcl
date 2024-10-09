@@ -57,8 +57,6 @@ export default function EventPage({ params }: { params: { id: string } }) {
     select: (data) => data.event,
   });
 
-  console.log(event);
-
   const image = event?.image?.includes("https://127.0.0.1")
     ? event?.image?.replace("https://", "http://")
     : "/placeholder.jpg";
