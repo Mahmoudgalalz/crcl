@@ -72,7 +72,7 @@ export function CreateOpsUserForm() {
   async function onSubmit(data: FormValues) {
     const userData: Partial<User> = {
       number: "+2" + data.number,
-      // name: data.name,
+      name: data.name,
       email: data.email,
       password: data.password,
       type: data.type as UserType,
@@ -110,7 +110,7 @@ export function CreateOpsUserForm() {
               name="type"
               render={({ field }) => (
                 <FormItem className=" flex-1 w-full">
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Type</FormLabel>
                   <Select onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>

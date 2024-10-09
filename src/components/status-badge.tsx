@@ -1,9 +1,9 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { EventStatus } from "@/lib/types";
+import { EventStatus, NewsStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function EventStatusBadge({ status }: { status: EventStatus }) {
+export function StatusBadge({ status }: { status: EventStatus | NewsStatus }) {
   return (
     <Badge
       variant="outline"
