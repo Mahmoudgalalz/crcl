@@ -1,9 +1,14 @@
 import { isAxiosError } from "axios";
 import { axiosInstance } from "./instance";
+import { ApiSuccessResponse } from "../types";
 
 export async function login(email: string, password: string) {
   try {
-    const res = await axiosInstance.post(
+    const res = await axiosInstance.post<
+      ApiSuccessResponse<{
+        access_token: string;
+      }>
+    >(
       "/auth/admin/login",
       {
         email,
@@ -19,7 +24,7 @@ export async function login(email: string, password: string) {
 
     console.log(res.data);
 
-    if (res.status === 200) {
+    if (res.data.status === "success") {
       localStorage.setItem("token", res.data.data.access_token);
       return true;
     } else {
