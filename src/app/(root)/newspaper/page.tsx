@@ -9,12 +9,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { NewspaperForm } from "@/components/newspaper/newspaper-form";
-import { NewspaperItem } from "@/components/newspaper/newspaper-item";
 import { Plus } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createNewspaper, getNewspaper } from "@/lib/api/newspaper";
 import { useState } from "react";
 import { Newspaper } from "@/lib/types";
+import { NewspaperGrid } from "@/components/newspaper/newspaper-grid";
 
 export default function NewspaperPage() {
   const queryClient = useQueryClient();
@@ -80,8 +80,8 @@ export default function NewspaperPage() {
             </DialogContent>
           </Dialog>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-10">
-          {newspapers
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-10"> */}
+        {/* {newspapers
             ?.sort((a, b) => {
               const statusOrder = { DRAFTED: 1, PUBLISHED: 2, DELETED: 3 };
               return (
@@ -90,8 +90,9 @@ export default function NewspaperPage() {
             })
             .map((newspaper) => (
               <NewspaperItem key={newspaper.id} newspaper={newspaper} />
-            ))}
-        </div>
+            ))} */}
+        <NewspaperGrid newspapers={newspapers} />
+        {/* </div> */}
       </div>
     </ContentLayout>
   );

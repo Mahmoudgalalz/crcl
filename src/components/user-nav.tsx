@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "next-view-transitions";
+
 import { LayoutGrid, LogOut, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/lib/api/auth";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter as useRouter } from "next-view-transitions";
 
 export function UserNav() {
   const router = useRouter();
