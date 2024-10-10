@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { AnEvent } from "@/lib/types";
 import { Search, Filter } from "lucide-react";
 import { EventItem } from "./event-item";
+import { Input } from "../ui/input";
 
 export function EventsGrid({ events }: { events?: AnEvent[] }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +32,7 @@ export function EventsGrid({ events }: { events?: AnEvent[] }) {
     <div className="container mx-auto py-10">
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-grow">
-          <input
+          <Input
             type="text"
             placeholder="Search events..."
             value={searchTerm}

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Newspaper } from "@/lib/types";
 import { NewspaperItem } from "./newspaper-item";
 import { Search, Filter } from "lucide-react";
+import { Input } from "../ui/input";
 
 export function NewspaperGrid({ newspapers }: { newspapers?: Newspaper[] }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,7 +26,7 @@ export function NewspaperGrid({ newspapers }: { newspapers?: Newspaper[] }) {
     <>
       <div className="flex flex-col sm:flex-row gap-4 pt-10 pb-6">
         <div className="relative flex-grow">
-          <input
+          <Input
             type="text"
             placeholder="Search newspapers..."
             value={searchTerm}
