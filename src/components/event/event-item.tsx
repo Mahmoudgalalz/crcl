@@ -13,15 +13,12 @@ import Image from "next/image";
 import { StatusBadge } from "../status-badge";
 
 export function EventItem({ event }: { event: AnEvent }) {
-  const image = event.image?.includes("https://127.0.0.1")
-    ? event.image.replace("https://", "http://")
-    : "/placeholder.jpg";
   return (
     <Link href={`/events/${event.id}`} key={event.id}>
       <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
         <CardHeader>
           <Image
-            src={image ?? "https://placehold.co/600x400/EEE/31343C"}
+            src={event.image ?? ""}
             alt={event.title}
             width={600}
             height={400}
