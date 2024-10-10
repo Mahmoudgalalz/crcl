@@ -1,16 +1,25 @@
 import { LoginForm } from "@/components/login-form";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export default function Home() {
+export default function LoginPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center ~px-4/10 ~py-8/14 gap-6 justify-center">
-      <div className=" flex flex-col items-center justify-center gap-12 px-4 py-16 shadow-2xl rounded-lg md:p-8 drop-shadow-2xl max-sm:w-full shadow-primary/50">
-        <div className="flex flex-col gap-8 items-center ">
-          <h1 className="~text-3xl/4xl tracking-wide font-bold text-center text-balance">
-            CRCL <span className="font-thin">Admin Portal</span>
-          </h1>
-        </div>
+    <main className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            CRCL Admin Login
+          </CardTitle>
+          <CardDescription className="text-center text-zinc-700">
+            Enter your credentials to access the dashboard
+          </CardDescription>
+        </CardHeader>
         <LoginForm />
-      </div>
+      </Card>
     </main>
   );
 }
