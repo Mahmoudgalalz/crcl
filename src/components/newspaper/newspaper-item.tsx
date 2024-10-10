@@ -16,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import Image from "next/image";
 import { Newspaper, NewsStatus } from "@/lib/types";
 import { StatusBadge } from "../status-badge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -89,7 +88,7 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        <Image
+        <img
           src={newspaper.image ?? ""}
           alt={newspaper.title}
           className="w-full h-40 object-cover mb-4 rounded"
