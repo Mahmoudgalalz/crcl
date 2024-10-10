@@ -56,10 +56,6 @@ export default function EventPage({ params }: { params: { id: string } }) {
     select: (data) => data.event,
   });
 
-  const image = event?.image?.includes("https://127.0.0.1")
-    ? event?.image?.replace("https://", "http://")
-    : "/placeholder.jpg";
-
   const remainingEventCapacity =
     event?.capacity &&
     event?.tickets &&
@@ -142,6 +138,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
       return { previousEvent };
     },
   });
+
+  const image =
+    process.env.NODE_ENV === "production"
+      ? event?.image
+      : event?.image?.replace("https", "http");
 
   return (
     <ContentLayout title={event?.title ?? ""}>
