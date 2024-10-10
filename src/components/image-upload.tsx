@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Upload, X } from "lucide-react";
 import { type ChangeEvent, type DragEvent } from "react";
 import { ImageFile } from "@/lib/types";
@@ -76,7 +75,7 @@ export function ImageUpload({
       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {images.map((image, index) => (
           <div key={index} className="relative">
-            <Image
+            <img
               src={image.preview}
               alt={`Preview ${index}`}
               className="w-full h-32 object-cover rounded-lg"

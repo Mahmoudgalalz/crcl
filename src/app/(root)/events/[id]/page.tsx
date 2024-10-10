@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { EventForm } from "@/components/event/event-form";
 import { StatusBadge } from "@/components/status-badge";
-import Image from "next/image";
 import { TicketTypeForm } from "@/components/event/ticket-type-form";
 import { TicketTypeItem } from "@/components/event/ticket-type-item";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -56,12 +55,6 @@ export default function EventPage({ params }: { params: { id: string } }) {
     queryFn: () => getEvent(params.id),
     select: (data) => data.event,
   });
-
-  console.log(event);
-
-  const image = event?.image?.includes("https://127.0.0.1")
-    ? event?.image?.replace("https://", "http://")
-    : "/placeholder.jpg";
 
   const remainingEventCapacity =
     event?.capacity &&
@@ -146,6 +139,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
     },
   });
 
+  const image =
+    process.env.NODE_ENV === "production"
+      ? event?.image
+      : event?.image?.replace("https", "http");
+
   return (
     <ContentLayout title={event?.title ?? ""}>
       <div className="container mx-auto pb-10 w-fit">
@@ -157,7 +155,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
         </Link>
         <Card className="mb-6 max-w-3xl min-w-[800px]">
           <CardHeader>
-            <Image
+            <img
               src={image}
               alt={event?.title ?? ""}
               width={600}
