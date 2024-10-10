@@ -114,7 +114,7 @@ export function AdminsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {admins?.map((admin) => (
+          {admins?.map((admin: SuperUser) => (
             <TableRow key={admin.id}>
               <TableCell>{admin.name}</TableCell>
               <TableCell>{admin.email}</TableCell>

@@ -1,9 +1,7 @@
 "use client";
-
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,9 +10,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { login } from "@/lib/api/auth";
+import { MailIcon, LockIcon } from "lucide-react";
+import { CardContent, CardFooter } from "./ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   email: z.string().min(2).max(50).email(),
@@ -48,44 +49,62 @@ export function LoginForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-full "
-      >
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="w-full ">
-              <FormLabel className="~text-lg/xl">Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Type your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="w-full ">
-              <FormLabel className="~text-lg/xl">Password</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Type your password"
-                  {...field}
-                  type="password"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" className="w-full ~text-lg/xl font-semibold ">
-          Login
-        </Button>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <CardContent className="space-y-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base font-semibold text-gray-700">
+                  Email
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <MailIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Type your email"
+                      className="pl-10 py-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage className="text-sm text-red-500 mt-1" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base font-semibold text-gray-700">
+                  Password
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <LockIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Type your password"
+                      type="password"
+                      className="pl-10 py-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage className="text-sm text-red-500 mt-1" />
+              </FormItem>
+            )}
+          />
+        </CardContent>
+        <CardFooter>
+          <Button
+            type="submit"
+            className="w-full text-white font-bold py-3 px-4 rounded-lg transition duration-300"
+          >
+            Log In
+          </Button>
+        </CardFooter>
       </form>
     </Form>
   );

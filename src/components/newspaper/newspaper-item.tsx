@@ -16,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import Image from "next/image";
 import { Newspaper, NewsStatus } from "@/lib/types";
 import { StatusBadge } from "../status-badge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -77,10 +76,6 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
     },
   });
 
-  const image = newspaper.image?.includes("https://127.0.0.1")
-    ? newspaper.image.replace("https://", "http://")
-    : "/placeholder.jpg";
-
   const [isChangeStatus, setIsChangeStatus] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -93,8 +88,8 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        <Image
-          src={image!}
+        <img
+          src={newspaper.image ?? ""}
           alt={newspaper.title}
           className="w-full h-40 object-cover mb-4 rounded"
           width={600}
