@@ -11,9 +11,9 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         if: github.ref == 'refs/heads/main'
         with:
-          host: ${{ secrets.DEV_SERVER }}
-          username: ${{ secrets.DEV_USER }}
-          key: ${{ secrets.DEV_SSH_KEY }}
+          host: ${{ secrets.SERVER }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
