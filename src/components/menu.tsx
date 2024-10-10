@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "next-view-transitions";
+
 import { Ellipsis, LogOut, LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -16,7 +17,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { logout } from "@/lib/api/auth";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter as useRouter } from "next-view-transitions";
 
 interface MenuProps {
   isOpen: boolean | undefined;
