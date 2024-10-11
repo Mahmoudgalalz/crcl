@@ -1,40 +1,34 @@
 import React, { useState, useMemo } from "react";
-import { AnEvent } from "@/lib/types";
+import { Newspaper } from "@/lib/types";
+import { NewspaperItem } from "./newspaper-item";
 import { Search, Filter } from "lucide-react";
-import { EventItem } from "./event-item";
 import { Input } from "../ui/input";
 
-export function EventsGrid({ events }: { events?: AnEvent[] }) {
+export function NewspaperGrid({ newspapers }: { newspapers?: Newspaper[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
-  const filteredEvents = useMemo(() => {
-    return events
-      ?.filter((event) =>
-        event.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredNewspapers = useMemo(() => {
+    return newspapers
+      ?.filter((newspaper) =>
+        newspaper.title.toLowerCase().includes(searchTerm.toLowerCase())
       )
-      .filter((event) =>
-        statusFilter === "ALL" ? true : event.status === statusFilter
+      .filter((newspaper) =>
+        statusFilter === "ALL" ? true : newspaper.status === statusFilter
       )
       .sort((a, b) => {
-        const statusOrder = [
-          "DRAFTED",
-          "PUBLISHED",
-          "ENDED",
-          "CANCLED",
-          "DELETED",
-        ];
-        return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+        const statusOrder = { DRAFTED: 1, PUBLISHED: 2, DELETED: 3 };
+        return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
       });
-  }, [events, searchTerm, statusFilter]);
+  }, [newspapers, searchTerm, statusFilter]);
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+    <>
+      <div className="flex flex-col sm:flex-row gap-4 pt-10 pb-6">
         <div className="relative flex-grow">
           <Input
             type="text"
-            placeholder="Search events..."
+            placeholder="Search newspapers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -53,8 +47,6 @@ export function EventsGrid({ events }: { events?: AnEvent[] }) {
             <option value="ALL">All Statuses</option>
             <option value="DRAFTED">Drafted</option>
             <option value="PUBLISHED">Published</option>
-            <option value="ENDED">Ended</option>
-            <option value="CANCLED">Cancelled</option>
             <option value="DELETED">Deleted</option>
           </select>
           <Filter
@@ -63,11 +55,11 @@ export function EventsGrid({ events }: { events?: AnEvent[] }) {
           />
         </div>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredEvents?.map((event) => (
-          <EventItem event={event} key={event.id} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {filteredNewspapers?.map((newspaper) => (
+          <NewspaperItem key={newspaper.id} newspaper={newspaper} />
         ))}
       </div>
-    </div>
+    </>
   );
 }
