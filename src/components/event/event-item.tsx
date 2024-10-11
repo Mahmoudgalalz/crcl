@@ -1,5 +1,6 @@
 import { CalendarIcon, Users } from "lucide-react";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
+
 import React from "react";
 import { AnEvent } from "@/lib/types";
 import {
