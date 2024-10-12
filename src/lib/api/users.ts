@@ -1,4 +1,4 @@
-import { User } from "../types";
+import { ApiSuccessResponse, User } from "../types";
 import { axiosInstance } from "./instance";
 
 export async function getOps() {
@@ -23,6 +23,20 @@ export async function getOps() {
   }
 }
 
+export async function getUsers() {
+  try {
+    const res = await axiosInstance.get<{
+      status: string;
+      message: string;
+      data: User[];
+    }>("/users?types=USER");
+
+    return res.data.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function createUser(user: Partial<User>) {
   try {
     const res = await axiosInstance.post<User>("/users", user);
@@ -39,6 +53,21 @@ export async function deleteUser(id: string) {
     const res = await axiosInstance.delete<User>(`/users/${id}`);
     console.log(res);
     const data: User = res.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function updateUserStatus(id: string, status: string) {
+  try {
+    const res = await axiosInstance.put<ApiSuccessResponse<User>>(
+      `/users/${id}`,
+      {
+        status,
+      }
+    );
+    const data = res.data.data;
     return data;
   } catch (error) {
     console.error(error);
