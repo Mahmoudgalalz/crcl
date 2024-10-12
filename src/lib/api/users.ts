@@ -59,11 +59,13 @@ export async function deleteUser(id: string) {
   }
 }
 
-export async function updateUser(id: string, user: Partial<User>) {
+export async function updateUserStatus(id: string, status: string) {
   try {
     const res = await axiosInstance.put<ApiSuccessResponse<User>>(
       `/users/${id}`,
-      user
+      {
+        status,
+      }
     );
     const data = res.data.data;
     return data;

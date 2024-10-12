@@ -1,51 +1,70 @@
 import { toast } from "@/hooks/use-toast";
-import { type User, type UserStatus } from "@/lib/types";
+import { type User } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUsers, updateUser } from "@/lib/api/users";
+import { getUsers, updateUserStatus } from "@/lib/api/users";
 import { useState } from "react";
 
 export function useUsers() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [topUpAmount, setTopUpAmount] = useState<number | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
   const queryClient = useQueryClient();
   const { data: users } = useQuery({
     queryKey: ["users"],
     queryFn: getUsers,
   });
 
-  const { mutate: mutateToupdateUser } = useMutation({
-    mutationFn: async ({
-      id,
-      updatedData,
-    }: {
-      id: string;
-      updatedData: Partial<User>;
-    }) => await updateUser(id, updatedData),
+  const { mutate: mutateUserStatus } = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) =>
+      await updateUserStatus(id, status),
     onSuccess: async (modUser) => {
       console.log("Mutation started");
       console.log(modUser);
       await queryClient.cancelQueries({ queryKey: ["users"] });
 
-      const users: User[] | undefined = queryClient.getQueryData(["users"]);
-
-      if (users) {
-        queryClient.setQueryData(
-          ["users"],
-          users.map((user: User) => {
-            if (user.id === modUser?.id) {
-              return modUser;
-            } else {
-              return user;
-            }
-          })
+      queryClient.setQueryData(["users"], (oldUsers: User[] | undefined) => {
+        if (!oldUsers) return oldUsers;
+        return oldUsers.map((user: User) =>
+          user.id === modUser?.id ? modUser : user
         );
-      }
-
-      return users;
+      });
     },
   });
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [topUpAmount, setTopUpAmount] = useState("");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { mutate: mutateTopUp } = useMutation({
+    mutationFn: async ({ id, amount }: { id: string; amount: number }) => {
+      const users: User[] | undefined = queryClient.getQueryData(["users"]);
+      const selectedUser = users?.find((user) => user.id === id);
+      if (!selectedUser) throw new Error("User not found");
+
+      console.log(selectedUser);
+
+      return {
+        ...selectedUser,
+        wallet: {
+          ...selectedUser.wallet,
+          balance: (selectedUser.wallet?.balance ?? 0) + amount,
+        },
+      } as User;
+    },
+    onSuccess: (modUser) => {
+      console.log("Top-up mutation started");
+      console.log(modUser);
+
+      queryClient.setQueryData(["users"], (oldUsers: User[] | undefined) => {
+        if (!oldUsers) return oldUsers;
+        return oldUsers.map((user: User) =>
+          user.id === modUser.id ? modUser : user
+        );
+      });
+
+      toast({
+        title: "Wallet topped up",
+        description: `Successfully added ${modUser.wallet?.balance} to ${modUser.name}'s wallet.`,
+      });
+    },
+  });
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -60,9 +79,9 @@ export function useUsers() {
 
   const toggleUserStatus = (userId: string, user: User) => {
     const newStatus = user.status === "ACTIVE" ? "BLOCKED" : "ACTIVE";
-    mutateToupdateUser({
+    mutateUserStatus({
       id: userId,
-      updatedData: { status: newStatus as UserStatus },
+      status: newStatus,
     });
     toast({
       title: `${user.name} is now ${newStatus}`,
@@ -71,7 +90,7 @@ export function useUsers() {
 
   const handleTopUp = () => {
     if (selectedUser && topUpAmount) {
-      const amount = parseInt(topUpAmount, 10);
+      const amount = parseInt(topUpAmount.toString(), 10);
       if (isNaN(amount) || amount <= 0) {
         toast({
           title: "Invalid amount",
@@ -80,29 +99,10 @@ export function useUsers() {
         });
         return;
       }
-      // setUsers(
-      //   users.map((user) => {
-      //     if (user.id === selectedUser.id) {
-      //       return {
-      //         ...user,
-      //         wallet: {
-      //           ...user.wallet!,
-      //           balance: (user.wallet?.balance || 0) + amount,
-      //           id: user.wallet?.id || 0,
-      //           userId: user.wallet?.userId || "",
-      //           user: user.wallet?.user || ({} as User),
-      //         },
-      //       };
-      //     }
-      //     return user;
-      //   })
-      // );
-      setTopUpAmount("");
+
+      mutateTopUp({ id: selectedUser.id, amount });
+      setTopUpAmount(null);
       setSelectedUser(null);
-      toast({
-        title: "Wallet topped up",
-        description: `Successfully added ${amount} to ${selectedUser.name}'s wallet.`,
-      });
     }
   };
 
