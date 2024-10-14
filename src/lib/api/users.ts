@@ -73,3 +73,21 @@ export async function updateUserStatus(id: string, status: string) {
     console.error(error);
   }
 }
+
+export async function updateUserWallet(id: string, amount: number) {
+  try {
+    const res = await axiosInstance.patch<
+      ApiSuccessResponse<{
+        id: string;
+        userId: string;
+        balance: number;
+      }>
+    >(`/users/wallet/${id}`, {
+      top: amount,
+    });
+    const data = res.data.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
