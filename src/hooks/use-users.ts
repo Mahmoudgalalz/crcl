@@ -1,7 +1,7 @@
 import { toast } from "@/hooks/use-toast";
 import { type User } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUsers, updateUserStatus } from "@/lib/api/users";
+import { getUsers, updateUserStatus, updateUserWallet } from "@/lib/api/users";
 import { useState } from "react";
 
 export function useUsers() {
@@ -33,35 +33,32 @@ export function useUsers() {
   });
 
   const { mutate: mutateTopUp } = useMutation({
-    mutationFn: async ({ id, amount }: { id: string; amount: number }) => {
-      const users: User[] | undefined = queryClient.getQueryData(["users"]);
-      const selectedUser = users?.find((user) => user.id === id);
-      if (!selectedUser) throw new Error("User not found");
+    mutationFn: async ({ id, amount }: { id: string; amount: number }) =>
+      await updateUserWallet(id, amount),
 
-      console.log(selectedUser);
-
-      return {
-        ...selectedUser,
-        wallet: {
-          ...selectedUser.wallet,
-          balance: (selectedUser.wallet?.balance ?? 0) + amount,
-        },
-      } as User;
-    },
-    onSuccess: (modUser) => {
+    onSuccess: (walletUpdate) => {
       console.log("Top-up mutation started");
-      console.log(modUser);
 
       queryClient.setQueryData(["users"], (oldUsers: User[] | undefined) => {
         if (!oldUsers) return oldUsers;
         return oldUsers.map((user: User) =>
-          user.id === modUser.id ? modUser : user
+          user.id === walletUpdate?.userId
+            ? {
+                ...user,
+                wallet: {
+                  ...user.wallet,
+                  balance: walletUpdate.balance,
+                },
+              }
+            : user
         );
       });
 
+      const user = users?.find((user) => user.id === walletUpdate?.userId);
+
       toast({
         title: "Wallet topped up",
-        description: `Successfully added ${modUser.wallet?.balance} to ${modUser.name}'s wallet.`,
+        description: `Successfully added ${walletUpdate?.balance} to ${user?.name}'s wallet.`,
       });
     },
   });
