@@ -23,13 +23,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import CustomPhoneInput from "../ui/phone-input";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
   email: z.string().email(),
   password: z.string().min(6),
   type: z.enum(["BOOTH", "READER"]),
-  number: z.string().min(10).max(11),
+  phone: z.string().min(10).max(13),
   gender: z.enum(["Male", "Female"]),
 });
 
@@ -45,7 +46,7 @@ export function CreateOpsUserForm() {
       email: "",
       password: "",
       type: "BOOTH",
-      number: "",
+      phone: "",
       gender: "Male",
     },
   });
@@ -71,7 +72,7 @@ export function CreateOpsUserForm() {
 
   async function onSubmit(data: FormValues) {
     const userData: Partial<User> = {
-      number: "+2" + data.number,
+      number: data.phone,
       name: data.name,
       email: data.email,
       password: data.password,
@@ -145,17 +146,12 @@ export function CreateOpsUserForm() {
 
             <FormField
               control={form.control}
-              name="number"
-              render={({ field }) => (
+              name="phone"
+              render={({}) => (
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="for example: 01060406445"
-                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      {...field}
-                    />
+                    <CustomPhoneInput control={form.control} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
