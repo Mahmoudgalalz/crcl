@@ -55,17 +55,30 @@ export function CreateOpsUserForm() {
     mutationKey: ["ops"],
     mutationFn: (formValues: Partial<User>) =>
       createUser(formValues as unknown as Partial<User>),
-    onMutate: (formValues: Partial<User>) => {
-      console.log(formValues);
-      queryClient.setQueryData(["ops"], (old: User[]) => {
-        return [...old, formValues];
+    onMutate: async (formValues: Partial<User>) => {
+      await queryClient.cancelQueries({ queryKey: ["ops"] });
+      const previousUsers = queryClient.getQueryData<User[]>(["ops"]);
+
+      queryClient.setQueryData<User[]>(["ops"], (old) => [
+        ...(old || []),
+        formValues as User,
+      ]);
+
+      return { previousUsers };
+    },
+    onError: (err, formValues, context) => {
+      queryClient.setQueryData(["ops"], context?.previousUsers);
+      toast({
+        title: "Something went wrong.",
+        description: "Your operation user was not created. Please try again.",
+        variant: "destructive",
       });
     },
     onSuccess() {
       form.reset();
       toast({
-        title: "Opreation User created!",
-        description: "Opreation User successfully!",
+        title: "Operation User created!",
+        description: "Operation User successfully!",
       });
     },
   });
