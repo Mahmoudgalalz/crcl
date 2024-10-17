@@ -67,11 +67,8 @@ export function useUsers() {
     setSearchTerm(event.target.value);
   };
 
-  const filteredUsers = users?.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.number.includes(searchTerm)
+  const filteredUsers = users?.filter((user) =>
+    user.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const toggleUserStatus = (userId: string, user: User) => {
