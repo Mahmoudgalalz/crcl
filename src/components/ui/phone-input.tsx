@@ -12,12 +12,12 @@ export default function CustomPhoneInput({
 }: {
   control: Control<
     {
-      phone: string;
-      type: "BOOTH" | "READER";
       name: string;
       email: string;
       password: string;
-      gender: "Male" | "Female";
+      type: string;
+      phone: string;
+      gender: string;
     },
     unknown
   >;
