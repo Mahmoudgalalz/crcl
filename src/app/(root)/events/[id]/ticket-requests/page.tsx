@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import {
   ArrowUpRightFromCircleIcon,
-  ArrowUpRightIcon,
+  // ArrowUpRightIcon,
   Check,
   Search,
   X,
@@ -20,9 +20,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useQuery } from "@tanstack/react-query";
-import { getEvent, getTicketRequets } from "@/lib/api/events";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getEvent,
+  getTicketRequets,
+  changeTicketReqStatuss,
+} from "@/lib/api/events";
 import { StatusBadge } from "@/components/status-badge";
+import { TicketRequest } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 // import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
 // import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 // import {
@@ -35,8 +41,10 @@ import { StatusBadge } from "@/components/status-badge";
 // } from "@/components/ui/dialog";
 
 export default function EventTicketRequests() {
+  const queryClient = useQueryClient();
   const params = useParams();
   const eventId = params.id as string;
+  const { toast } = useToast();
 
   const { data: ticketRequests } = useQuery({
     queryKey: ["event", eventId, "tickets"],
@@ -51,40 +59,55 @@ export default function EventTicketRequests() {
     },
   });
 
-  // const [event, setEvent] = useState<Event | null>(null);
+  const { mutate: changeTicketStatus } = useMutation({
+    mutationFn: async ({
+      ticketId,
+      newStatus,
+      userId,
+    }: {
+      ticketId: string;
+      newStatus: "APPROVED" | "DECLINED";
+      userId: string;
+    }) => await changeTicketReqStatuss(ticketId, newStatus, userId),
+    onMutate(variables) {
+      queryClient.cancelQueries({ queryKey: ["event", eventId, "tickets"] });
+      const previousTickets = queryClient.getQueryData([
+        "event",
+        eventId,
+        "tickets",
+      ]);
+      queryClient.setQueryData(
+        ["event", eventId, "tickets"],
+        (old: TicketRequest[]) => {
+          return old.map((ticket) => {
+            if (ticket.id === variables.ticketId) {
+              return {
+                ...ticket,
+                status: variables.newStatus,
+              };
+            }
+            return ticket;
+          });
+        }
+      );
+
+      return { previousTickets };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Ticket request status changed successfully",
+      });
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(
+        ["event", eventId, "tickets"],
+        context?.previousTickets
+      );
+    },
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
-
-  // useEffect(() => {
-  //   const loadEventAndRequests = async () => {
-  //     const eventDetails = await fetchEventDetails(eventId);
-  //     setEvent(eventDetails);
-  //     const requests = await fetchTicketRequests(eventId);
-  //     setTicketRequests(requests);
-  //   };
-  //   loadEventAndRequests();
-  // }, [eventId]);
-
-  // const handleApprove = async (requestId: number) => {
-  //   // In a real application, you would make an API call here
-  //   // setTicketRequests((requests) =>
-  //   //   requests.map((request) =>
-  //   //     request.id === requestId ? { ...request, status: "approved" } : request
-  //   //   )
-  //   // );
-  // };
-
-  // const handleDecline = async (requestId: number) => {
-  //   // In a real application, you would make an API call here
-  //   // setTicketRequests((requests) =>
-  //   //   requests.map((request) =>
-  //   //     request.id === requestId ? { ...request, status: "declined" } : request
-  //   //   )
-  //   // );
-  // };
-
-  // const filteredRequests = ticketRequests?.filter((request) =>
-  //   request.userId.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -151,7 +174,16 @@ export default function EventTicketRequests() {
                     <Button
                       className="text-white bg-green-700 rounded-full hover:bg-green-800"
                       size="sm"
-                      disabled={req.status === "APPROVED"}
+                      disabled={
+                        req.status === "APPROVED" || req.status === "DECLINED"
+                      }
+                      onClick={() =>
+                        changeTicketStatus({
+                          ticketId: req.id,
+                          newStatus: "APPROVED",
+                          userId: req.userId,
+                        })
+                      }
                     >
                       <Check className="mr-2 size-4" />
                       Approve
@@ -159,7 +191,16 @@ export default function EventTicketRequests() {
                     <Button
                       className="text-white bg-red-700 rounded-full hover:bg-red-800"
                       size="sm"
-                      disabled={req.status === "APPROVED"}
+                      disabled={
+                        req.status === "APPROVED" || req.status === "DECLINED"
+                      }
+                      onClick={() =>
+                        changeTicketStatus({
+                          ticketId: req.id,
+                          newStatus: "DECLINED",
+                          userId: req.userId,
+                        })
+                      }
                     >
                       <X className="mr-2 size-4" />
                       Decline

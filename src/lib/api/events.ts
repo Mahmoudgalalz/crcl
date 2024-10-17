@@ -129,15 +129,12 @@ export async function changeTicketReqStatuss(
   userId: string
 ) {
   try {
-    const response = await axiosInstance.put<TicketRequest>(
-      `/events/tickets/${ticketId}`,
-      {
-        status,
-        userId,
-      }
-    );
-    const data = response.data;
-    return data;
+    const response = await axiosInstance.patch(`/events/requests/${ticketId}`, {
+      status,
+      userId,
+    });
+    const data = response.status;
+    return data === 200;
   } catch (error) {
     console.error(error);
     throw error;
