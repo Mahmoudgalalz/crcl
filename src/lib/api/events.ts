@@ -1,5 +1,5 @@
 "use client";
-import { AnEvent, ApiSuccessResponse, Ticket } from "../types";
+import { AnEvent, ApiSuccessResponse, Ticket, TicketRequest } from "../types";
 import { axiosInstance } from "./instance";
 
 export async function getEvents() {
@@ -106,5 +106,40 @@ export async function updateTicketType(ticket: Ticket) {
     return {} as unknown as {
       event: AnEvent;
     };
+  }
+}
+
+export async function getTicketRequets(eventId: string) {
+  try {
+    const response = await axiosInstance.get<
+      ApiSuccessResponse<TicketRequest[]>
+    >(`/events/${eventId}/requests`);
+
+    const data = response.data.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function changeTicketReqStatuss(
+  ticketId: string,
+  status: "APPROVED" | "DECLINED",
+  userId: string
+) {
+  try {
+    const response = await axiosInstance.put<TicketRequest>(
+      `/events/tickets/${ticketId}`,
+      {
+        status,
+        userId,
+      }
+    );
+    const data = response.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
