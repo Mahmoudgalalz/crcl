@@ -44,6 +44,7 @@ export async function createUser(user: Partial<User>) {
     console.log(data, res);
     return data;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 }
