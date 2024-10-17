@@ -275,6 +275,12 @@ export default function EventTicketRequests() {
                                   : "N/A"}
                               </span>
                             </div>
+                            <div className="flex flex-col gap-2">
+                              <span className="text-xl font-medium">
+                                Special Requests
+                              </span>
+                              <div>{req.meta.specialRequest}</div>
+                            </div>
                           </div>
                         </DialogContent>
                       </Dialog>
