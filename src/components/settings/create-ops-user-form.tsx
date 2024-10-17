@@ -98,7 +98,7 @@ export function CreateOpsUserForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit(data))}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid w-full items-center gap-4">
           <div className="flex items-center gap-4 *:flex-1">
             <FormField
