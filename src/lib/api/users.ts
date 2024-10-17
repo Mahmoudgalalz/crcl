@@ -37,6 +37,18 @@ export async function getUsers() {
   }
 }
 
+export async function getUser(id: string) {
+  try {
+    const res = await axiosInstance.get<ApiSuccessResponse<User>>(
+      `/users/${id}`
+    );
+    const data = res.data.data;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function createUser(user: Partial<User>) {
   try {
     const res = await axiosInstance.post<User>("/users", user);
