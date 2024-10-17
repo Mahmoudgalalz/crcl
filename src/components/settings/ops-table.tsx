@@ -31,8 +31,20 @@ export function OpsTable() {
     },
 
     onMutate: (id: string) => {
-      queryClient.setQueryData(["ops"], (old: User[]) => {
-        return old.filter((user) => user.id !== id);
+      queryClient.cancelQueries({ queryKey: ["ops"] });
+      const previousUsers = queryClient.getQueryData(["ops"]);
+      queryClient.setQueryData(["ops"], (oldUsers: User[] | undefined) => {
+        if (!oldUsers) return oldUsers;
+        return oldUsers.filter((user: User) => user.id !== id);
+      });
+      return { previousUsers };
+    },
+    onError(error, variables, context) {
+      queryClient.setQueryData(["ops"], context?.previousUsers);
+      toast({
+        title: "Something went wrong!",
+        description: "Ops User could not be deleted. Please try again.",
+        variant: "destructive",
       });
     },
     onSuccess() {

@@ -53,14 +53,10 @@ export function AdminsTable() {
   const { mutate: deleteAdminMutation } = useMutation({
     mutationFn: (id: string) => deleteAdmin(id),
 
-    onSuccess: async (deletedAdmin) => {
+    onMutate: async (deletedAdmin) => {
       await queryClient.cancelQueries({ queryKey: ["admins"] });
 
-      const admins = queryClient.getQueryData(["admins"]);
-
-      console.log("Deleted admin: ", deletedAdmin);
-
-      console.log("Admins: ", admins);
+      const oldAdmins = queryClient.getQueryData(["admins"]);
 
       queryClient.setQueryData(["admins"], (old: SuperUser[]) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -68,9 +64,22 @@ export function AdminsTable() {
         return old.filter((admin) => admin.id !== deletedAdmin.id);
       });
 
+      return { oldAdmins };
+    },
+
+    onSuccess: () => {
       toast({
         title: "Admin deleted successfully",
-        description: "The admin has been deleted successfully",
+        description: "Admin has been deleted successfully",
+      });
+    },
+
+    onError: (err, deletedAdmin, context) => {
+      queryClient.setQueryData(["admins"], context?.oldAdmins);
+      toast({
+        title: "Something went wrong.",
+        description: "Admin was not deleted. Please try again.",
+        variant: "destructive",
       });
     },
   });
