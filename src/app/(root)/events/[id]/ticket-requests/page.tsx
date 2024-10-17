@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import {
-  ArrowUpRightFromCircleIcon,
   // ArrowUpRightIcon,
   Check,
   Search,
+  User,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,16 +29,15 @@ import {
 import { StatusBadge } from "@/components/status-badge";
 import { TicketRequest } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-// import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-// import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-// import {
-//   Dialog,
-//   DialogTrigger,
-//   DialogContent,
-//   DialogTitle,
-//   DialogDescription,
-//   DialogClose,
-// } from "@/components/ui/dialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogHeader,
+} from "@/components/ui/dialog";
+import { getUser } from "@/lib/api/users";
 
 export default function EventTicketRequests() {
   const queryClient = useQueryClient();
@@ -106,6 +105,7 @@ export default function EventTicketRequests() {
       );
     },
   });
+  const { triggerFetch: fetchPurchaser, purchaser } = usePurchaserQuery();
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -162,9 +162,100 @@ export default function EventTicketRequests() {
               ticketRequests.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell>{req.id}</TableCell>
-                  <TableCell className="font-medium flex items-center space-x-2">
-                    {req.userId}
-                    <ArrowUpRightFromCircleIcon className="size-4" />
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={() => fetchPurchaser(req.userId)}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          {req.userId}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Purchaser Details</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="flex items-center justify-center">
+                            <Avatar className="h-24 w-24">
+                              <AvatarImage
+                                src={purchaser?.picture}
+                                alt={purchaser?.name}
+                              />
+                              <AvatarFallback>
+                                {purchaser?.name?.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Name:</span>
+                            <span className="col-span-3">
+                              {purchaser?.name}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Email:</span>
+                            <span className="col-span-3">
+                              {purchaser?.email}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Number:</span>
+                            <span className="col-span-3">
+                              {purchaser?.number}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Gender:</span>
+                            <span className="col-span-3">
+                              {purchaser?.gender || "Not specified"}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Type:</span>
+                            <span className="col-span-3">
+                              {purchaser?.type}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Wallet:</span>
+                            <span className="col-span-3">
+                              ${purchaser?.wallet?.balance || 0}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Facebook:</span>
+                            <span className="col-span-3">
+                              {purchaser?.facebook || "Not provided"}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Instagram:</span>
+                            <span className="col-span-3">
+                              {purchaser?.instagram || "Not provided"}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Created:</span>
+                            <span className="col-span-3">
+                              {purchaser?.createdAt
+                                ? new Date(purchaser.createdAt).toLocaleString()
+                                : "N/A"}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <span className="font-bold">Updated:</span>
+                            <span className="col-span-3">
+                              {purchaser?.updatedAt
+                                ? new Date(purchaser.updatedAt).toLocaleString()
+                                : "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </TableCell>
                   <TableCell>{req.meta.ticketType}</TableCell>
                   <TableCell>
@@ -215,3 +306,20 @@ export default function EventTicketRequests() {
     </div>
   );
 }
+
+const usePurchaserQuery = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const { data: purchaser } = useQuery({
+    queryKey: ["Purchaser", userId],
+    queryFn: () =>
+      userId ? getUser(userId) : Promise.reject("No user ID provided"),
+    enabled: !!userId,
+  });
+
+  const triggerFetch = (newUserId: string) => {
+    setUserId(newUserId);
+  };
+
+  return { purchaser, triggerFetch };
+};
