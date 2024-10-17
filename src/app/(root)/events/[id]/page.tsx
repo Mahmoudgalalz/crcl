@@ -1,6 +1,6 @@
 "use client";
 import { Link } from "next-view-transitions";
-
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +18,7 @@ import {
   Mic2Icon,
   Plus,
   Users2,
+  UserCog,
 } from "lucide-react";
 import { ContentLayout } from "@/components/admin-layout";
 import {
@@ -35,7 +36,6 @@ import { TicketTypeItem } from "@/components/event/ticket-type-item";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createTicketType, getEvent, updateEvent } from "@/lib/api/events";
 import { AnEvent, EventStatus, Ticket } from "@/lib/types";
-import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -148,12 +148,20 @@ export default function EventPage({ params }: { params: { id: string } }) {
   return (
     <ContentLayout title={event?.title ?? ""}>
       <div className="container mx-auto pb-10 w-fit">
-        <Link href="/events">
-          <Button variant="outline" className="mb-6">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Events
-          </Button>
-        </Link>
+        <div className="flex justify-between items-center">
+          <Link href="/events">
+            <Button variant="outline" className="mb-4">
+              <ArrowLeft className="mr-2 size-4" />
+              Back to Events
+            </Button>
+          </Link>
+          <Link href={`/events/${params.id}/ticket-requests`}>
+            <Button className="mb-4 font-semibold">
+              <UserCog className="mr-2 size-4" />
+              Ticket Requests
+            </Button>
+          </Link>
+        </div>
         <Card className="mb-6 max-w-3xl min-w-[800px]">
           <CardHeader>
             <img
@@ -163,9 +171,9 @@ export default function EventPage({ params }: { params: { id: string } }) {
               height={400}
               className="rounded-md h-48 w-full object-cover mb-2"
             />
-            <CardTitle className=" flex items-center justify-between">
+            <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h1 className="~text-2xl/3xl">{event?.title ?? ""}</h1>
+                <h1 className="text-2xl">{event?.title ?? ""}</h1>
                 <StatusBadge status={event?.status ?? ("" as EventStatus)} />
               </div>
               <div className="flex gap-4 items-center flex-row-reverse">
