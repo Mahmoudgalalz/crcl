@@ -163,9 +163,12 @@ export type TicketRequest = {
   userId: string;
   eventId: string;
   meta: {
-    ticketType: string;
-    specialRequest: string;
-  };
+    name: string;
+    email: string;
+    number: string;
+    social: string;
+    ticketId: string;
+  }[];
   status: TicketStatus;
   createdAt: string;
   updateAt: string;
