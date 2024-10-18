@@ -1,7 +1,6 @@
 "use client";
-
 import { useState, useMemo } from "react";
-import { UserX } from "lucide-react";
+import { Search, UserX } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ColumnDef,
@@ -10,7 +9,6 @@ import {
   useReactTable,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -30,7 +28,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { deleteUser, getOps } from "@/lib/api/users";
 import { User } from "@/lib/types";
@@ -39,10 +37,11 @@ const ROWS_PER_PAGE = 5;
 
 export function OpsTable() {
   const [opsType, setOpsType] = useState<"READER" | "BOOTH">("BOOTH");
+  const [searchQuery, setSearchQuery] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: ops, isLoading } = useQuery({
+  const { data: ops } = useQuery({
     queryKey: ["ops"],
     queryFn: getOps,
   });
@@ -107,8 +106,15 @@ export function OpsTable() {
   );
 
   const filteredData = useMemo(() => {
-    return ops?.filter((op) => op.type === opsType) || [];
-  }, [ops, opsType]);
+    return (
+      ops?.filter(
+        (op) =>
+          op.type === opsType &&
+          (op.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            op.email.toLowerCase().includes(searchQuery.toLowerCase()))
+      ) || []
+    );
+  }, [ops, opsType, searchQuery]);
 
   const table = useReactTable({
     data: filteredData,
@@ -124,28 +130,36 @@ export function OpsTable() {
 
   const currentPageData = table.getRowModel().rows;
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <Card className="!border-0">
       <CardContent className="!border-0">
-        <Tabs
-          defaultValue="BOOTH"
-          className="mb-4"
-          onValueChange={(value) => setOpsType(value as "READER" | "BOOTH")}
-        >
-          <TabsList>
-            <TabsTrigger value="BOOTH">Booth</TabsTrigger>
-            <TabsTrigger value="READER">Reader</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        {filteredData.length === 0 ? (
-          <div className="text-center py-4">
-            No entities found for the selected type.
+        <div className="flex justify-between ">
+          <Tabs
+            defaultValue="BOOTH"
+            className="mb-4"
+            onValueChange={(value) => setOpsType(value as "READER" | "BOOTH")}
+          >
+            <TabsList>
+              <TabsTrigger value="BOOTH">Booth</TabsTrigger>
+              <TabsTrigger value="READER">Reader</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <div className="relative w-80">
+            <Input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className=" pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search
+              className="absolute left-3 top-5 transform -translate-y-1/2 text-gray-400 "
+              size={20}
+            />
           </div>
+        </div>
+        {filteredData.length === 0 ? (
+          <div className="text-center py-4">No users founded.</div>
         ) : (
           <>
             <div className="border rounded-md">
@@ -183,7 +197,10 @@ export function OpsTable() {
                       .map((_, index) => (
                         <TableRow key={`empty-${index}`}>
                           {columns.map((column, columnIndex) => (
-                            <TableCell key={`empty-${index}-${columnIndex}`}>
+                            <TableCell
+                              key={`empty-${index}-${columnIndex}`}
+                              className="p-4"
+                            >
                               &nbsp;
                             </TableCell>
                           ))}
