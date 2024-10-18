@@ -6,6 +6,7 @@ import {
   Users,
   BellDotIcon,
   Settings,
+  Contact,
 } from "lucide-react";
 
 type Submenu = {
@@ -96,6 +97,13 @@ export function getMenuList(pathname: string): Group[] {
               </svg>
             );
           },
+          submenus: [],
+        },
+        {
+          href: "/ops",
+          label: "Operations",
+          active: pathname.includes("/ops"),
+          icon: Contact,
           submenus: [],
         },
         {
