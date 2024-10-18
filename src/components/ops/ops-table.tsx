@@ -13,8 +13,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteUser, getOps } from "@/lib/api/users";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "@/lib/types";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { useState } from "react";
 
 export function OpsTable() {
+  const [opsType, setOpsType] = useState<"READER" | "BOOTH">("BOOTH");
   const queryClient = useQueryClient();
   const { data: ops } = useQuery({
     queryKey: ["ops"],
@@ -54,40 +57,64 @@ export function OpsTable() {
       });
     },
   });
+
   return (
     <CardContent>
+      <Tabs defaultValue="BOOTH" className="mb-4">
+        <TabsList>
+          <TabsTrigger
+            value="BOOTH"
+            onClick={() => {
+              setOpsType("BOOTH");
+            }}
+            defaultChecked
+          >
+            Booth
+          </TabsTrigger>
+          <TabsTrigger
+            value="READER"
+            onClick={() => {
+              setOpsType("READER");
+            }}
+          >
+            Reader
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Type</TableHead>
-
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ops?.map((opsUser) => (
-            <TableRow key={opsUser.id}>
-              <TableCell>{opsUser.name}</TableCell>
-              <TableCell>{opsUser.email}</TableCell>
-              <TableCell>{opsUser.type}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => {
-                      deleteOpsUser(opsUser.id);
-                    }}
-                  >
-                    <UserX className="mr-2 h-4 w-4" />
-                    Revoke Access
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}{" "}
+          {ops
+            ?.filter((op) => op.type === opsType)
+            .map((opsUser) => (
+              <TableRow key={opsUser.id}>
+                <TableCell>{opsUser.name}</TableCell>
+                <TableCell>{opsUser.email}</TableCell>
+                <TableCell>{opsUser.type}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        deleteOpsUser(opsUser.id);
+                      }}
+                    >
+                      <UserX className="mr-2 h-4 w-4" />
+                      Revoke Access
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}{" "}
         </TableBody>
       </Table>
     </CardContent>
