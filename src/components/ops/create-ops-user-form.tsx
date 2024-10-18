@@ -206,10 +206,12 @@ export function CreateOpsUserForm() {
             )}
           />
         </div>
-        <Button type="submit">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Operation User
-        </Button>
+        <div className="w-full flex justify-end">
+          <Button type="submit">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Operation User
+          </Button>
+        </div>
       </form>
     </Form>
   );
