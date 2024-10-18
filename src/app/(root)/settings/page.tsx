@@ -9,9 +9,6 @@ import {
 } from "@/components/ui/card";
 import { CreateAdminForm } from "@/components/settings/create-admin-form";
 import { AdminsTable } from "@/components/settings/admin-table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OpsTable } from "@/components/settings/ops-table";
-import { CreateOpsUserForm } from "@/components/settings/create-ops-user-form";
 
 export default function SettingsPage() {
   return (
@@ -19,18 +16,7 @@ export default function SettingsPage() {
       <div className="container mx-auto ">
         <h1 className="text-3xl font-bold mb-4">System Settings</h1>
       </div>
-      <Tabs defaultValue="admins">
-        <TabsList>
-          <TabsTrigger value="admins">Admins</TabsTrigger>
-          <TabsTrigger value="ops">Opreations Users</TabsTrigger>
-        </TabsList>
-        <TabsContent value="admins">
-          <AdminsTab />
-        </TabsContent>
-        <TabsContent value="ops">
-          <OpsTab />
-        </TabsContent>
-      </Tabs>
+      <AdminsTab />
     </ContentLayout>
   );
 }
@@ -56,33 +42,6 @@ function AdminsTab() {
         </CardHeader>
         <CardContent>
           <CreateAdminForm />
-        </CardContent>
-      </Card>
-    </>
-  );
-}
-
-function OpsTab() {
-  return (
-    <>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Opreations users Management</CardTitle>
-          <CardDescription className="text-zinc-700">
-            View and manage opreations users
-          </CardDescription>
-        </CardHeader>
-        <OpsTable />
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Create New Opreation user</CardTitle>
-          <CardDescription className="text-zinc-700">
-            Add a new opreation user whether it is a booth or an reader
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CreateOpsUserForm />
         </CardContent>
       </Card>
     </>
