@@ -1,13 +1,4 @@
-"use client";
 import { ContentLayout } from "@/components/content-layout";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { CreateAdminForm } from "@/components/settings/create-admin-form";
 import { AdminsTable } from "@/components/settings/admin-table";
 
 export default function SettingsPage() {
@@ -24,26 +15,7 @@ export default function SettingsPage() {
 function AdminsTab() {
   return (
     <>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Admin Management</CardTitle>
-          <CardDescription className="text-zinc-700">
-            View and manage system administrators
-          </CardDescription>
-        </CardHeader>
-        <AdminsTable />
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Create New Admin</CardTitle>
-          <CardDescription className="text-zinc-700">
-            Add a new administrator to the system
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CreateAdminForm />
-        </CardContent>
-      </Card>
+      <AdminsTable />
     </>
   );
 }
