@@ -12,7 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { EventsGrid } from "@/components/event/events-grid";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createEvent, getEvents } from "@/lib/api/events";
 import { AnEvent } from "@/lib/types";
 import { useState } from "react";
@@ -22,7 +26,7 @@ export default function EventsPage() {
 
   const queryClient = useQueryClient();
 
-  const { data: eventsData } = useQuery({
+  const { data: eventsData } = useSuspenseQuery({
     queryKey: ["events"],
     queryFn: getEvents,
     refetchOnWindowFocus: true,
