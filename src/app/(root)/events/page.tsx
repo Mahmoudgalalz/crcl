@@ -12,60 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { EventsGrid } from "@/components/event/events-grid";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createEvent, getEvents } from "@/lib/api/events";
+
 import { AnEvent } from "@/lib/types";
-import { useState } from "react";
+import { useEvents } from "@/hooks/use-events";
 
 export default function EventsPage() {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const { dialogOpen, setDialogOpen, eventsData, mutateTocreateEvent } =
+    useEvents();
 
-  const queryClient = useQueryClient();
-
-  const { data: eventsData } = useQuery({
-    queryKey: ["events"],
-    queryFn: getEvents,
-    refetchOnWindowFocus: true,
-    select(data) {
-      return data.events;
-    },
-  });
-
-  const { mutate: mutateTocreateEvent } = useMutation({
-    mutationFn: async (formValues: Partial<AnEvent>) => {
-      console.log(formValues);
-      try {
-        return await createEvent({
-          ...formValues,
-          createdBy: "root",
-        } as AnEvent);
-      } catch (error) {
-        console.error("Error updating event:", error);
-        throw new Error("Failed to update event");
-      }
-    },
-    onSuccess: async (newEventData) => {
-      await queryClient.cancelQueries({ queryKey: ["events"] });
-
-      const previousEvents = queryClient.getQueryData(["events"]);
-
-      console.log(newEventData);
-
-      console.log(previousEvents);
-
-      queryClient.setQueryData(["events"], {
-        events: [
-          // Change 'eventsData' to 'events'
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-expect-error
-          ...(previousEvents.events ?? []),
-          newEventData,
-        ],
-      });
-
-      return { previousEvents };
-    },
-  });
   return (
     <ContentLayout title="Events">
       <div className="container mx-auto ">

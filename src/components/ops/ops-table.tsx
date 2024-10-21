@@ -1,14 +1,16 @@
 "use client";
-import { flexRender } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useMemo } from "react";
+import { Search, UserX } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getPaginationRowModel,
+} from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -17,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Pagination,
   PaginationContent,
@@ -25,56 +28,122 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { CreateAdminForm } from "./create-admin-form";
-import { useAdminTable } from "@/hooks/use-admin-table";
-import { Plus, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { deleteUser, getOps } from "@/lib/api/users";
+import { User } from "@/lib/types";
 
-export function AdminsTable() {
-  const {
-    currentPageData,
-    searchQuery,
-    setSearchQuery,
-    filteredData,
-    table,
-    ROWS_PER_PAGE,
+const ROWS_PER_PAGE = 5;
+
+export function OpsTable() {
+  const [opsType, setOpsType] = useState<"READER" | "BOOTH">("BOOTH");
+  const [searchQuery, setSearchQuery] = useState("");
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: ops } = useQuery({
+    queryKey: ["ops"],
+    queryFn: getOps,
+  });
+
+  const { mutate: deleteOpsUser } = useMutation({
+    mutationKey: ["ops"],
+    mutationFn: (id: string) => deleteUser(id),
+    onMutate: (id: string) => {
+      queryClient.cancelQueries({ queryKey: ["ops"] });
+      const previousUsers = queryClient.getQueryData(["ops"]);
+      queryClient.setQueryData(["ops"], (oldUsers: User[] | undefined) => {
+        if (!oldUsers) return oldUsers;
+        return oldUsers.filter((user: User) => user.id !== id);
+      });
+      return { previousUsers };
+    },
+    onError(_error, _variables, context) {
+      queryClient.setQueryData(["ops"], context?.previousUsers);
+      toast({
+        title: "Something went wrong!",
+        description: "Ops User could not be deleted. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSuccess() {
+      toast({
+        title: "Operation User deleted!",
+        description: "Operation User deleted successfully!",
+      });
+    },
+  });
+
+  const columns: ColumnDef<User>[] = useMemo(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+      },
+      {
+        accessorKey: "type",
+        header: "Type",
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => deleteOpsUser(row.original.id)}
+          >
+            <UserX className="mr-2 h-4 w-4" />
+            Revoke Access
+          </Button>
+        ),
+      },
+    ],
+    [deleteOpsUser]
+  );
+
+  const filteredData = useMemo(() => {
+    return (
+      ops?.filter(
+        (op) =>
+          op.type === opsType &&
+          (op.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            op.email.toLowerCase().includes(searchQuery.toLowerCase()))
+      ) || []
+    );
+  }, [ops, opsType, searchQuery]);
+
+  const table = useReactTable({
+    data: filteredData,
     columns,
-  } = useAdminTable();
-  return (
-    <Card>
-      <CardHeader className="flex flex-row justify-between">
-        <div className="flex flex-col gap-2">
-          <CardTitle>Admin Management</CardTitle>
-          <CardDescription className="text-zinc-700">
-            View and manage system administrators
-          </CardDescription>
-        </div>
-        <div className="flex flex-col gap-2 items-end">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button type="submit" className="w-fit ">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Admin
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="min-w-[800px] max-w-5xl">
-              <DialogHeader>
-                <DialogTitle>Create New Admin</DialogTitle>
-                <DialogDescription className="text-zinc-700">
-                  Add a new administrator to the system
-                </DialogDescription>
-              </DialogHeader>
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: ROWS_PER_PAGE,
+      },
+    },
+  });
 
-              <CreateAdminForm />
-            </DialogContent>
-          </Dialog>
+  const currentPageData = table.getRowModel().rows;
+
+  return (
+    <Card className="!border-0">
+      <CardContent className="!border-0">
+        <div className="flex justify-between ">
+          <Tabs
+            defaultValue="BOOTH"
+            className="mb-4"
+            onValueChange={(value) => setOpsType(value as "READER" | "BOOTH")}
+          >
+            <TabsList>
+              <TabsTrigger value="BOOTH">Booth</TabsTrigger>
+              <TabsTrigger value="READER">Reader</TabsTrigger>
+            </TabsList>
+          </Tabs>
           <div className="relative w-80">
             <Input
               type="text"
@@ -89,10 +158,10 @@ export function AdminsTable() {
             />
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="!border-0">
         {filteredData.length === 0 ? (
-          <div className="text-center py-4">No admins found.</div>
+          <div className="text-center py-4">
+            No {opsType === "BOOTH" ? "Booth " : "Reader "} users founded.
+          </div>
         ) : (
           <>
             <div className="border rounded-md">
@@ -151,7 +220,7 @@ export function AdminsTable() {
                     className={
                       !table.getCanPreviousPage()
                         ? "pointer-events-none opacity-50"
-                        : ""
+                        : "cursor-pointer"
                     }
                   />
                 </PaginationItem>
@@ -171,7 +240,7 @@ export function AdminsTable() {
                     className={
                       !table.getCanNextPage()
                         ? "pointer-events-none opacity-50"
-                        : ""
+                        : "cursor-pointer"
                     }
                   />
                 </PaginationItem>

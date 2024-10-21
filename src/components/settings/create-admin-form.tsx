@@ -41,6 +41,7 @@ export function CreateAdminForm() {
         title: "Admin created!",
         description: "Admin created successfully!",
       });
+      form.reset();
     },
   });
 
@@ -52,35 +53,33 @@ export function CreateAdminForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid w-full items-center gap-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter admin name" {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <div className="flex gap-2 items-center *:flex-grow">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Name" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="Enter admin email"
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="Email" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={form.control}
@@ -89,20 +88,18 @@ export function CreateAdminForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter admin password"
-                    {...field}
-                  />
+                  <Input type="password" placeholder="Password" {...field} />
                 </FormControl>
               </FormItem>
             )}
           />
         </div>
-        <Button className="mt-4" type="submit">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Admin
-        </Button>
+        <div className="flex justify-end">
+          <Button className="mt-4" type="submit">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Admin
+          </Button>
+        </div>
       </form>
     </Form>
   );

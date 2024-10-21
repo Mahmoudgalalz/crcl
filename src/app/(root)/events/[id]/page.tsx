@@ -1,6 +1,5 @@
 "use client";
 import { Link } from "next-view-transitions";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,9 +32,7 @@ import { EventForm } from "@/components/event/event-form";
 import { StatusBadge } from "@/components/status-badge";
 import { TicketTypeForm } from "@/components/event/ticket-type-form";
 import { TicketTypeItem } from "@/components/event/ticket-type-item";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicketType, getEvent, updateEvent } from "@/lib/api/events";
-import { AnEvent, EventStatus, Ticket } from "@/lib/types";
+import type { AnEvent, EventStatus, Ticket } from "@/lib/types";
 import {
   Select,
   SelectContent,
@@ -43,107 +40,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEvent } from "@/hooks/use-event";
 
 export default function EventPage({ params }: { params: { id: string } }) {
-  const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
-  const [addTicketTypeDialogOpen, setAddTicketTypeDialogOpen] = useState(false);
-  const [eventStatusDialog, setEventStatusDialog] = useState(false);
-
-  const queryClient = useQueryClient();
-
-  const { data: event } = useQuery({
-    queryKey: ["event", params.id],
-    queryFn: () => getEvent(params.id),
-    select: (data) => data.event,
+  const {
+    event,
+    image,
+    editEventDialogOpen,
+    setEditEventDialogOpen,
+    mutateEvent,
+    eventStatusDialog,
+    setEventStatusDialog,
+    addTicketTypeDialogOpen,
+    setAddTicketTypeDialogOpen,
+    createTicket,
+    remainingEventCapacity,
+  } = useEvent({
+    params,
   });
-
-  const remainingEventCapacity =
-    event?.capacity &&
-    event?.tickets &&
-    event.capacity -
-      event.tickets.reduce((acc, ticket) => acc + ticket.capacity, 0);
-
-  const { mutate: mutateEvent } = useMutation({
-    mutationKey: ["event", params.id],
-    mutationFn: async (formValues: Partial<AnEvent>) => {
-      try {
-        return await updateEvent(
-          {
-            ...formValues,
-          } as AnEvent,
-          params.id
-        );
-      } catch (error) {
-        console.error("Error updating event:", error);
-        throw new Error("Failed to update event");
-      }
-    },
-    onSuccess: async (newEventData) => {
-      console.log(newEventData);
-      await queryClient.cancelQueries({ queryKey: ["event", params.id] });
-
-      const previousEvent = queryClient.getQueryData(["event", params.id]);
-      const eventsData = queryClient.getQueryData(["events"]) as {
-        events: AnEvent[];
-      };
-      const events = eventsData?.events ?? [];
-
-      queryClient.setQueryData(["events"], {
-        events: events.map((event) => {
-          if (event.id === params.id) {
-            return {
-              ...event,
-              ...newEventData,
-            };
-          }
-          return event;
-        }),
-      });
-
-      queryClient.setQueryData(["event", params.id], {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
-        event: { ...newEventData, tickets: previousEvent.event.tickets },
-      });
-
-      return { previousEvent };
-    },
-  });
-
-  const { mutate: createTicket } = useMutation({
-    mutationKey: ["event", params.id],
-    mutationFn: async (formValues: Partial<Ticket>) => {
-      try {
-        return await createTicketType(formValues as Ticket, event?.id ?? "");
-      } catch (error) {
-        console.error("Error create ticket:", error);
-        throw new Error("Failed to create ticket");
-      }
-    },
-    onMutate: async (newTicketData) => {
-      await queryClient.cancelQueries({ queryKey: ["event", params.id] });
-
-      const previousEvent = queryClient.getQueryData(["event", params.id]);
-
-      queryClient.setQueryData(["event", params.id], {
-        event: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-expect-error
-          ...previousEvent.event,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-expect-error
-          tickets: [...previousEvent.event.tickets, newTicketData],
-        },
-      });
-
-      return { previousEvent };
-    },
-  });
-
-  const image =
-    process.env.NODE_ENV === "production"
-      ? event?.image
-      : event?.image?.replace("https", "http");
 
   return (
     <ContentLayout title={event?.title ?? ""}>
