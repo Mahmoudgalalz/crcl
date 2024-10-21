@@ -12,21 +12,31 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { EventsGrid } from "@/components/event/events-grid";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createEvent, getEvents } from "@/lib/api/events";
 import { AnEvent } from "@/lib/types";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Skeleton component for loading state
+const EventsGridSkeleton = () => (
+  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {Array.from({ length: 6 }).map((_, index) => (
+      <div key={index} className="p-4 border rounded-md">
+        <Skeleton className="h-40 w-full mb-2" />
+        <Skeleton className="h-6 w-3/4 mb-1" />
+        <Skeleton className="h-4 w-1/2" />
+      </div>
+    ))}
+  </div>
+);
 
 export default function EventsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
-  const { data: eventsData } = useSuspenseQuery({
+  const { data: eventsData } = useQuery({
     queryKey: ["events"],
     queryFn: getEvents,
     refetchOnWindowFocus: true,
@@ -102,8 +112,9 @@ export default function EventsPage() {
           </Dialog>
         </div>
       </div>
-
-      <EventsGrid events={eventsData} />
+      <Suspense fallback={<EventsGridSkeleton />}>
+        <EventsGrid events={eventsData} />
+      </Suspense>
     </ContentLayout>
   );
 }

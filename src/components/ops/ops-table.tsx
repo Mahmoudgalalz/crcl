@@ -1,11 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import { Search, UserX } from "lucide-react";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ColumnDef,
   flexRender,
@@ -45,7 +41,7 @@ export function OpsTable() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: ops } = useSuspenseQuery({
+  const { data: ops } = useQuery({
     queryKey: ["ops"],
     queryFn: getOps,
   });

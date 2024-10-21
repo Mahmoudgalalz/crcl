@@ -2,11 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Lock, UserX, Search, Plus } from "lucide-react";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   ColumnDef,
   flexRender,
@@ -81,7 +77,7 @@ export function AdminsTable() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: admins } = useSuspenseQuery({
+  const { data: admins } = useQuery({
     queryKey: ["admins"],
     queryFn: getAdmins,
   });
