@@ -58,7 +58,7 @@ export function OpsTable() {
       });
       return { previousUsers };
     },
-    onError(error, variables, context) {
+    onError(_error, _variables, context) {
       queryClient.setQueryData(["ops"], context?.previousUsers);
       toast({
         title: "Something went wrong!",
@@ -159,7 +159,9 @@ export function OpsTable() {
           </div>
         </div>
         {filteredData.length === 0 ? (
-          <div className="text-center py-4">No users founded.</div>
+          <div className="text-center py-4">
+            No {opsType === "BOOTH" ? "Booth " : "Reader "} users founded.
+          </div>
         ) : (
           <>
             <div className="border rounded-md">
