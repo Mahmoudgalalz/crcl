@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 
-export default function Page() {
+export default function OpsPage() {
   return (
     <ContentLayout title="Opreations users">
       <Card>
