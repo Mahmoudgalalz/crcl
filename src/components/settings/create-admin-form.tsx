@@ -41,6 +41,7 @@ export function CreateAdminForm() {
         title: "Admin created!",
         description: "Admin created successfully!",
       });
+      form.reset();
     },
   });
 
