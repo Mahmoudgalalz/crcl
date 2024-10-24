@@ -55,11 +55,14 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${data?.totalMoney?.combinedTotal || 0}
+              {data?.totalMoney?.combinedTotal || 0}
+              <span className="text-sm ml-0.5">EGP</span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Wallet: ${data?.totalMoney?.walletTotal || 0} | Payment: $
+              Wallet: {data?.totalMoney?.walletTotal || 0}
+              <span className="text-xs ml-0.5">EGP</span> | Payment:
               {data?.totalMoney?.paymentTotal || 0}
+              <span className="text-xs ml-0.5">EGP</span>
             </p>
           </CardContent>
         </Card>
@@ -100,7 +103,8 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${data?.boothTransactions[0]?._sum?.amount || 0}
+              {data?.boothTransactions[0]?._sum?.amount || 0}
+              <span className="text-sm ml-1">EGP</span>
             </div>
             <p className="text-xs text-muted-foreground">
               Count: {data?.boothTransactions[0]?._count?.id || 0}

@@ -76,12 +76,12 @@ export function MoneyDistributionChart({
                       y={viewBox.cy}
                       className="fill-foreground text-3xl font-bold"
                     >
-                      ${totalEvents.toLocaleString()}
+                      {totalEvents.toLocaleString()}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
                       y={(viewBox.cy || 0) + 24}
-                      className="fill-muted-foreground"
+                      className="fill-muted-foreground text-sm"
                     >
                       EGP
                     </tspan>
