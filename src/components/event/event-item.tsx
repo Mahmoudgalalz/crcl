@@ -32,7 +32,7 @@ export function EventItem({ event }: { event: AnEvent }) {
             className="w-full h-40 object-cover mb-4 rounded"
           />
           <CardTitle className="flex items-center justify-between">
-            <h2>{event.title}</h2>
+            <div>{event.title}</div>
             <StatusBadge status={event.status} />
           </CardTitle>
         </CardHeader>

@@ -8,6 +8,8 @@ import {
   Settings,
 } from "lucide-react";
 
+import type { JSX } from "react";
+
 type Submenu = {
   href: string;
   label: string;
