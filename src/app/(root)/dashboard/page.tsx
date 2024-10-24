@@ -1,15 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { getAnalytics } from "@/lib/api/dashboard";
 import { ContentLayout } from "@/components/content-layout";
@@ -25,15 +16,7 @@ import { EventDistributionChart } from "@/components/dashboard/event-distro-char
 import { MoneyDistributionChart } from "@/components/dashboard/money-distro-chart";
 import { EventReqsCountChart } from "@/components/dashboard/event-reqs-counts";
 import { BoothTransChart } from "@/components/dashboard/booth-trans-chart";
-// import {
-//   Bar,
-//   BarChart,
-//   ResponsiveContainer,
-//   XAxis,
-//   YAxis,
-// } from "@/components/ui/chart";
-// import {  } from "@/components/ui/chart";
-
+import { UsersRequestsTable } from "@/components/dashboard/user-requests-table";
 export default function Dashboard() {
   const { data } = useQuery({
     queryKey: ["analytics"],
@@ -53,7 +36,18 @@ export default function Dashboard() {
   return (
     <ContentLayout title="Dashboard">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle>User Requests Count</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <UsersRequestsTable
+            userRequestCounts={data?.userRequestCounts ?? []}
+          />
+        </CardContent>
+      </Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 my-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Money</CardTitle>
@@ -156,48 +150,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>User Requests Count</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="1_week">
-            <TabsList>
-              {data?.userRequestCounts?.map(({ period }) => (
-                <TabsTrigger key={period} value={period}>
-                  {period.replace("_", " ")}
-                </TabsTrigger>
-              )) ?? []}
-            </TabsList>
-            {data?.userRequestCounts?.map(({ period, data }) => (
-              <TabsContent key={period} value={period}>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User ID</TableHead>
-                      <TableHead>Event ID</TableHead>
-                      <TableHead>Event Name</TableHead>
-                      <TableHead>Request Count</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{item.userId}</TableCell>
-                        <TableCell>{item.eventId}</TableCell>
-                        <TableCell>{item.eventName}</TableCell>
-                        <TableCell>{item.requestCount}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TabsContent>
-            )) ?? []}
-          </Tabs>
-        </CardContent>
-      </Card>
     </ContentLayout>
   );
 }
