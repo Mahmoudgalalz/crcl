@@ -173,3 +173,32 @@ export type TicketRequest = {
   createdAt: string;
   updateAt: string;
 };
+
+export type Analytics = {
+  totalMoney: {
+    walletTotal: number;
+    paymentTotal: number;
+    combinedTotal: number;
+  };
+  boothTransactions: Array<{
+    _sum: { amount: number };
+    _count: { id: number };
+    to: string;
+  }>;
+  eventStats: {
+    totalEvents: number;
+    upcomingEvents: number;
+    pastEvents: number;
+  };
+  eventRequestCounts: Array<{ _count: { id: number }; eventId: string }>;
+  totalPaidTickets: number;
+  userRequestCounts: Array<{
+    period: string;
+    data: Array<{
+      userId: string;
+      eventId: string;
+      eventName: string;
+      requestCount: number;
+    }>;
+  }>;
+};
