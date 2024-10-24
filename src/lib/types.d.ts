@@ -157,3 +157,19 @@ export type ApiErrorResponse = {
   status: "error";
   message: string;
 };
+
+export type TicketRequest = {
+  id: string;
+  userId: string;
+  eventId: string;
+  meta: {
+    name: string;
+    email: string;
+    number: string;
+    social: string;
+    ticketId: string;
+  }[];
+  status: TicketStatus;
+  createdAt: string;
+  updateAt: string;
+};
