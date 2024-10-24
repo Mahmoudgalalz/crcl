@@ -8,23 +8,31 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Analytics } from "@/lib/types";
 
 const chartConfig = {
-  eventId: {
-    label: "Event",
+  booth: {
+    label: "Booth",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
 
-export function EventReqsCountChart({
+export function BoothTransChart({
   chartData,
 }: {
-  chartData: Analytics["eventRequestCounts"];
+  chartData: {
+    _sum: {
+      amount: number;
+    };
+    _count: {
+      id: number;
+    };
+    to: string;
+  }[];
 }) {
   const transformedData = chartData.map((data) => ({
-    eventId: data.eventId,
+    booth: data.to,
     count: data._count.id,
+    amount: data._sum.amount,
   }));
 
   return (
@@ -38,7 +46,7 @@ export function EventReqsCountChart({
       >
         <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="eventId"
+          dataKey="booth"
           tickLine={false}
           tickMargin={10}
           axisLine={false}
@@ -48,7 +56,7 @@ export function EventReqsCountChart({
           cursor={false}
           content={<ChartTooltipContent hideLabel />}
         />
-        <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={8}>
+        <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={8}>
           <LabelList
             position="top"
             offset={12}

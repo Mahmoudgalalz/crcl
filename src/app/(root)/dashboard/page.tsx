@@ -24,6 +24,7 @@ import {
 import { EventDistributionChart } from "@/components/dashboard/event-distro-chart";
 import { MoneyDistributionChart } from "@/components/dashboard/money-distro-chart";
 import { EventReqsCountChart } from "@/components/dashboard/event-reqs-counts";
+import { BoothTransChart } from "@/components/dashboard/booth-trans-chart";
 // import {
 //   Bar,
 //   BarChart,
@@ -130,13 +131,7 @@ export default function Dashboard() {
             <BarChartIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {/* <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data?.boothTransactions ?? []}>
-                <XAxis dataKey="to" />
-                <YAxis />
-                <Bar dataKey="_sum.amount" fill="hsl(var(--secondary))" />
-              </BarChart>
-            </ResponsiveContainer> */}
+            <BoothTransChart chartData={data?.boothTransactions ?? []} />
           </CardContent>
         </Card>
       </div>
@@ -164,7 +159,7 @@ export default function Dashboard() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>User Request Counts</CardTitle>
+          <CardTitle>User Requests Count</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
