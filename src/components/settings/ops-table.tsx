@@ -87,7 +87,7 @@ export function OpsTable() {
                 </div>
               </TableCell>
             </TableRow>
-          ))}{" "}
+          ))}
         </TableBody>
       </Table>
     </CardContent>
