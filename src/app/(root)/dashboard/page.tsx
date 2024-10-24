@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { EventDistributionChart } from "@/components/dashboard/event-distro-chart";
 import { MoneyDistributionChart } from "@/components/dashboard/money-distro-chart";
+import { EventReqsCountChart } from "@/components/dashboard/event-reqs-counts";
 // import {
 //   Bar,
 //   BarChart,
@@ -116,17 +117,11 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle>Event Request Counts</CardTitle>
+            <CardTitle>Event Requests Count</CardTitle>
             <BarChartIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            {/* <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data?.eventRequestCounts ?? []}>
-                <XAxis dataKey="eventId" />
-                <YAxis />
-                <Bar dataKey="_count.id" fill="hsl(var(--primary))" />
-              </BarChart>
-            </ResponsiveContainer> */}
+          <CardContent className="mt-2">
+            <EventReqsCountChart chartData={data?.eventRequestCounts ?? []} />
           </CardContent>
         </Card>
         <Card>
@@ -153,27 +148,6 @@ export default function Dashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {/* <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={moneyDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {moneyDistribution.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer> */}
             <MoneyDistributionChart chartData={moneyDistribution} />
           </CardContent>
         </Card>
