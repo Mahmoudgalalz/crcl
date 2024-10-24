@@ -6,22 +6,24 @@ import { Label, Pie, PieChart, Cell } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
 const chartConfig = {
-  Upcoming: {
-    label: "Upcoming Events",
-    color: "hsl(var(--chart-2))",
+  Wallet: {
+    label: "Wallet",
+    color: "hsl(var(--chart-1))",
   },
-  Past: {
-    label: "Past Events",
-    color: "hsl(var(--chart-3))",
+  Payment: {
+    label: "Payment",
+    color: "hsl(var(--chart-4))",
   },
 } satisfies ChartConfig;
 
-export function EventDistribution({
+export function MoneyDistributionChart({
   chartData,
 }: {
   chartData: {
@@ -74,14 +76,14 @@ export function EventDistribution({
                       y={viewBox.cy}
                       className="fill-foreground text-3xl font-bold"
                     >
-                      {totalEvents.toLocaleString()}
+                      ${totalEvents.toLocaleString()}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
                       y={(viewBox.cy || 0) + 24}
                       className="fill-muted-foreground"
                     >
-                      Events
+                      EGP
                     </tspan>
                   </text>
                 );
@@ -89,6 +91,10 @@ export function EventDistribution({
             }}
           />
         </Pie>
+        <ChartLegend
+          content={<ChartLegendContent nameKey="name" />}
+          className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-2/4 [&>*]:justify-center text-black"
+        />
       </PieChart>
     </ChartContainer>
   );

@@ -21,7 +21,8 @@ import {
   Users,
   BarChart as BarChartIcon,
 } from "lucide-react";
-import { EventDistribution } from "@/components/dashboard/event-distro";
+import { EventDistributionChart } from "@/components/dashboard/event-distro-chart";
+import { MoneyDistributionChart } from "@/components/dashboard/money-distro-chart";
 // import {
 //   Bar,
 //   BarChart,
@@ -37,10 +38,10 @@ export default function Dashboard() {
     queryFn: getAnalytics,
   });
 
-  // const moneyDistribution = [
-  //   { name: "Wallet", value: data?.totalMoney?.walletTotal || 0 },
-  //   { name: "Payment", value: data?.totalMoney?.paymentTotal || 0 },
-  // ];
+  const moneyDistribution = [
+    { name: "Wallet", value: data?.totalMoney?.walletTotal || 0 },
+    { name: "Payment", value: data?.totalMoney?.paymentTotal || 0 },
+  ];
 
   const eventDistribution = [
     { name: "Upcoming", value: data?.eventStats?.upcomingEvents || 0 },
@@ -173,6 +174,7 @@ export default function Dashboard() {
                 <Legend />
               </PieChart>
             </ResponsiveContainer> */}
+            <MoneyDistributionChart chartData={moneyDistribution} />
           </CardContent>
         </Card>
         <Card>
@@ -181,28 +183,7 @@ export default function Dashboard() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {/* <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={eventDistribution}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {eventDistribution.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer> */}
-            <EventDistribution chartData={eventDistribution} />
+            <EventDistributionChart chartData={eventDistribution} />
           </CardContent>
         </Card>
       </div>
