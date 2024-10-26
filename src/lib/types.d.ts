@@ -202,3 +202,14 @@ export type Analytics = {
     }>;
   }>;
 };
+
+export type Transaction = {
+  id: string;
+  createdAt: string;
+  from: string;
+  to: string;
+  status: string;
+  amount: number;
+  tokenPrice: number;
+  walletId: string;
+};

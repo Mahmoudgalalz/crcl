@@ -1,4 +1,4 @@
-import { ApiSuccessResponse, User } from "../types";
+import { ApiSuccessResponse, Transaction, User } from "../types";
 import { axiosInstance } from "./instance";
 
 export async function getReaders() {
@@ -26,6 +26,30 @@ export async function getBooths() {
         tokenPrice: number;
       };
     }>("/booth");
+
+    const booths = resForBooths.data.data;
+    return booths;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getBoothTrans(id: string) {
+  try {
+    const resForBooths = await axiosInstance.get<
+      ApiSuccessResponse<{
+        boothTransactions: {
+          transactions: Transaction[];
+          totalPages: number;
+          currentPage: number;
+          totalTransactions: number;
+          transactionsCount: number;
+        };
+        tokenPrice: {
+          tokenPrice: number;
+        };
+      }>
+    >(`/booth/${id}?limit=10&page=1`);
 
     const booths = resForBooths.data.data;
     return booths;

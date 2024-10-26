@@ -33,11 +33,19 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "../ui/card";
 import { CreateOpsUserForm } from "./create-ops-user-form";
 import { debounce } from "@/lib/utils";
+import { TransactionsTable } from "./trans-booth-table";
+import { useBoothTransactions } from "@/hooks/use-booth-trans";
+import { User } from "@/lib/types";
 
 export function BoothTable() {
   const { booths, columns, useTable, addBooth, ROWS_PER_PAGE } = useBooths();
-
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedBooth, setSelectedBooth] = useState<User | null>(null);
+  const [isTransactionsOpen, setIsTransactionsOpen] = useState(false);
+
+  const { data: transactionsData, isLoading } = useBoothTransactions(
+    selectedBooth?.id ?? null
+  );
 
   const debouncedSetSearchQuery = useMemo(
     () =>
@@ -52,6 +60,11 @@ export function BoothTable() {
     [debouncedSetSearchQuery]
   );
 
+  const handleRowClick = (booth: User) => {
+    setSelectedBooth(booth);
+    setIsTransactionsOpen(true);
+  };
+
   const filteredData = useMemo(() => {
     return (
       booths?.booths.filter(
@@ -63,7 +76,6 @@ export function BoothTable() {
   }, [booths, searchQuery]);
 
   const memoizedTable = useTable(filteredData);
-
   const currentPageData = memoizedTable.getRowModel().rows;
 
   return (
@@ -122,7 +134,11 @@ export function BoothTable() {
           </TableHeader>
           <TableBody>
             {currentPageData.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className="cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => handleRowClick(row.original)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -139,15 +155,38 @@ export function BoothTable() {
                       <TableCell
                         key={`empty-${index}-${columnIndex}`}
                         className="p-4"
-                      >
-                        &nbsp;
-                      </TableCell>
+                      ></TableCell>
                     ))}
                   </TableRow>
                 ))}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={isTransactionsOpen} onOpenChange={setIsTransactionsOpen}>
+        <DialogContent className="max-w-7xl">
+          <DialogHeader>
+            <DialogTitle>Transactions for {selectedBooth?.name}</DialogTitle>
+            <DialogDescription>
+              View all transactions for {selectedBooth?.name} with id &quot;
+              {selectedBooth?.id}&quot;
+            </DialogDescription>
+          </DialogHeader>
+          {isLoading ? (
+            <div className="flex items-center justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <TransactionsTable
+              transactions={
+                transactionsData?.boothTransactions.transactions ?? []
+              }
+              tokenPrice={transactionsData?.tokenPrice.tokenPrice ?? null}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Pagination className="mt-4">
         <PaginationContent>
           <PaginationItem>
