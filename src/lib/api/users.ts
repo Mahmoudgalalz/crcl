@@ -7,7 +7,7 @@ export async function getReaders() {
       status: string;
       message: string;
       data: User[];
-    }>("/users?limit=1&status=ACTIVE&types=READER");
+    }>("/users?status=ACTIVE&types=READER");
 
     const reader = resForReader.data.data;
     return reader;
