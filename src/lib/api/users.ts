@@ -34,7 +34,7 @@ export async function getBooths() {
   }
 }
 
-export async function getBoothTrans(id: string) {
+export async function getBoothTrans(id: string, page: number) {
   try {
     const resForBooths = await axiosInstance.get<
       ApiSuccessResponse<{
@@ -49,7 +49,7 @@ export async function getBoothTrans(id: string) {
           tokenPrice: number;
         };
       }>
-    >(`/booth/${id}?limit=10&page=1`);
+    >(`/booth/${id}?limit=10&page=${page}`);
 
     const booths = resForBooths.data.data;
     return booths;

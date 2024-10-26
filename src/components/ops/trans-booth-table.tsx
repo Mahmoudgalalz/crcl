@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import {
@@ -13,12 +14,12 @@ import {
   getCoreRowModel,
   flexRender,
   createColumnHelper,
+  CellContext,
 } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Transaction } from "@/lib/types";
-import { useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -31,11 +32,19 @@ import {
 type TransactionsTableProps = {
   transactions: Transaction[];
   tokenPrice: number | null;
+  totalPages: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+  isLoading: boolean;
 };
 
 export function TransactionsTable({
   transactions,
   tokenPrice,
+  totalPages,
+  currentPage,
+  onPageChange,
+  isLoading,
 }: TransactionsTableProps) {
   const columnHelper = createColumnHelper<Transaction>();
 
@@ -59,7 +68,6 @@ export function TransactionsTable({
         </span>
       ),
     }),
-
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => (
@@ -72,39 +80,19 @@ export function TransactionsTable({
       header: "Amount",
       cell: (info) => (
         <span className="font-medium">
-          {info.getValue()} tokens (
-          {(info.getValue() * (tokenPrice ?? 0)).toFixed(2)}
-          <span className="text-zinc-500 text-xs"> EGP</span>)
+          {info.getValue()} <span className="text-zinc-500 text-xs">EGP</span>
         </span>
       ),
     }),
   ];
 
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
   const table = useReactTable({
     data: transactions,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    pageCount: Math.ceil(transactions.length / 10),
-    state: {
-      pagination: {
-        pageIndex: 0,
-        pageSize: 10,
-      },
-    },
-    onPaginationChange: (updater) => {
-      setPagination((old) => ({
-        ...old,
-        ...updater,
-      }));
-    },
+    manualPagination: true,
+    pageCount: totalPages,
   });
-
-  console.log(transactions);
 
   return (
     <Card>
@@ -135,25 +123,34 @@ export function TransactionsTable({
               ))}
             </TableHeader>
             <TableBody>
-              {table
-                .getRowModel()
-                .rows.slice(
-                  pagination.pageIndex * pagination.pageSize,
-                  (pagination.pageIndex + 1) * pagination.pageSize
-                )
-                .map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    <div className="flex justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : transactions.length > 0 ? (
+                transactions.map((transaction) => (
+                  <TableRow key={transaction.id}>
+                    {columns.map((column) => (
+                      <TableCell key={column.id}>
+                        {flexRender(column.cell, {
+                          getValue: () =>
+                            transaction[
+                              column.accessorKey as keyof Transaction
+                            ],
+                          row: { original: transaction },
+                        } as CellContext<Transaction, string | number>)}
                       </TableCell>
                     ))}
                   </TableRow>
-                ))}
-              {table.getRowModel().rows.length === 0 && (
+                ))
+              ) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -166,40 +163,40 @@ export function TransactionsTable({
             </TableBody>
           </Table>
         </div>
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => table.previousPage()}
-                className={
-                  !table.getCanPreviousPage()
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              />
-            </PaginationItem>
-            {Array.from({ length: table.getPageCount() }, (_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  onClick={() => table.setPageIndex(i)}
-                  isActive={table.getState().pagination.pageIndex === i}
-                >
-                  {i + 1}
-                </PaginationLink>
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => onPageChange(currentPage - 1)}
+                  className={
+                    currentPage === 0 ? "pointer-events-none opacity-50" : ""
+                  }
+                />
               </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => table.nextPage()}
-                className={
-                  !table.getCanNextPage()
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    onClick={() => onPageChange(i)}
+                    isActive={currentPage === i}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => onPageChange(currentPage + 1)}
+                  className={
+                    currentPage === totalPages - 1
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </CardContent>
     </Card>
   );

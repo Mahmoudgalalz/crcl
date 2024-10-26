@@ -31,13 +31,13 @@ export type TransactionsResponse = {
   };
 };
 
-export function useBoothTransactions(boothId: string | null) {
+export function useBoothTransactions(boothId: string | null, page: number) {
   const { data, isLoading } = useQuery({
-    queryKey: ["boothTransactions", boothId],
+    queryKey: ["boothTransactions", boothId, page],
     queryFn: async ({ queryKey }) => {
       const [, id] = queryKey;
       if (typeof id === "string") {
-        return await getBoothTrans(id);
+        return await getBoothTrans(id, page);
       }
       return undefined;
     },

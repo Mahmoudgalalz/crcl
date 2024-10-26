@@ -42,9 +42,11 @@ export function BoothTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBooth, setSelectedBooth] = useState<User | null>(null);
   const [isTransactionsOpen, setIsTransactionsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: transactionsData, isLoading } = useBoothTransactions(
-    selectedBooth?.id ?? null
+    selectedBooth?.id ?? null,
+    currentPage
   );
 
   const debouncedSetSearchQuery = useMemo(
@@ -63,6 +65,10 @@ export function BoothTable() {
   const handleRowClick = (booth: User) => {
     setSelectedBooth(booth);
     setIsTransactionsOpen(true);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   const filteredData = useMemo(() => {
@@ -172,18 +178,16 @@ export function BoothTable() {
               {selectedBooth?.id}&quot;
             </DialogDescription>
           </DialogHeader>
-          {isLoading ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <TransactionsTable
-              transactions={
-                transactionsData?.boothTransactions.transactions ?? []
-              }
-              tokenPrice={transactionsData?.tokenPrice.tokenPrice ?? null}
-            />
-          )}
+          <TransactionsTable
+            transactions={
+              transactionsData?.boothTransactions.transactions ?? []
+            }
+            tokenPrice={transactionsData?.tokenPrice.tokenPrice ?? null}
+            totalPages={transactionsData?.boothTransactions.totalPages ?? 1}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            isLoading={isLoading}
+          />
         </DialogContent>
       </Dialog>
 
