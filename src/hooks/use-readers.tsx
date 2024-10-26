@@ -2,7 +2,7 @@ import { deleteUser, getReaders, createUser } from "@/lib/api/users";
 import { User } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./use-toast";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,6 @@ const ROWS_PER_PAGE = 5;
 
 export function useReaders() {
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: readers } = useQuery({
     queryKey: ["reader"],
@@ -113,28 +112,24 @@ export function useReaders() {
     [deleteReader]
   );
 
-  const table = useReactTable({
-    data: readers ?? [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: ROWS_PER_PAGE,
+  const useTable = (data: User[]) =>
+    useReactTable({
+      data,
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+      initialState: {
+        pagination: {
+          pageSize: ROWS_PER_PAGE,
+        },
       },
-    },
-  });
-
-  const currentPageData = table.getRowModel().rows;
+    });
 
   return {
     readers,
     columns,
-    searchQuery,
-    setSearchQuery,
-    table,
+    useTable,
     ROWS_PER_PAGE,
     addReader,
-    currentPageData,
   };
 }

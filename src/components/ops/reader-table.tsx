@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useMemo, useState } from "react";
 import { useReaders } from "@/hooks/use-readers";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,17 +32,43 @@ import {
 import { Button } from "@/components/ui/button";
 import { CardContent } from "../ui/card";
 import { CreateOpsUserForm } from "./create-ops-user-form";
+import { debounce } from "@/lib/utils";
 
 export default function ReaderTable() {
-  const {
-    searchQuery,
-    setSearchQuery,
-    table,
-    columns,
-    addReader,
-    ROWS_PER_PAGE,
-    currentPageData,
-  } = useReaders();
+  const { readers, columns, useTable, addReader, ROWS_PER_PAGE } = useReaders();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const debouncedSetSearchQuery = useMemo(
+    () =>
+      debounce((...args: unknown[]) => setSearchQuery(args[0] as string), 300),
+    []
+  );
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      debouncedSetSearchQuery(e.target.value);
+    },
+    [debouncedSetSearchQuery]
+  );
+
+  const filteredData = useMemo(() => {
+    return (
+      readers?.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      ) ?? []
+    );
+  }, [readers, searchQuery]);
+
+  const table = useTable(filteredData);
+
+  const memoizedTable = useMemo(() => {
+    return table;
+  }, [table]);
+
+  const currentPageData = memoizedTable.getRowModel().rows;
 
   return (
     <div className="space-y-4 min-w-full">
@@ -50,8 +77,7 @@ export default function ReaderTable() {
           <Input
             type="text"
             placeholder="Search readers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Search
@@ -83,7 +109,7 @@ export default function ReaderTable() {
       <div className="rounded-md border w-full">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {memoizedTable.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
@@ -130,19 +156,19 @@ export default function ReaderTable() {
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              onClick={() => table.previousPage()}
+              onClick={() => memoizedTable.previousPage()}
               className={
-                !table.getCanPreviousPage()
+                !memoizedTable.getCanPreviousPage()
                   ? "pointer-events-none opacity-50"
                   : ""
               }
             />
           </PaginationItem>
-          {Array.from({ length: table.getPageCount() }, (_, i) => (
+          {Array.from({ length: memoizedTable.getPageCount() }, (_, i) => (
             <PaginationItem key={i}>
               <PaginationLink
-                onClick={() => table.setPageIndex(i)}
-                isActive={table.getState().pagination.pageIndex === i}
+                onClick={() => memoizedTable.setPageIndex(i)}
+                isActive={memoizedTable.getState().pagination.pageIndex === i}
               >
                 {i + 1}
               </PaginationLink>
@@ -150,9 +176,11 @@ export default function ReaderTable() {
           ))}
           <PaginationItem>
             <PaginationNext
-              onClick={() => table.nextPage()}
+              onClick={() => memoizedTable.nextPage()}
               className={
-                !table.getCanNextPage() ? "pointer-events-none opacity-50" : ""
+                !memoizedTable.getCanNextPage()
+                  ? "pointer-events-none opacity-50"
+                  : ""
               }
             />
           </PaginationItem>

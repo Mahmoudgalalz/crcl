@@ -2,7 +2,7 @@ import { deleteUser, createUser, getBooths } from "@/lib/api/users";
 import { User } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./use-toast";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,6 @@ const ROWS_PER_PAGE = 5;
 
 export function useBooths() {
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: booths } = useQuery({
     queryKey: ["booth"],
@@ -31,12 +30,12 @@ export function useBooths() {
       const previousUsers = queryClient.getQueryData<{ booths: User[] }>([
         "booth",
       ])?.booths;
-      console.log(previousUsers);
       queryClient.setQueryData<{ booths: User[] } | undefined>(
         ["booth"],
         (oldUsers) => {
           if (!oldUsers) return oldUsers;
           return {
+            ...oldUsers,
             booths: oldUsers.booths.filter((user: User) => user.id !== id),
           };
         }
@@ -44,7 +43,7 @@ export function useBooths() {
       return { previousUsers };
     },
     onError(_error, _variables, context) {
-      queryClient.setQueryData(["booth"], context?.previousUsers);
+      queryClient.setQueryData(["booth"], { booths: context?.previousUsers });
       toast({
         title: "Something went wrong!",
         description: "Ops User could not be deleted. Please try again.",
@@ -76,13 +75,13 @@ export function useBooths() {
             ...newUser,
             id: Date.now().toString(),
           } as User;
-          return { booths: [...oldData.booths, newUserWithId] };
+          return { ...oldData, booths: [...oldData.booths, newUserWithId] };
         }
       );
       return { previousUsers };
     },
     onError(_error, _variables, context) {
-      queryClient.setQueryData(["booth"], context?.previousUsers);
+      queryClient.setQueryData(["booth"], { booths: context?.previousUsers });
       toast({
         title: "Something went wrong!",
         description: "User could not be added. Please try again.",
@@ -130,29 +129,25 @@ export function useBooths() {
     [deleteBooths]
   );
 
-  const table = useReactTable({
-    data: booths?.booths ?? [],
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: ROWS_PER_PAGE,
+  const useTable = (data: User[]) =>
+    useReactTable({
+      data,
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+      initialState: {
+        pagination: {
+          pageSize: ROWS_PER_PAGE,
+        },
       },
-    },
-  });
-
-  const currentPageData = table.getRowModel().rows;
+    });
 
   return {
     booths,
     columns,
-    searchQuery,
-    setSearchQuery,
-    table,
+    useTable,
     ROWS_PER_PAGE,
     addBooth,
-    currentPageData,
     tokenPrice: booths?.tokenPrice,
   };
 }
