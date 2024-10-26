@@ -1,15 +1,6 @@
 "use client";
-import { useState, useMemo } from "react";
-import { Search, UserX } from "lucide-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getPaginationRowModel,
-} from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
+import { flexRender } from "@tanstack/react-table";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -29,106 +20,20 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { deleteUser, getOps } from "@/lib/api/users";
-import { User } from "@/lib/types";
-
-const ROWS_PER_PAGE = 5;
+import { useOpsTable } from "@/hooks/use-ops-table";
 
 export function OpsTable() {
-  const [opsType, setOpsType] = useState<"READER" | "BOOTH">("BOOTH");
-  const [searchQuery, setSearchQuery] = useState("");
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const { data: ops } = useQuery({
-    queryKey: ["ops"],
-    queryFn: getOps,
-  });
-
-  const { mutate: deleteOpsUser } = useMutation({
-    mutationKey: ["ops"],
-    mutationFn: (id: string) => deleteUser(id),
-    onMutate: (id: string) => {
-      queryClient.cancelQueries({ queryKey: ["ops"] });
-      const previousUsers = queryClient.getQueryData(["ops"]);
-      queryClient.setQueryData(["ops"], (oldUsers: User[] | undefined) => {
-        if (!oldUsers) return oldUsers;
-        return oldUsers.filter((user: User) => user.id !== id);
-      });
-      return { previousUsers };
-    },
-    onError(_error, _variables, context) {
-      queryClient.setQueryData(["ops"], context?.previousUsers);
-      toast({
-        title: "Something went wrong!",
-        description: "Ops User could not be deleted. Please try again.",
-        variant: "destructive",
-      });
-    },
-    onSuccess() {
-      toast({
-        title: "Operation User deleted!",
-        description: "Operation User deleted successfully!",
-      });
-    },
-  });
-
-  const columns: ColumnDef<User>[] = useMemo(
-    () => [
-      {
-        accessorKey: "name",
-        header: "Name",
-      },
-      {
-        accessorKey: "email",
-        header: "Email",
-      },
-      {
-        accessorKey: "type",
-        header: "Type",
-      },
-      {
-        id: "actions",
-        cell: ({ row }) => (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => deleteOpsUser(row.original.id)}
-          >
-            <UserX className="mr-2 h-4 w-4" />
-            Revoke Access
-          </Button>
-        ),
-      },
-    ],
-    [deleteOpsUser]
-  );
-
-  const filteredData = useMemo(() => {
-    return (
-      ops?.filter(
-        (op) =>
-          op.type === opsType &&
-          (op.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            op.email.toLowerCase().includes(searchQuery.toLowerCase()))
-      ) || []
-    );
-  }, [ops, opsType, searchQuery]);
-
-  const table = useReactTable({
-    data: filteredData,
+  const {
+    currentPageData,
+    ROWS_PER_PAGE,
+    filteredData,
+    opsType,
+    searchQuery,
+    setOpsType,
+    setSearchQuery,
+    table,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: ROWS_PER_PAGE,
-      },
-    },
-  });
-
-  const currentPageData = table.getRowModel().rows;
+  } = useOpsTable();
 
   return (
     <Card className="!border-0">
@@ -150,17 +55,17 @@ export function OpsTable() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className=" pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <Search
-              className="absolute left-3 top-5 transform -translate-y-1/2 text-gray-400 "
+              className="absolute left-3 top-5 transform -translate-y-1/2 text-gray-400"
               size={20}
             />
           </div>
         </div>
         {filteredData.length === 0 ? (
           <div className="text-center py-4">
-            No {opsType === "BOOTH" ? "Booth " : "Reader "} users founded.
+            No {opsType === "BOOTH" ? "Booth" : "Reader"} users found.
           </div>
         ) : (
           <>

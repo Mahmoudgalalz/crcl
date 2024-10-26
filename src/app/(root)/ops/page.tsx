@@ -40,9 +40,9 @@ export default function OpsPage() {
             </DialogTrigger>
             <DialogContent className="min-w-[800px] max-w-5xl">
               <DialogHeader>
-                <DialogTitle>Create New Opreation user</DialogTitle>
+                <DialogTitle>Create New Operation user</DialogTitle>
                 <DialogDescription className="text-zinc-700">
-                  Add a new opreation user whether it is a booth or an reader
+                  Add a new operation user whether it is a booth or an reader
                 </DialogDescription>
               </DialogHeader>
               <CardContent>

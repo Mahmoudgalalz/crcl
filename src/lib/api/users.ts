@@ -1,23 +1,34 @@
 import { ApiSuccessResponse, User } from "../types";
 import { axiosInstance } from "./instance";
 
-export async function getOps() {
+export async function getReaders() {
   try {
-    const resForBooth = await axiosInstance.get<{
-      status: string;
-      message: string;
-      data: User[];
-    }>("/users?status=ACTIVE&types=BOOTH");
-
     const resForReader = await axiosInstance.get<{
       status: string;
       message: string;
       data: User[];
     }>("/users?limit=1&status=ACTIVE&types=READER");
 
-    const booth = resForBooth.data.data;
     const reader = resForReader.data.data;
-    return [...booth, ...reader];
+    return reader;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getBooths() {
+  try {
+    const resForBooths = await axiosInstance.get<{
+      status: string;
+      message: string;
+      data: {
+        booths: User[];
+        tokenPrice: number;
+      };
+    }>("/booth");
+
+    const booths = resForBooths.data.data;
+    return booths;
   } catch (error) {
     console.error(error);
   }
