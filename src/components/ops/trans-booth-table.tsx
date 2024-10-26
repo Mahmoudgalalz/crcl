@@ -19,7 +19,7 @@ import {
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Transaction } from "@/lib/types";
+import { Transaction, User } from "@/lib/types";
 import {
   Pagination,
   PaginationContent,
@@ -30,6 +30,7 @@ import {
 } from "../ui/pagination";
 
 type TransactionsTableProps = {
+  boothData: User;
   transactions: Transaction[];
   tokenPrice: number | null;
   totalPages: number;
@@ -45,6 +46,7 @@ export function TransactionsTable({
   currentPage,
   onPageChange,
   isLoading,
+  boothData,
 }: TransactionsTableProps) {
   const columnHelper = createColumnHelper<Transaction>();
 
@@ -139,13 +141,14 @@ export function TransactionsTable({
                   <TableRow key={transaction.id}>
                     {columns.map((column) => (
                       <TableCell key={column.id}>
+                        {/**@ts-ignore */}
                         {flexRender(column.cell, {
                           getValue: () =>
                             transaction[
                               column.accessorKey as keyof Transaction
                             ],
                           row: { original: transaction },
-                        } as CellContext<Transaction, string | number>)}
+                        } as CellContext<Transaction, string>)}
                       </TableCell>
                     ))}
                   </TableRow>

@@ -30,7 +30,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CardContent } from "../ui/card";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { CreateOpsUserForm } from "./create-ops-user-form";
 import { debounce } from "@/lib/utils";
 import { TransactionsTable } from "./trans-booth-table";
@@ -173,12 +173,54 @@ export function BoothTable() {
         <DialogContent className="max-w-7xl">
           <DialogHeader>
             <DialogTitle>Transactions for {selectedBooth?.name}</DialogTitle>
-            <DialogDescription>
-              View all transactions for {selectedBooth?.name} with id &quot;
-              {selectedBooth?.id}&quot;
-            </DialogDescription>
+            <div className="grid grid-cols-6 gap-2 pt-4">
+              <Card className="*:!p-3 ">
+                <CardHeader>ID</CardHeader>
+                <CardContent className="text-sm">
+                  {selectedBooth?.id}
+                </CardContent>
+              </Card>
+              <Card className="*:!p-3 ">
+                <CardHeader>Name</CardHeader>
+                <CardContent className="text-sm">
+                  {selectedBooth?.name}
+                </CardContent>
+              </Card>
+              <Card className="*:!p-3 ">
+                <CardHeader>Email</CardHeader>
+                <CardContent className="text-sm">
+                  {selectedBooth?.email}
+                </CardContent>
+              </Card>
+              <Card className="*:!p-3 ">
+                <CardHeader>Phone</CardHeader>
+                <CardContent className="text-sm">
+                  {selectedBooth?.number}
+                </CardContent>
+              </Card>
+              <Card className="*:!p-3 ">
+                <CardHeader>Total Transactions</CardHeader>
+                <CardContent className="text-sm">
+                  {transactionsData?.boothTransactions.transactions.length}
+                  <span className="text-zinc-500 text-xs">Transaction</span>
+                </CardContent>
+              </Card>
+              <Card className="*:!p-3 ">
+                <CardHeader>Total Amount</CardHeader>
+                <CardContent className="text-sm">
+                  {transactionsData?.boothTransactions.transactions.reduce(
+                    (acc, transaction) => {
+                      return acc + transaction.amount;
+                    },
+                    0
+                  )}
+                  <span className="text-zinc-500 text-xs px-0.5">EGP</span>
+                </CardContent>
+              </Card>
+            </div>
           </DialogHeader>
           <TransactionsTable
+            boothData={selectedBooth!}
             transactions={
               transactionsData?.boothTransactions.transactions ?? []
             }
