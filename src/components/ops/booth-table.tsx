@@ -181,7 +181,7 @@ export function BoothTable() {
         <DialogContent className="max-w-7xl">
           <DialogHeader>
             <DialogTitle>Transactions for {selectedBooth?.name}</DialogTitle>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-4">
               <Card className="*:!p-3">
                 <CardHeader className="!p-2 flex flex-row items-center space-x-2">
                   <UserIcon className="h-4 w-4 text-primary mt-2" />
