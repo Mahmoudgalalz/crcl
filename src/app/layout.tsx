@@ -27,17 +27,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Providers>
-      <ViewTransitions>
-        <html lang="en">
+    <ViewTransitions>
+      <html lang="en">
+        <Providers>
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
             {children}
             <Toaster />
-          </body>
-        </html>
-      </ViewTransitions>
-    </Providers>
+          </body>{" "}
+        </Providers>
+      </html>
+    </ViewTransitions>
   );
 }

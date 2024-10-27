@@ -1,17 +1,6 @@
-"use client";
 import { ContentLayout } from "@/components/content-layout";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { CreateAdminForm } from "@/components/settings/create-admin-form";
 import { AdminsTable } from "@/components/settings/admin-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OpsTable } from "@/components/settings/ops-table";
-import { CreateOpsUserForm } from "@/components/settings/create-ops-user-form";
 
 export default function SettingsPage() {
   return (
@@ -22,14 +11,12 @@ export default function SettingsPage() {
       <Tabs defaultValue="admins">
         <TabsList>
           <TabsTrigger value="admins">Admins</TabsTrigger>
-          <TabsTrigger value="ops">Opreations Users</TabsTrigger>
+          <TabsTrigger value="wallet">Wallet</TabsTrigger>
         </TabsList>
         <TabsContent value="admins">
           <AdminsTab />
         </TabsContent>
-        <TabsContent value="ops">
-          <OpsTab />
-        </TabsContent>
+        <TabsContent value="wallet">Wallet Settings Here!</TabsContent>
       </Tabs>
     </ContentLayout>
   );
@@ -38,53 +25,7 @@ export default function SettingsPage() {
 function AdminsTab() {
   return (
     <>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Admin Management</CardTitle>
-          <CardDescription className="text-zinc-700">
-            View and manage system administrators
-          </CardDescription>
-        </CardHeader>
-        <AdminsTable />
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Create New Admin</CardTitle>
-          <CardDescription className="text-zinc-700">
-            Add a new administrator to the system
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CreateAdminForm />
-        </CardContent>
-      </Card>
-    </>
-  );
-}
-
-function OpsTab() {
-  return (
-    <>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Opreations users Management</CardTitle>
-          <CardDescription className="text-zinc-700">
-            View and manage opreations users
-          </CardDescription>
-        </CardHeader>
-        <OpsTable />
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Create New Opreation user</CardTitle>
-          <CardDescription className="text-zinc-700">
-            Add a new opreation user whether it is a booth or an reader
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CreateOpsUserForm />
-        </CardContent>
-      </Card>
+      <AdminsTable />
     </>
   );
 }

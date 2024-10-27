@@ -1,8 +1,6 @@
-import { toast } from "@/hooks/use-toast";
-import { createUser } from "@/lib/api/users";
 import { Gender, User, UserType } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { UseMutateFunction } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -36,9 +34,18 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function CreateOpsUserForm() {
-  const queryClient = useQueryClient();
-
+export function CreateOpsUserForm({
+  addUser,
+}: {
+  addUser: UseMutateFunction<
+    User,
+    Error,
+    Partial<User>,
+    {
+      previousUsers: unknown;
+    }
+  >;
+}) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,45 +55,6 @@ export function CreateOpsUserForm() {
       type: "",
       phone: "",
       gender: "",
-    },
-  });
-
-  const { mutate } = useMutation({
-    mutationKey: ["ops"],
-    mutationFn: (formValues: Partial<User>) =>
-      createUser(formValues as unknown as Partial<User>),
-    onMutate: async (formValues: Partial<User>) => {
-      await queryClient.cancelQueries({ queryKey: ["ops"] });
-      const previousUsers = queryClient.getQueryData<User[]>(["ops"]);
-
-      queryClient.setQueryData<User[]>(["ops"], (old) => [
-        ...(old || []),
-        formValues as User,
-      ]);
-
-      return { previousUsers };
-    },
-    onError: (err, formValues, context) => {
-      queryClient.setQueryData(["ops"], context?.previousUsers);
-      toast({
-        title: "Something went wrong.",
-        description: "Your operation user was not created. Please try again.",
-        variant: "destructive",
-      });
-    },
-    onSuccess: () => {
-      form.reset({
-        name: "",
-        email: "",
-        password: "",
-        type: "",
-        phone: "",
-        gender: "",
-      });
-      toast({
-        title: "Operation User created!",
-        description: "Operation User created successfully!",
-      });
     },
   });
 
@@ -100,7 +68,8 @@ export function CreateOpsUserForm() {
       gender: data.gender as Gender,
     };
     console.log(userData);
-    mutate(userData);
+    addUser(userData);
+    form.reset();
   }
 
   return (
@@ -206,10 +175,12 @@ export function CreateOpsUserForm() {
             )}
           />
         </div>
-        <Button type="submit">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Operation User
-        </Button>
+        <div className="w-full flex justify-end">
+          <Button type="submit">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Operation User
+          </Button>
+        </div>
       </form>
     </Form>
   );

@@ -1,23 +1,75 @@
-import { ApiSuccessResponse, User } from "../types";
+import { ApiSuccessResponse, Transaction, User } from "../types";
 import { axiosInstance } from "./instance";
 
-export async function getOps() {
+export async function getReaders() {
   try {
-    const resForBooth = await axiosInstance.get<{
-      status: string;
-      message: string;
-      data: User[];
-    }>("/users?status=ACTIVE&types=BOOTH");
-
     const resForReader = await axiosInstance.get<{
       status: string;
       message: string;
       data: User[];
-    }>("/users?limit=1&status=ACTIVE&types=READER");
+    }>("/users?status=ACTIVE&types=READER");
 
-    const booth = resForBooth.data.data;
     const reader = resForReader.data.data;
-    return [...booth, ...reader];
+    return reader;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getBooths() {
+  try {
+    const resForBooths = await axiosInstance.get<{
+      status: string;
+      message: string;
+      data: {
+        booths: User[];
+        tokenPrice: number;
+      };
+    }>("/booth");
+
+    const booths = resForBooths.data.data;
+    return booths;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function withdrawBoothMoney(boothId: string, amount: number) {
+  try {
+    const res = await axiosInstance.post<
+      ApiSuccessResponse<{
+        id: string;
+        userId: string;
+        balance: number;
+      }>
+    >(`/booth/${boothId}/withdraw`, {
+      amount,
+    });
+    return res.data.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getBoothTrans(id: string, page: number) {
+  try {
+    const resForBooths = await axiosInstance.get<
+      ApiSuccessResponse<{
+        boothTransactions: {
+          transactions: Transaction[];
+          totalPages: number;
+          currentPage: number;
+          totalTransactions: number;
+          transactionsCount: number;
+        };
+        tokenPrice: {
+          tokenPrice: number;
+        };
+      }>
+    >(`/booth/${id}?limit=5&page=${page}`);
+
+    const booths = resForBooths.data.data;
+    return booths;
   } catch (error) {
     console.error(error);
   }
