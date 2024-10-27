@@ -1,192 +1,185 @@
 "use client";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Lock, UserX } from "lucide-react";
+import { flexRender } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { CardContent } from "../ui/card";
-import { DialogHeader, DialogFooter } from "../ui/dialog";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import {
-  TableHeader,
-  TableRow,
-  TableHead,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
   TableBody,
   TableCell,
-  Table,
-} from "../ui/table";
-import { changePasswordAdmin, deleteAdmin, getAdmins } from "@/lib/api/admins";
-import { z } from "zod";
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { SuperUser } from "@/lib/types";
-
-const formSchema = z.object({
-  newPassword: z.string().min(8),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CreateAdminForm } from "./create-admin-form";
+import { useAdminTable } from "@/hooks/use-admin-table";
+import { Plus, Search } from "lucide-react";
 
 export function AdminsTable() {
-  const queryClient = useQueryClient();
-
-  const { data: admins } = useQuery({
-    queryKey: ["admins"],
-    queryFn: getAdmins,
-  });
-
-  const { mutate: deleteAdminMutation } = useMutation({
-    mutationFn: (id: string) => deleteAdmin(id),
-
-    onMutate: async (deletedAdmin) => {
-      await queryClient.cancelQueries({ queryKey: ["admins"] });
-
-      const oldAdmins = queryClient.getQueryData(["admins"]);
-
-      queryClient.setQueryData(["admins"], (old: SuperUser[]) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
-        return old.filter((admin) => admin.id !== deletedAdmin.id);
-      });
-
-      return { oldAdmins };
-    },
-
-    onSuccess: () => {
-      toast({
-        title: "Admin deleted successfully",
-        description: "Admin has been deleted successfully",
-      });
-    },
-
-    onError: (err, deletedAdmin, context) => {
-      queryClient.setQueryData(["admins"], context?.oldAdmins);
-      toast({
-        title: "Something went wrong.",
-        description: "Admin was not deleted. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      newPassword: "",
-    },
-  });
-
-  const handleRevokeAccess = (id: string) => {
-    deleteAdminMutation(id);
-  };
-
-  const handleChangePassword = async (
-    values: FormValues,
-    id: string,
-    name: string
-  ) => {
-    await changePasswordAdmin(id, values.newPassword).then(() => {
-      toast({
-        title: "Password changed successfully",
-        description:
-          "Password has been changed successfully for admin with name: " + name,
-      });
-      setPasswordDialogOpen(false);
-    });
-  };
-
+  const {
+    currentPageData,
+    searchQuery,
+    setSearchQuery,
+    filteredData,
+    table,
+    ROWS_PER_PAGE,
+    columns,
+  } = useAdminTable();
   return (
-    <CardContent>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {admins?.map((admin: SuperUser) => (
-            <TableRow key={admin.id}>
-              <TableCell>{admin.name}</TableCell>
-              <TableCell>{admin.email}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Dialog
-                    onOpenChange={setPasswordDialogOpen}
-                    open={passwordDialogOpen}
-                  >
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Lock className="mr-2 h-4 w-4" />
-                        Change Password
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Change Password</DialogTitle>
-                        <DialogDescription>
-                          Set a new password for {admin.email}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <Form {...form}>
-                        <form
-                          onSubmit={form.handleSubmit((values) =>
-                            handleChangePassword(values, admin.id, admin.name)
+    <Card>
+      <CardHeader className="flex flex-row justify-between">
+        <div className="flex flex-col gap-2">
+          <CardTitle>Admin Management</CardTitle>
+          <CardDescription className="text-zinc-700">
+            View and manage system administrators
+          </CardDescription>
+        </div>
+        <div className="flex flex-col gap-2 items-end">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button type="submit" className="w-fit ">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Admin
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="min-w-[800px] max-w-5xl">
+              <DialogHeader>
+                <DialogTitle>Create New Admin</DialogTitle>
+                <DialogDescription className="text-zinc-700">
+                  Add a new administrator to the system
+                </DialogDescription>
+              </DialogHeader>
+
+              <CreateAdminForm />
+            </DialogContent>
+          </Dialog>
+          <div className="relative w-80">
+            <Input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className=" pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search
+              className="absolute left-3 top-5 transform -translate-y-1/2 text-gray-400 "
+              size={20}
+            />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="!border-0">
+        {filteredData.length === 0 ? (
+          <div className="text-center py-4">No admins found.</div>
+        ) : (
+          <>
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead key={header.id}>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
                           )}
-                        >
-                          <FormField
-                            control={form.control}
-                            name="newPassword"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>New Password</FormLabel>
-                                <FormControl>
-                                  <Input {...field} type="password" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <DialogFooter className="mt-4">
-                            <Button type="submit">Change Password</Button>
-                          </DialogFooter>
-                        </form>
-                      </Form>
-                    </DialogContent>
-                  </Dialog>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleRevokeAccess(admin.id)}
-                    disabled={admin.name === "root"}
-                  >
-                    <UserX className="mr-2 h-4 w-4" />
-                    Revoke Access
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </CardContent>
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {currentPageData.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                  {currentPageData.length < ROWS_PER_PAGE &&
+                    Array(ROWS_PER_PAGE - currentPageData.length)
+                      .fill(0)
+                      .map((_, index) => (
+                        <TableRow key={`empty-${index}`}>
+                          {columns.map((column, columnIndex) => (
+                            <TableCell
+                              key={`empty-${index}-${columnIndex}`}
+                              className="p-4"
+                            >
+                              &nbsp;
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Pagination className="mt-4">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => table.previousPage()}
+                    className={
+                      !table.getCanPreviousPage()
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+                {Array.from({ length: table.getPageCount() }, (_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      onClick={() => table.setPageIndex(i)}
+                      isActive={table.getState().pagination.pageIndex === i}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => table.nextPage()}
+                    className={
+                      !table.getCanNextPage()
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
