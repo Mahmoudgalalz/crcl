@@ -35,7 +35,15 @@ import { CreateOpsUserForm } from "./create-ops-user-form";
 import { debounce } from "@/lib/utils";
 import { TransactionsTable } from "./trans-booth-table";
 import { useBoothTransactions } from "@/hooks/use-booth-trans";
-import { User } from "@/lib/types";
+import type { User } from "@/lib/types";
+import {
+  User as UserIcon,
+  Wallet,
+  Phone,
+  Mail,
+  CreditCard,
+  BarChart,
+} from "lucide-react";
 
 export function BoothTable() {
   const { booths, columns, useTable, addBooth, ROWS_PER_PAGE } = useBooths();
@@ -173,48 +181,84 @@ export function BoothTable() {
         <DialogContent className="max-w-7xl">
           <DialogHeader>
             <DialogTitle>Transactions for {selectedBooth?.name}</DialogTitle>
-            <div className="grid grid-cols-6 gap-2 pt-4">
-              <Card className="*:!p-3 ">
-                <CardHeader>ID</CardHeader>
-                <CardContent className="text-sm">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4">
+              <Card className="*:!p-3">
+                <CardHeader className="!p-2 flex flex-row items-center space-x-2">
+                  <UserIcon className="h-4 w-4 text-primary mt-2" />
+                  <span>ID</span>
+                </CardHeader>
+                <CardContent className="text-sm font-medium">
                   {selectedBooth?.id}
                 </CardContent>
               </Card>
-              <Card className="*:!p-3 ">
-                <CardHeader>Name</CardHeader>
-                <CardContent className="text-sm">
+              <Card className="*:!p-3">
+                <CardHeader className="!p-2 flex flex-row items-center space-x-2">
+                  <UserIcon className="h-4 w-4 text-primary mt-2" />
+                  <span>Name</span>
+                </CardHeader>
+                <CardContent className="text-sm font-medium">
                   {selectedBooth?.name}
                 </CardContent>
               </Card>
-              <Card className="*:!p-3 ">
-                <CardHeader>Email</CardHeader>
-                <CardContent className="text-sm">
+              <Card className="*:!p-3">
+                <CardHeader className="!p-2 flex flex-row items-center space-x-2">
+                  <Mail className="h-4 w-4 text-primary mt-2" />
+                  <span>Email</span>
+                </CardHeader>
+                <CardContent className="text-sm font-medium">
                   {selectedBooth?.email}
                 </CardContent>
               </Card>
-              <Card className="*:!p-3 ">
-                <CardHeader>Phone</CardHeader>
-                <CardContent className="text-sm">
+              <Card className="*:!p-3">
+                <CardHeader className="!p-2 flex flex-row items-center space-x-2">
+                  <Phone className="h-4 w-4 text-primary mt-2" />
+                  <span>Phone</span>
+                </CardHeader>
+                <CardContent className="text-sm font-medium">
                   {selectedBooth?.number}
                 </CardContent>
               </Card>
-              <Card className="*:!p-3 ">
-                <CardHeader>Total Transactions</CardHeader>
-                <CardContent className="text-sm">
-                  {transactionsData?.boothTransactions.transactions.length}
-                  <span className="text-zinc-500 text-xs">Transaction</span>
+              <Card className="*:!p-3">
+                <CardHeader className="!p-2 flex flex-row items-center space-x-2">
+                  <Wallet className="h-4 w-4 text-primary mt-2" />
+                  <span>Wallet</span>
+                </CardHeader>
+                <CardContent className="text-sm font-medium">
+                  {
+                    booths?.booths.find(
+                      (booth) => booth.id === selectedBooth?.id
+                    )?.wallet?.balance
+                  }
+                  <span className="text-muted-foreground text-xs px-0.5">
+                    EGP
+                  </span>
                 </CardContent>
               </Card>
-              <Card className="*:!p-3 ">
-                <CardHeader>Total Amount</CardHeader>
-                <CardContent className="text-sm">
+              <Card className="*:!p-3">
+                <CardHeader className="!p-2 flex flex-row items-center space-x-2">
+                  <BarChart className="h-4 w-4 text-primary mt-2" />
+                  <span>Transactions</span>
+                </CardHeader>
+                <CardContent className="text-sm font-medium">
+                  {transactionsData?.boothTransactions.transactions.length}
+                  <span className="text-muted-foreground text-xs">
+                    Transactions
+                  </span>
+                </CardContent>
+              </Card>
+              <Card className="*:!p-3">
+                <CardHeader className="!p-2 flex flex-row items-center space-x-2">
+                  <CreditCard className="h-4 w-4 text-primary mt-2" />
+                  <span>Total Amount</span>
+                </CardHeader>
+                <CardContent className="text-sm font-medium">
                   {transactionsData?.boothTransactions.transactions.reduce(
-                    (acc, transaction) => {
-                      return acc + transaction.amount;
-                    },
+                    (acc, transaction) => acc + transaction.amount,
                     0
                   )}
-                  <span className="text-zinc-500 text-xs px-0.5">EGP</span>
+                  <span className="text-muted-foreground text-xs px-0.5">
+                    EGP
+                  </span>
                 </CardContent>
               </Card>
             </div>

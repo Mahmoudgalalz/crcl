@@ -9,16 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  createColumnHelper,
-  CellContext,
-} from "@tanstack/react-table";
-import { format } from "date-fns";
+import { flexRender, CellContext } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Transaction, User } from "@/lib/types";
 import {
   Pagination,
@@ -28,6 +27,18 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Input } from "../ui/input";
+import { useBoothTransactionsTable } from "@/hooks/use-trans-booth-table";
+import { useState } from "react";
 
 type TransactionsTableProps = {
   boothData: User;
@@ -48,54 +59,19 @@ export function TransactionsTable({
   isLoading,
   boothData,
 }: TransactionsTableProps) {
-  const columnHelper = createColumnHelper<Transaction>();
-
-  const columns = [
-    columnHelper.accessor("id", {
-      header: "ID",
-      cell: (info) => (
-        <span className="font-mono text-sm">{info.getValue()}</span>
-      ),
-    }),
-    columnHelper.accessor("createdAt", {
-      header: "Date",
-      cell: (info) => format(new Date(info.getValue()), "PPp"),
-    }),
-    columnHelper.accessor("from", {
-      header: "From",
-      cell: (info) => (
-        <span className="font-medium">
-          {info.getValue().split("@")[0]}@
-          <span className="text-zinc-500">{info.getValue().split("@")[1]}</span>
-        </span>
-      ),
-    }),
-    columnHelper.accessor("status", {
-      header: "Status",
-      cell: (info) => (
-        <Badge variant={info.getValue() === "PAID" ? "default" : "secondary"}>
-          {info.getValue()}
-        </Badge>
-      ),
-    }),
-    columnHelper.accessor("amount", {
-      header: "Amount",
-      cell: (info) => (
-        <span className="font-medium">
-          {info.getValue()} <span className="text-zinc-500 text-xs">EGP</span>
-        </span>
-      ),
-    }),
-  ];
-
-  const table = useReactTable({
-    data: transactions,
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+  const {
+    table,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    pageCount: totalPages,
+    handleWithdraw,
+    setWithdrawAmount,
+    withdrawAmount,
+    isWithdrawLoading,
+  } = useBoothTransactionsTable({
+    totalPages,
+    transactions,
+    id: boothData.id,
   });
-
   return (
     <Card>
       <CardHeader>
@@ -201,6 +177,41 @@ export function TransactionsTable({
           </Pagination>
         )}
       </CardContent>
+      <CardFooter>
+        <div className="flex justify-end w-full">
+          <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
+            <DialogTrigger asChild>
+              <Button>Withdraw Money</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Withdraw Money</DialogTitle>
+                <DialogDescription>
+                  Withdraw money for the booth with the name: {boothData.name}{" "}
+                  and id: {boothData.id} .
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col gap-4">
+                <Input
+                  type="number"
+                  placeholder="Enter amount to withdraw"
+                  value={withdrawAmount ?? 0}
+                  onChange={(e) => setWithdrawAmount(Number(e.target.value))}
+                />
+                <Button
+                  onClick={() => {
+                    handleWithdraw();
+                    setIsWithdrawOpen(false);
+                  }}
+                  disabled={!withdrawAmount || isWithdrawLoading}
+                >
+                  {isWithdrawLoading ? "Withdrawing..." : "Withdraw"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

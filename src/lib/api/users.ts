@@ -34,6 +34,23 @@ export async function getBooths() {
   }
 }
 
+export async function withdrawBoothMoney(boothId: string, amount: number) {
+  try {
+    const res = await axiosInstance.post<
+      ApiSuccessResponse<{
+        id: string;
+        userId: string;
+        balance: number;
+      }>
+    >(`/booth/${boothId}/withdraw`, {
+      amount,
+    });
+    return res.data.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getBoothTrans(id: string, page: number) {
   try {
     const resForBooths = await axiosInstance.get<
@@ -49,7 +66,7 @@ export async function getBoothTrans(id: string, page: number) {
           tokenPrice: number;
         };
       }>
-    >(`/booth/${id}?limit=10&page=${page}`);
+    >(`/booth/${id}?limit=5&page=${page}`);
 
     const booths = resForBooths.data.data;
     return booths;
