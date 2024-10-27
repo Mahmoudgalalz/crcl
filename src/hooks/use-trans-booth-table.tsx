@@ -55,7 +55,7 @@ export function useBoothTransactionsTable({
 
       setWithdrawAmount(null);
     },
-    onError(error, variables, context) {
+    onError() {
       toast({
         title: "Error",
         description: "Something went wrong, Try again",
