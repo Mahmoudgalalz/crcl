@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:2002",
+  baseURL: "https://api.crclevents.com",
 });
 
 const getLocalStorageItem = (key: string): string | null => {
