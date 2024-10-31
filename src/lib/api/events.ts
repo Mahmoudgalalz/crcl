@@ -109,11 +109,18 @@ export async function updateTicketType(ticket: Ticket) {
   }
 }
 
-export async function getTicketRequets(eventId: string) {
+export async function getTicketRequets(eventId: string, page: number) {
   try {
     const response = await axiosInstance.get<
-      ApiSuccessResponse<TicketRequest[]>
-    >(`/events/${eventId}/requests`);
+      ApiSuccessResponse<{
+        data: TicketRequest[];
+        meta: {
+          total: number;
+          page: number;
+          limit: number;
+        };
+      }>
+    >(`/events/${eventId}/requests?page=${page}&limit=10`);
 
     const data = response.data.data;
     return data;

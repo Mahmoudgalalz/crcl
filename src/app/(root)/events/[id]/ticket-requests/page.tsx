@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+
 import { useParams, useRouter } from "next/navigation";
-import { Check, X, ArrowLeft, ArrowRightCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -18,99 +18,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getEvent,
-  getTicketRequets,
-  changeTicketReqStatuss,
-} from "@/lib/api/events";
-import { StatusBadge } from "@/components/status-badge";
-import { TicketRequest } from "@/lib/types";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogHeader,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { ContentLayout } from "@/components/content-layout";
+import { useTicketReqs } from "@/hooks/use-ticket-reqs";
+import { flexRender } from "@tanstack/react-table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationNext,
+} from "@/components/ui/pagination";
 
 export default function EventTicketRequests() {
-  const queryClient = useQueryClient();
   const params = useParams();
   const eventId = params.id as string;
-  const { toast } = useToast();
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
-
-  const { data: ticketRequests } = useQuery({
-    queryKey: ["event", eventId, "tickets"],
-    queryFn: () => getTicketRequets(eventId),
-  });
-
-  const { data: event, isFetched: eventFetched } = useQuery({
-    queryKey: ["event", eventId],
-    queryFn: () => getEvent(eventId),
-    select(data) {
-      return data.event;
-    },
-  });
-
-  const { mutate: changeTicketStatus } = useMutation({
-    mutationFn: async ({
-      ticketId,
-      newStatus,
-      userId,
-    }: {
-      ticketId: string;
-      newStatus: "APPROVED" | "DECLINED";
-      userId: string;
-    }) => await changeTicketReqStatuss(ticketId, newStatus, userId),
-    onMutate(variables) {
-      queryClient.cancelQueries({ queryKey: ["event", eventId, "tickets"] });
-      const previousTickets = queryClient.getQueryData([
-        "event",
-        eventId,
-        "tickets",
-      ]);
-      queryClient.setQueryData(
-        ["event", eventId, "tickets"],
-        (old: TicketRequest[]) => {
-          return old.map((ticket) => {
-            if (ticket.id === variables.ticketId) {
-              return {
-                ...ticket,
-                status: variables.newStatus,
-              };
-            }
-            return ticket;
-          });
-        }
-      );
-
-      return { previousTickets };
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Ticket request status changed successfully",
-      });
-    },
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(
-        ["event", eventId, "tickets"],
-        context?.previousTickets
-      );
-    },
-  });
-
   const router = useRouter();
 
-  const filteredTicketRequests =
-    ticketRequests?.filter((req) =>
-      statusFilter === "ALL" ? true : req.status === statusFilter
-    ) || [];
+  const { event, eventFetched, setStatusFilter, statusFilter, table } =
+    useTicketReqs(eventId);
 
   return (
     <ContentLayout title={`${event?.title}'s Ticket Requests`}>
@@ -149,135 +75,68 @@ export default function EventTicketRequests() {
         <div className="space-y-4">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Purchaser ID</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead>Last Updated At</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
             </TableHeader>
             <TableBody>
-              {!filteredTicketRequests.length ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center">
-                    No Ticket Requests found.
-                  </TableCell>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              ) : (
-                filteredTicketRequests.map((req) => (
-                  <TableRow key={req.id}>
-                    <TableCell>{req.userId}</TableCell>
-                    <TableCell>
-                      {new Date(req.createdAt).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(req.updateAt).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={req.status} />
-                    </TableCell>
-                    <TableCell className="space-x-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline">
-                            View The Request
-                            <ArrowRightCircle className="ml-2 size-5" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="min-w-[800px] max-w-5xl">
-                          <DialogHeader>
-                            <DialogTitle>Tickets Request Details</DialogTitle>
-                          </DialogHeader>
-                          <div className="flex flex-col gap-2">
-                            <div>
-                              Current Status:{" "}
-                              <StatusBadge status={req.status} />
-                            </div>
-                            <div>
-                              Number of requested tickets: {req.meta.length}
-                            </div>
-                          </div>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Phone</TableHead>
-                                <TableHead>Social</TableHead>
-                                <TableHead>Ticket Type</TableHead>
-                                <TableHead>Ticket Price</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {req.meta?.map((reqUser, idx) => (
-                                <TableRow
-                                  key={`ReqUser` + idx + `for` + req.id}
-                                >
-                                  <TableCell>{reqUser.name}</TableCell>
-                                  <TableCell>{reqUser.email}</TableCell>
-                                  <TableCell>{reqUser.number}</TableCell>
-                                  <TableCell>{reqUser.social}</TableCell>
-                                  <TableCell>
-                                    {
-                                      event?.tickets.find(
-                                        (ticketType) =>
-                                          ticketType.id === reqUser.ticketId
-                                      )?.title
-                                    }
-                                  </TableCell>
-                                  <TableCell>
-                                    {
-                                      event?.tickets.find(
-                                        (ticketType) =>
-                                          ticketType.id === reqUser.ticketId
-                                      )?.price
-                                    }
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                          <DialogFooter className="mt-4">
-                            <Button
-                              className="text-white bg-green-700 rounded-full hover:bg-green-800"
-                              size="sm"
-                              disabled={req.status === "APPROVED"}
-                              onClick={() =>
-                                changeTicketStatus({
-                                  ticketId: req.id,
-                                  newStatus: "APPROVED",
-                                  userId: req.userId,
-                                })
-                              }
-                            >
-                              <Check className="mr-2 size-4" />
-                              Approve
-                            </Button>
-                            <Button
-                              className="text-white bg-red-700 rounded-full hover:bg-red-800"
-                              size="sm"
-                              disabled={req.status === "DECLINED"}
-                              onClick={() =>
-                                changeTicketStatus({
-                                  ticketId: req.id,
-                                  newStatus: "DECLINED",
-                                  userId: req.userId,
-                                })
-                              }
-                            >
-                              <X className="mr-2 size-4" />
-                              Decline
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              ))}
             </TableBody>
           </Table>
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => table.previousPage()}
+                  className={
+                    !table.getCanPreviousPage()
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+              {Array.from({ length: table.getPageCount() }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    onClick={() => table.setPageIndex(i)}
+                    isActive={table.getState().pagination.pageIndex === i}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => table.nextPage()}
+                  className={
+                    !table.getCanNextPage()
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </ContentLayout>
