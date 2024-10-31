@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowRightCircle, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { AnEvent } from "@/lib/types";
+import type { UseMutateFunction } from "@tanstack/react-query";
 
 export function TicketReqDetails({
   info,
@@ -25,8 +27,19 @@ export function TicketReqDetails({
   event,
 }: {
   info: any;
-  changeTicketStatus: any;
-  event: any;
+  changeTicketStatus: UseMutateFunction<
+    boolean,
+    Error,
+    {
+      ticketId: string;
+      newStatus: "APPROVED" | "DECLINED";
+      userId: string;
+    },
+    {
+      previousTickets: unknown;
+    }
+  >;
+  event: AnEvent;
 }) {
   return (
     <Dialog>
