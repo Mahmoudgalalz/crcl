@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Ticket } from "@/lib/types";
+import { AnEvent, Ticket } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,27 @@ import {
 } from "../ui/dialog";
 import { TicketTypeForm } from "./ticket-type-form";
 import { updateTicketType } from "@/lib/api/events";
-import { useMutation } from "@tanstack/react-query";
+import { UseMutateFunction, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 
 export function TicketTypeItem({
   ticket,
   remainingEventCapacity,
+  onDelete,
 }: {
   ticket: Ticket;
   remainingEventCapacity: number;
+  onDelete: UseMutateFunction<
+    | true
+    | {
+        event: AnEvent;
+      },
+    Error,
+    string,
+    {
+      previousEvent: unknown;
+    }
+  >;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { mutate, data: updatedTicket } = useMutation({
@@ -70,9 +82,7 @@ export function TicketTypeItem({
             setDialogOpen(false);
           }}
           initialData={displayTicket}
-          onDiscardFn={() => {
-            setDialogOpen(false);
-          }}
+          onDeleteFn={(id) => onDelete(id)}
         />
       </DialogContent>
     </Dialog>

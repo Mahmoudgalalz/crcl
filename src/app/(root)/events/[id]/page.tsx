@@ -55,6 +55,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
     setAddTicketTypeDialogOpen,
     createTicket,
     remainingEventCapacity,
+    deleteTicketType,
   } = useEvent({
     params,
   });
@@ -248,12 +249,9 @@ export default function EventPage({ params }: { params: { id: string } }) {
                     </DialogDescription>
                   </DialogHeader>
                   <TicketTypeForm
-                    remainingEventCapacity={remainingEventCapacity!}
+                    remainingEventCapacity={remainingEventCapacity}
                     onSubmitFn={async (ticket) => {
-                      createTicket(ticket as Ticket);
-                      setAddTicketTypeDialogOpen(false);
-                    }}
-                    onDiscardFn={() => {
+                      createTicket(ticket as Partial<Ticket>);
                       setAddTicketTypeDialogOpen(false);
                     }}
                   />
@@ -267,6 +265,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                     ticket={type}
                     key={index}
                     remainingEventCapacity={remainingEventCapacity!}
+                    onDelete={deleteTicketType}
                   />
                 ))}
             </div>

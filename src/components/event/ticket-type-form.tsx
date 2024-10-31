@@ -27,12 +27,12 @@ type InitialData = {
 export function TicketTypeForm({
   initialData,
   onSubmitFn,
-  onDiscardFn,
+  onDeleteFn,
   remainingEventCapacity,
 }: {
   initialData?: Partial<InitialData>;
   onSubmitFn: (ticket: InitialData) => Promise<unknown>;
-  onDiscardFn?: () => void;
+  onDeleteFn?: (id: string) => void;
   remainingEventCapacity: number;
 }) {
   const formSchema = z.object({
@@ -56,11 +56,13 @@ export function TicketTypeForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialData as FormValues,
   });
-
   async function onSubmit(data: FormValues) {
     const ticketData: InitialData = {
       id: initialData?.id ?? null,
-      ...data,
+      title: data.title,
+      description: data.description,
+      price: data.price,
+      capacity: data.capacity,
     };
     await onSubmitFn(ticketData).then(() => {
       toast({
@@ -177,12 +179,13 @@ export function TicketTypeForm({
         <div className="flex justify-between items-center gap-4 *:flex-1">
           <Button
             type="button"
-            variant="secondary"
+            variant="destructive"
             onClick={() => {
-              onDiscardFn?.();
+              onDeleteFn?.(initialData?.id ?? "");
             }}
+            disabled={!initialData?.id}
           >
-            Discard
+            Delete
           </Button>
           <Button type="submit" disabled={!isDirty}>
             Submit

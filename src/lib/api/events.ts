@@ -109,6 +109,20 @@ export async function updateTicketType(ticket: Ticket) {
   }
 }
 
+export async function deleteTicketType(id: string) {
+  try {
+    console.log(id);
+    const response = await axiosInstance.delete(`/events/tickets/${id}`);
+    const data = response.data;
+    return data.data ? true : false;
+  } catch (error) {
+    console.error(error);
+    return {} as unknown as {
+      event: AnEvent;
+    };
+  }
+}
+
 export async function getTicketRequets(eventId: string, page: number) {
   try {
     const response = await axiosInstance.get<

@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicketType, getEvent, updateEvent } from "@/lib/api/events";
+import {
+  createTicketType,
+  deleteTicketType,
+  getEvent,
+  updateEvent,
+} from "@/lib/api/events";
 import { useState } from "react";
 import type { Ticket, AnEvent } from "@/lib/types";
 
@@ -70,7 +75,7 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
   });
 
   const { mutate: createTicket } = useMutation({
-    mutationKey: ["event", params.id],
+    mutationKey: ["event", params.id, "createTicket"],
     mutationFn: async (formValues: Partial<Ticket>) => {
       try {
         return await createTicketType(formValues as Ticket, event?.id ?? "");
@@ -97,6 +102,43 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
 
       return { previousEvent };
     },
+    onError(error, variables, context) {
+      queryClient.setQueryData(["event", params.id], context?.previousEvent);
+    },
+    onSuccess: () => {
+      setAddTicketTypeDialogOpen(false);
+    },
+  });
+
+  const { mutate: removeTicketType } = useMutation({
+    mutationKey: ["event", params.id, "deleteTicket"],
+    mutationFn: async (id: string) => {
+      console.log("Starting mutation with id:", id); // Debug log
+      const response = await deleteTicketType(`/events/tickets/${id}`);
+      if (!response) {
+        throw new Error("Failed to delete ticket");
+      }
+      return response;
+    },
+    onMutate: async (newTicketData) => {
+      await queryClient.cancelQueries({ queryKey: ["event", params.id] });
+
+      const previousEvent = queryClient.getQueryData(["event", params.id]);
+
+      queryClient.setQueryData(["event", params.id], {
+        event: {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
+          ...previousEvent.event,
+          tickets:
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-expect-error
+            previousEvent.event.tickets.filter((t) => t.id !== newTicketData),
+        },
+      });
+
+      return { previousEvent };
+    },
   });
 
   const image =
@@ -116,5 +158,6 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
     setAddTicketTypeDialogOpen,
     createTicket,
     remainingEventCapacity,
+    deleteTicketType: removeTicketType,
   };
 };
