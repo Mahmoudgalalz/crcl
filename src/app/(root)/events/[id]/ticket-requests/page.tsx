@@ -150,8 +150,9 @@ export default function EventTicketRequests() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
                 <TableHead>Purchaser ID</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Updated At</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -166,8 +167,13 @@ export default function EventTicketRequests() {
               ) : (
                 filteredTicketRequests.map((req) => (
                   <TableRow key={req.id}>
-                    <TableCell>{req.id}</TableCell>
                     <TableCell>{req.userId}</TableCell>
+                    <TableCell>
+                      {new Date(req.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(req.updateAt).toLocaleString()}
+                    </TableCell>
                     <TableCell>
                       <StatusBadge status={req.status} />
                     </TableCell>
