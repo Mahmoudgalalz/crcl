@@ -152,7 +152,7 @@ export default function EventTicketRequests() {
               <TableRow>
                 <TableHead>Purchaser ID</TableHead>
                 <TableHead>Created At</TableHead>
-                <TableHead>Updated At</TableHead>
+                <TableHead>Last Updated At</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
