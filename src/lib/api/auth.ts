@@ -26,6 +26,7 @@ export async function login(email: string, password: string) {
 
     if (res.data.status === "success") {
       localStorage.setItem("token", res.data.data.access_token);
+      localStorage.setItem("email", email);
       return true;
     } else {
       throw new Error("Login failed");
@@ -41,4 +42,5 @@ export async function login(email: string, password: string) {
 }
 export async function logout() {
   localStorage.removeItem("token");
+  localStorage.removeItem("email");
 }
