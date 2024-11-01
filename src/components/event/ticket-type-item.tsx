@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { AnEvent, Ticket } from "@/lib/types";
+import { Ticket } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -22,10 +22,7 @@ export function TicketTypeItem({
   ticket: Ticket;
   remainingEventCapacity: number;
   onDelete: UseMutateFunction<
-    | true
-    | {
-        event: AnEvent;
-      },
+    boolean,
     Error,
     string,
     {

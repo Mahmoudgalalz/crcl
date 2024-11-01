@@ -7,6 +7,7 @@ import {
 } from "@/lib/api/events";
 import { useState } from "react";
 import type { Ticket, AnEvent } from "@/lib/types";
+import { useToast } from "./use-toast";
 
 export const useEvent = ({ params }: { params: { id: string } }) => {
   const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
@@ -14,6 +15,7 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
   const [eventStatusDialog, setEventStatusDialog] = useState(false);
 
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: event } = useQuery({
     queryKey: ["event", params.id],
@@ -113,8 +115,7 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
   const { mutate: removeTicketType } = useMutation({
     mutationKey: ["event", params.id, "deleteTicket"],
     mutationFn: async (id: string) => {
-      console.log("Starting mutation with id:", id); // Debug log
-      const response = await deleteTicketType(`/events/tickets/${id}`);
+      const response = await deleteTicketType(id);
       if (!response) {
         throw new Error("Failed to delete ticket");
       }
@@ -138,6 +139,15 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
       });
 
       return { previousEvent };
+    },
+    onError(error, variables, context) {
+      queryClient.setQueryData(["event", params.id], context?.previousEvent);
+      toast({
+        variant: "destructive",
+        title: "Unable to delete ticket type",
+        description:
+          "An error occurred while deleting ticket type, it has been booked already",
+      });
     },
   });
 

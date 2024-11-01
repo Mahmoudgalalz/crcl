@@ -113,13 +113,13 @@ export async function deleteTicketType(id: string) {
   try {
     console.log(id);
     const response = await axiosInstance.delete(`/events/tickets/${id}`);
-    const data = response.data;
-    return data.data ? true : false;
+    if (response.status !== 200) {
+      throw new Error();
+    }
+    return response.status === 200 && true;
   } catch (error) {
     console.error(error);
-    return {} as unknown as {
-      event: AnEvent;
-    };
+    throw new Error("Failed to delete ticket");
   }
 }
 
