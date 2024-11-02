@@ -112,6 +112,10 @@ export const useAdminTable = () => {
         header: "Email",
       },
       {
+        accessorKey: "type",
+        header: "Type",
+      },
+      {
         id: "actions",
         cell: ({ row }) => (
           <div className="flex space-x-2">
