@@ -1,6 +1,5 @@
 "use client";
 import { flexRender } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -25,17 +24,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { CreateAdminForm } from "./create-admin-form";
 import { useAdminTable } from "@/hooks/use-admin-table";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 export function AdminsTable() {
   const {
@@ -47,6 +38,7 @@ export function AdminsTable() {
     ROWS_PER_PAGE,
     columns,
   } = useAdminTable();
+
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between">
@@ -57,24 +49,7 @@ export function AdminsTable() {
           </CardDescription>
         </div>
         <div className="flex flex-col gap-2 items-end">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button type="submit" className="w-fit ">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Admin
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="min-w-[800px] max-w-5xl">
-              <DialogHeader>
-                <DialogTitle>Create New Admin</DialogTitle>
-                <DialogDescription className="text-zinc-700">
-                  Add a new administrator to the system
-                </DialogDescription>
-              </DialogHeader>
-
-              <CreateAdminForm />
-            </DialogContent>
-          </Dialog>
+          <CreateAdminForm />
           <div className="relative w-80">
             <Input
               type="text"
