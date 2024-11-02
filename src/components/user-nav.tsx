@@ -27,8 +27,10 @@ import { useTransitionRouter as useRouter } from "next-view-transitions";
 export function UserNav() {
   const router = useRouter();
   let email = "";
+  let type = "";
   if (typeof window !== undefined) {
     email = localStorage.getItem("email") ?? "";
+    type = localStorage.getItem("type") ?? "";
   }
   return (
     <DropdownMenu>
@@ -61,6 +63,9 @@ export function UserNav() {
                 ? email.charAt(0).toUpperCase() +
                   email.slice(1, email.indexOf("@"))
                 : ""}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              Role: {type[0] + type.slice(1).toLowerCase()}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {email}

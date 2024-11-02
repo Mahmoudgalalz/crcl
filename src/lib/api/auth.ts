@@ -1,12 +1,13 @@
 import { isAxiosError } from "axios";
 import { axiosInstance } from "./instance";
-import { ApiSuccessResponse } from "../types";
+import type { ApiSuccessResponse, SuperUserType } from "../types";
 
 export async function login(email: string, password: string) {
   try {
     const res = await axiosInstance.post<
       ApiSuccessResponse<{
         access_token: string;
+        type: SuperUserType;
       }>
     >(
       "/auth/admin/login",
@@ -22,11 +23,10 @@ export async function login(email: string, password: string) {
       }
     );
 
-    console.log(res.data);
-
     if (res.data.status === "success") {
       localStorage.setItem("token", res.data.data.access_token);
       localStorage.setItem("email", email);
+      localStorage.setItem("type", res.data.data.type);
       return true;
     } else {
       throw new Error("Login failed");
@@ -43,4 +43,5 @@ export async function login(email: string, password: string) {
 export async function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("email");
+  localStorage.removeItem("type");
 }
