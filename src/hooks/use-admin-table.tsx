@@ -1,4 +1,12 @@
-import { Dialog, DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogFooter,
+  DialogHeader,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -10,12 +18,7 @@ import {
 import { getAdmins, deleteAdmin, changePasswordAdmin } from "@/lib/api/admins";
 import { SuperUser } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@radix-ui/react-dialog";
+
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import {
   ColumnDef,
