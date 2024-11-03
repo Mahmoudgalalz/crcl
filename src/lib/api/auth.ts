@@ -24,6 +24,7 @@ export async function login(email: string, password: string) {
     );
 
     if (res.data.status === "success") {
+      console.log(res.data.data.type);
       localStorage.setItem("token", res.data.data.access_token);
       localStorage.setItem("email", email);
       localStorage.setItem("type", res.data.data.type);
