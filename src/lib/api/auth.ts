@@ -28,7 +28,10 @@ export async function login(email: string, password: string) {
       localStorage.setItem("token", res.data.data.access_token);
       localStorage.setItem("email", email);
       localStorage.setItem("type", res.data.data.type);
-      return true;
+      return {
+        status: true,
+        type: res.data.data.type,
+      };
     } else {
       throw new Error("Login failed");
     }

@@ -16,6 +16,7 @@ import { MailIcon, LockIcon } from "lucide-react";
 import { CardContent, CardFooter } from "./ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SuperUserType } from "@/lib/types";
 
 const formSchema = z.object({
   email: z.string().min(2).max(50).email(),
@@ -35,8 +36,30 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const loggedIn = await login(values.email, values.password);
-      if (loggedIn) window.location.href = "/dashboard";
-      console.log(loggedIn);
+      if (loggedIn.status) {
+        const userType = loggedIn.type as SuperUserType;
+        switch (userType) {
+          case "ADMIN":
+            window.location.href = "/dashboard";
+            break;
+          case "FINANCE":
+            window.location.href = "/dashboard";
+            break;
+          case "MODERATOR":
+            window.location.href = "/newspaper";
+            break;
+          case "APPROVAL":
+            window.location.href = "/events";
+            break;
+          default:
+            toast({
+              title: "Something went wrong!",
+              description: "Your account does not have a valid user type.",
+              variant: "destructive",
+            });
+            break;
+        }
+      }
     } catch {
       toast({
         title: "Something went wrong!",
