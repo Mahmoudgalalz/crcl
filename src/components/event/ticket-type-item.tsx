@@ -18,6 +18,7 @@ export function TicketTypeItem({
   ticket,
   remainingEventCapacity,
   onDelete,
+  disabled,
 }: {
   ticket: Ticket;
   remainingEventCapacity: number;
@@ -29,6 +30,7 @@ export function TicketTypeItem({
       previousEvent: unknown;
     }
   >;
+  disabled?: boolean;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { mutate, data: updatedTicket } = useMutation({
@@ -47,7 +49,7 @@ export function TicketTypeItem({
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger>
+      <DialogTrigger disabled={disabled}>
         <Card className="hover:shadow-lg transition-all">
           <CardHeader>
             <CardTitle>{displayTicket.title}</CardTitle>

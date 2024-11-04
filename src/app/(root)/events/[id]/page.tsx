@@ -56,6 +56,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
     createTicket,
     remainingEventCapacity,
     deleteTicketType,
+    isEditDisabled,
   } = useEvent({
     params,
   });
@@ -97,7 +98,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                   onOpenChange={setEditEventDialogOpen}
                 >
                   <DialogTrigger asChild>
-                    <Button className="gap-2">
+                    <Button className="gap-2" disabled={isEditDisabled}>
                       <Edit size={20} />
                       <span className="font-semibold">Edit Event</span>
                     </Button>
@@ -143,7 +144,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
                   onOpenChange={setEventStatusDialog}
                 >
                   <DialogTrigger asChild>
-                    <Button className="gap-2" variant="outline">
+                    <Button
+                      className="gap-2"
+                      variant="outline"
+                      disabled={isEditDisabled}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="1.7rem"
@@ -237,7 +242,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
                 onOpenChange={setAddTicketTypeDialogOpen}
               >
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="p-2">
+                  <Button
+                    variant="outline"
+                    className="p-2"
+                    disabled={isEditDisabled}
+                  >
                     <Plus size={20} />
                   </Button>
                 </DialogTrigger>
@@ -266,6 +275,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                     key={index}
                     remainingEventCapacity={remainingEventCapacity!}
                     onDelete={deleteTicketType}
+                    disabled={isEditDisabled}
                   />
                 ))}
             </div>

@@ -6,7 +6,7 @@ import {
   updateEvent,
 } from "@/lib/api/events";
 import { useState } from "react";
-import type { Ticket, AnEvent } from "@/lib/types";
+import type { Ticket, AnEvent, SuperUserType } from "@/lib/types";
 import { useToast } from "./use-toast";
 
 export const useEvent = ({ params }: { params: { id: string } }) => {
@@ -156,6 +156,10 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
       ? event?.image
       : event?.image?.replace("https", "http");
 
+  const userType = localStorage.getItem("type") as SuperUserType;
+
+  const isEditDisabled = userType !== "ADMIN";
+
   return {
     event,
     image,
@@ -169,5 +173,6 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
     createTicket,
     remainingEventCapacity,
     deleteTicketType: removeTicketType,
+    isEditDisabled,
   };
 };
