@@ -123,7 +123,11 @@ export async function deleteTicketType(id: string) {
   }
 }
 
-export async function getTicketRequets(eventId: string, page: number) {
+export async function getTicketRequets(
+  eventId: string,
+  page: number,
+  searchTerm: string | null
+) {
   try {
     const response = await axiosInstance.get<
       ApiSuccessResponse<{
@@ -134,7 +138,11 @@ export async function getTicketRequets(eventId: string, page: number) {
           limit: number;
         };
       }>
-    >(`/events/${eventId}/requests?page=${page}&limit=10`);
+    >(
+      `/events/${eventId}/requests?page=${page}&limit=10${
+        searchTerm && `&search=${searchTerm}`
+      }`
+    );
 
     const data = response.data.data;
     return data;

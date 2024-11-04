@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -29,14 +29,22 @@ import {
   PaginationLink,
   PaginationNext,
 } from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input";
 
 export default function EventTicketRequests() {
   const params = useParams();
   const eventId = params.id as string;
   const router = useRouter();
 
-  const { event, eventFetched, setStatusFilter, statusFilter, table } =
-    useTicketReqs(eventId);
+  const {
+    event,
+    eventFetched,
+    setStatusFilter,
+    statusFilter,
+    table,
+    searchTerm,
+    setSearchTerm,
+  } = useTicketReqs(eventId);
 
   return (
     <ContentLayout title={`${event?.title}'s Ticket Requests`}>
@@ -60,17 +68,32 @@ export default function EventTicketRequests() {
         )}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Tickets Requests</h2>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All</SelectItem>
-              <SelectItem value="BOOKED">Booked</SelectItem>
-              <SelectItem value="APPROVED">Approved</SelectItem>
-              <SelectItem value="DECLINED">Declined</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2 items-center">
+            <div className="relative flex-grow">
+              <Input
+                type="text"
+                placeholder="Search requests..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All</SelectItem>
+                <SelectItem value="BOOKED">Booked</SelectItem>
+                <SelectItem value="APPROVED">Approved</SelectItem>
+                <SelectItem value="DECLINED">Declined</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="space-y-4">
           <Table>

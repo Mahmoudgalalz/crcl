@@ -5,7 +5,7 @@ import {
 } from "@/lib/api/events";
 import { TicketRequest, TicketStatus } from "@/lib/types";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useToast } from "./use-toast";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -15,6 +15,7 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table";
 import { TicketReqDetails } from "@/components/event/ticket-reqs/ticket-req-details";
+import { debounce } from "@/lib/utils";
 
 const columnHelper = createColumnHelper();
 
@@ -22,11 +23,21 @@ export function useTicketReqs(eventId: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState(1);
 
+  const debouncedSetSearchTerm = useMemo(
+    () =>
+      debounce((value: string) => {
+        setSearchTerm(value);
+        setPage(1);
+      }, 500),
+    []
+  );
+
   const { data: ticketRequests } = useQuery({
-    queryKey: ["event", eventId, "tickets", page],
-    queryFn: () => getTicketRequets(eventId, page),
+    queryKey: ["event", eventId, "tickets", page, searchTerm],
+    queryFn: () => getTicketRequets(eventId, page, searchTerm),
   });
 
   const { data: event, isFetched: eventFetched } = useQuery({
@@ -151,5 +162,7 @@ export function useTicketReqs(eventId: string) {
     setPage,
     table,
     columns,
+    searchTerm,
+    setSearchTerm: debouncedSetSearchTerm,
   };
 }
