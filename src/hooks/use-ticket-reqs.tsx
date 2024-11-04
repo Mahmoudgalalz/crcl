@@ -5,7 +5,7 @@ import {
 } from "@/lib/api/events";
 import { TicketRequest, TicketStatus } from "@/lib/types";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "./use-toast";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -24,22 +24,26 @@ export function useTicketReqs(eventId: string) {
   const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
   const [page, setPage] = useState(1);
 
-  const debouncedSetSearchTerm = useMemo(
-    () =>
-      debounce((value: string) => {
-        setSearchTerm(value);
-        setPage(1);
-      }, 500),
-    []
-  );
+  useEffect(() => {
+    const handler = debounce(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPage(1);
+    }, 500);
+
+    handler();
+
+    return () => {
+      handler.cancel();
+    };
+  }, [searchTerm]);
 
   const { data: ticketRequests } = useQuery({
-    queryKey: ["event", eventId, "tickets", page, searchTerm],
-    queryFn: () => getTicketRequets(eventId, page, searchTerm),
+    queryKey: ["event", eventId, "tickets", page, debouncedSearchTerm],
+    queryFn: () => getTicketRequets(eventId, page, debouncedSearchTerm),
   });
-
   const { data: event, isFetched: eventFetched } = useQuery({
     queryKey: ["event", eventId],
     queryFn: () => getEvent(eventId),
@@ -163,6 +167,6 @@ export function useTicketReqs(eventId: string) {
     table,
     columns,
     searchTerm,
-    setSearchTerm: debouncedSetSearchTerm,
+    setSearchTerm,
   };
 }
