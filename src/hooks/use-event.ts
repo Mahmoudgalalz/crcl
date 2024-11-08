@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTicketType, getEvent, updateEvent } from "@/lib/api/events";
+import {
+  createTicketType,
+  deleteTicketType,
+  getEvent,
+  updateEvent,
+} from "@/lib/api/events";
 import { useState } from "react";
-import type { Ticket, AnEvent } from "@/lib/types";
+import type { Ticket, AnEvent, SuperUserType } from "@/lib/types";
+import { useToast } from "./use-toast";
 
 export const useEvent = ({ params }: { params: { id: string } }) => {
   const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
@@ -9,6 +15,7 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
   const [eventStatusDialog, setEventStatusDialog] = useState(false);
 
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: event } = useQuery({
     queryKey: ["event", params.id],
@@ -70,7 +77,7 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
   });
 
   const { mutate: createTicket } = useMutation({
-    mutationKey: ["event", params.id],
+    mutationKey: ["event", params.id, "createTicket"],
     mutationFn: async (formValues: Partial<Ticket>) => {
       try {
         return await createTicketType(formValues as Ticket, event?.id ?? "");
@@ -97,12 +104,61 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
 
       return { previousEvent };
     },
+    onError(error, variables, context) {
+      queryClient.setQueryData(["event", params.id], context?.previousEvent);
+    },
+    onSuccess: () => {
+      setAddTicketTypeDialogOpen(false);
+    },
+  });
+
+  const { mutate: removeTicketType } = useMutation({
+    mutationKey: ["event", params.id, "deleteTicket"],
+    mutationFn: async (id: string) => {
+      const response = await deleteTicketType(id);
+      if (!response) {
+        throw new Error("Failed to delete ticket");
+      }
+      return response;
+    },
+    onMutate: async (newTicketData) => {
+      await queryClient.cancelQueries({ queryKey: ["event", params.id] });
+
+      const previousEvent = queryClient.getQueryData(["event", params.id]);
+
+      queryClient.setQueryData(["event", params.id], {
+        event: {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
+          ...previousEvent.event,
+          tickets:
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-expect-error
+            previousEvent.event.tickets.filter((t) => t.id !== newTicketData),
+        },
+      });
+
+      return { previousEvent };
+    },
+    onError(error, variables, context) {
+      queryClient.setQueryData(["event", params.id], context?.previousEvent);
+      toast({
+        variant: "destructive",
+        title: "Unable to delete ticket type",
+        description:
+          "An error occurred while deleting ticket type, it has been booked already",
+      });
+    },
   });
 
   const image =
     process.env.NODE_ENV === "production"
       ? event?.image
       : event?.image?.replace("https", "http");
+
+  const userType = localStorage.getItem("type") as SuperUserType;
+
+  const isEditDisabled = userType !== "ADMIN";
 
   return {
     event,
@@ -116,5 +172,7 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
     setAddTicketTypeDialogOpen,
     createTicket,
     remainingEventCapacity,
+    deleteTicketType: removeTicketType,
+    isEditDisabled,
   };
 };

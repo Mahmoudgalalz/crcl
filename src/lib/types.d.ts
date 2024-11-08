@@ -22,8 +22,10 @@ export type SuperUser = {
   password: string;
   createdAt: Date;
   updatedAt: Date;
-  type: "ADMIN";
+  type: SuperUserType;
 };
+
+export type SuperUserType = "ADMIN" | "FINANCE" | "MODERATOR" | "APPROVAL";
 
 export type User = {
   id: string;

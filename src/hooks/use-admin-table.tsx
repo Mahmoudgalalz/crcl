@@ -1,21 +1,7 @@
-import { Dialog, DialogFooter, DialogHeader } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { getAdmins, deleteAdmin, changePasswordAdmin } from "@/lib/api/admins";
+import { getAdmins, deleteAdmin, updateAdmin } from "@/lib/api/admins";
 import { SuperUser } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@radix-ui/react-dialog";
+
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import {
   ColumnDef,
@@ -24,15 +10,15 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { useToast } from "./use-toast";
-import { Input } from "@/components/ui/input";
-import { UserX, Lock } from "lucide-react";
 import { z } from "zod";
+import { UpdateAdminForm } from "@/components/settings/update-admin-form";
 
 const formSchema = z.object({
-  newPassword: z.string().min(8),
+  name: z.string().optional(),
+  password: z.string().min(8).optional(),
+  type: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -41,7 +27,7 @@ const ROWS_PER_PAGE = 5;
 
 export const useAdminTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [updateAdminDialogOpen, setUpdateAdminDialogOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<SuperUser | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -78,29 +64,54 @@ export const useAdminTable = () => {
     },
   });
 
+  const { mutate: updateAdminMutation } = useMutation({
+    mutationKey: ["admins", "update"],
+    mutationFn: (variables: { adminId: string; newData: Partial<SuperUser> }) =>
+      updateAdmin(variables.adminId, variables.newData),
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ["admins"] });
+      const previousAdmins = queryClient.getQueryData(["admins"]);
+      queryClient.setQueryData(["admins"], (old: SuperUser[] | undefined) => {
+        if (!old) return old;
+        return old.map((admin) => {
+          if (admin.id === variables.adminId) {
+            return {
+              ...admin,
+              ...variables.newData,
+            };
+          }
+          return admin;
+        });
+      });
+      return { previousAdmins };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Admin updated successfully",
+        description: "Admin has been updated successfully",
+      });
+      setUpdateAdminDialogOpen(false);
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(["admins"], context?.previousAdmins);
+      toast({
+        title: "Something went wrong.",
+        description: "Admin was not updated. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      newPassword: "",
-    },
   });
 
   const handleRevokeAccess = (id: string) => {
     deleteAdminMutation(id);
   };
-
-  const handleChangePassword = async (values: FormValues) => {
-    if (selectedAdmin) {
-      await changePasswordAdmin(selectedAdmin.id, values.newPassword);
-      toast({
-        title: "Password changed successfully",
-        description: `Password has been changed successfully for admin with name: ${selectedAdmin.name}`,
-      });
-      setPasswordDialogOpen(false);
-      form.reset();
-    }
+  const handleUpdateAdmin = (adminId: string, newData: Partial<SuperUser>) => {
+    updateAdminMutation({ adminId, newData });
   };
-
   const columns: ColumnDef<SuperUser>[] = useMemo(
     () => [
       {
@@ -112,67 +123,27 @@ export const useAdminTable = () => {
         header: "Email",
       },
       {
+        accessorKey: "type",
+        header: "Type",
+      },
+      {
         id: "actions",
         cell: ({ row }) => (
-          <div className="flex space-x-2">
-            <Dialog
-              open={passwordDialogOpen}
-              onOpenChange={setPasswordDialogOpen}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedAdmin(row.original)}
-                >
-                  <Lock className="mr-2 h-4 w-4" />
-                  Change Password
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Change Password</DialogTitle>
-                  <DialogDescription>
-                    Set a new password for {selectedAdmin?.email}
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleChangePassword)}>
-                    <FormField
-                      control={form.control}
-                      name="newPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>New Password</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="password" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <DialogFooter className="mt-4">
-                      <Button type="submit">Change Password</Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleRevokeAccess(row.original.id)}
-              disabled={row.original.name === "root"}
-            >
-              <UserX className="mr-2 h-4 w-4" />
-              Revoke Access
-            </Button>
-          </div>
+          <UpdateAdminForm
+            form={form}
+            handleRevokeAccess={handleRevokeAccess}
+            row={row.original}
+            selectedAdmin={selectedAdmin}
+            setSelectedAdmin={setSelectedAdmin}
+            updateAdminDialogOpen={updateAdminDialogOpen}
+            setUpdateAdminDialogOpen={setUpdateAdminDialogOpen}
+            handleUpdateAdmin={handleUpdateAdmin}
+          />
         ),
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [passwordDialogOpen, selectedAdmin, form]
+    [updateAdminDialogOpen, selectedAdmin, form]
   );
 
   const filteredData = useMemo(() => {
