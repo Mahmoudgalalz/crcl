@@ -34,11 +34,22 @@ export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number
 ) => {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId);
+  let timeoutId: NodeJS.Timeout | null = null;
+
+  const debouncedFunc = (...args: Parameters<T>) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
     timeoutId = setTimeout(() => {
       func(...args);
     }, delay);
   };
+
+  debouncedFunc.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  return debouncedFunc;
 };

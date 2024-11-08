@@ -109,11 +109,40 @@ export async function updateTicketType(ticket: Ticket) {
   }
 }
 
-export async function getTicketRequets(eventId: string) {
+export async function deleteTicketType(id: string) {
+  try {
+    console.log(id);
+    const response = await axiosInstance.delete(`/events/tickets/${id}`);
+    if (response.status !== 200) {
+      throw new Error();
+    }
+    return response.status === 200 && true;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to delete ticket");
+  }
+}
+
+export async function getTicketRequets(
+  eventId: string,
+  page: number,
+  searchTerm: string | null
+) {
   try {
     const response = await axiosInstance.get<
-      ApiSuccessResponse<TicketRequest[]>
-    >(`/events/${eventId}/requests`);
+      ApiSuccessResponse<{
+        data: TicketRequest[];
+        meta: {
+          total: number;
+          page: number;
+          limit: number;
+        };
+      }>
+    >(
+      `/events/${eventId}/requests?page=${page}&limit=10${
+        searchTerm && `&search=${searchTerm}`
+      }`
+    );
 
     const data = response.data.data;
     return data;

@@ -11,15 +11,26 @@ import {
 } from "../ui/dialog";
 import { TicketTypeForm } from "./ticket-type-form";
 import { updateTicketType } from "@/lib/api/events";
-import { useMutation } from "@tanstack/react-query";
+import { UseMutateFunction, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 
 export function TicketTypeItem({
   ticket,
   remainingEventCapacity,
+  onDelete,
+  disabled,
 }: {
   ticket: Ticket;
   remainingEventCapacity: number;
+  onDelete: UseMutateFunction<
+    boolean,
+    Error,
+    string,
+    {
+      previousEvent: unknown;
+    }
+  >;
+  disabled?: boolean;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { mutate, data: updatedTicket } = useMutation({
@@ -38,7 +49,7 @@ export function TicketTypeItem({
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger>
+      <DialogTrigger disabled={disabled}>
         <Card className="hover:shadow-lg transition-all">
           <CardHeader>
             <CardTitle>{displayTicket.title}</CardTitle>
@@ -70,9 +81,7 @@ export function TicketTypeItem({
             setDialogOpen(false);
           }}
           initialData={displayTicket}
-          onDiscardFn={() => {
-            setDialogOpen(false);
-          }}
+          onDeleteFn={(id) => onDelete(id)}
         />
       </DialogContent>
     </Dialog>
