@@ -75,7 +75,7 @@ export async function getBoothTrans(id: string, page: number) {
   }
 }
 
-export async function getUsers(page: number) {
+export async function getUsers(page: number, search: string) {
   try {
     const res = await axiosInstance.get<
       ApiSuccessResponse<{
@@ -87,7 +87,7 @@ export async function getUsers(page: number) {
           totalPages: number;
         };
       }>
-    >(`/users?types=USER&page=${page}&limit=10`);
+    >(`/users?types=USER&page=${page}&limit=10&search=${search}`);
 
     return res.data.data;
   } catch (error) {

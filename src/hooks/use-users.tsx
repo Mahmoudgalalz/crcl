@@ -33,10 +33,9 @@ export function useUsers() {
   const [pageIndex, setPageIndex] = useState(1);
 
   const queryClient = useQueryClient();
-  const { data: users, isLoading } = useQuery({
-    queryKey: ["users", pageIndex],
-    queryFn: () => getUsers(pageIndex),
-    staleTime: 1000 * 60,
+  const { data: users } = useQuery({
+    queryKey: ["users", pageIndex, searchTerm],
+    queryFn: () => getUsers(pageIndex, searchTerm),
   });
 
   const { mutate: mutateUserStatus } = useMutation({
@@ -329,17 +328,9 @@ export function useUsers() {
 
   return {
     handleSearch,
-    searchTerm,
-    toggleUserStatus,
-    handleTopUp,
-    topUpAmount,
-    setTopUpAmount,
-    selectedUser,
-    setSelectedUser,
     pageIndex,
     setPageIndex,
     table: memoizedTable,
-    isLoading,
     pagesLimit: users?.meta.totalPages,
   };
 }

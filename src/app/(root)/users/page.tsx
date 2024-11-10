@@ -28,15 +28,10 @@ export default function UsersPage() {
     pageIndex,
     pagesLimit,
     table,
-    isLoading,
     handleSearch,
   } = useUsers();
 
   const [localSearchTerm, setLocalSearchTerm] = useState("");
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <ContentLayout title="Users">
