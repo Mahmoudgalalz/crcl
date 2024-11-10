@@ -75,13 +75,19 @@ export async function getBoothTrans(id: string, page: number) {
   }
 }
 
-export async function getUsers() {
+export async function getUsers(page: number) {
   try {
-    const res = await axiosInstance.get<{
-      status: string;
-      message: string;
-      data: User[];
-    }>("/users?types=USER");
+    const res = await axiosInstance.get<
+      ApiSuccessResponse<{
+        users: User[];
+        meta: {
+          total: number;
+          page: number;
+          pageSize: number;
+          totalPages: number;
+        };
+      }>
+    >(`/users?types=USER&page=${page}&limit=10`);
 
     return res.data.data;
   } catch (error) {
