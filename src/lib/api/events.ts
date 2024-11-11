@@ -99,8 +99,15 @@ export async function updateTicketType(ticket: Ticket) {
       `/events/tickets/${ticket.id}`,
       ticket
     );
-    const data = response.data;
-    return data.data;
+    console.log(response);
+    const data: {
+      id: string;
+      title: string;
+      description: string;
+      price: number;
+      capacity: number;
+    } = response.data.data;
+    return data;
   } catch (error) {
     console.error(error);
     return {} as unknown as {
