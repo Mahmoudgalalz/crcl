@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { flexRender } from "@tanstack/react-table";
 import {
   Pagination,
@@ -21,15 +21,7 @@ import {
   PaginationLink,
   PaginationNext,
 } from "../ui/pagination";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { CreateOpsUserForm } from "./create-ops-user-form";
 import { debounce } from "@/lib/utils";
@@ -107,25 +99,8 @@ export function BoothTable() {
             size={20}
           />
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button type="button">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Operation User
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="min-w-[800px] max-w-5xl">
-            <DialogHeader>
-              <DialogTitle>Create New Operation user</DialogTitle>
-              <DialogDescription className="text-zinc-700">
-                Add a new operation user whether it is a booth or a reader
-              </DialogDescription>
-            </DialogHeader>
-            <CardContent>
-              <CreateOpsUserForm addUser={addBooth} />
-            </CardContent>
-          </DialogContent>
-        </Dialog>
+
+        <CreateOpsUserForm addUser={addBooth} />
       </div>
 
       <div className="rounded-md border w-full">
