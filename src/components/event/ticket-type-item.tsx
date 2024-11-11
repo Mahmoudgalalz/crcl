@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Ticket } from "@/lib/types";
+import type { AnEvent, Ticket } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,11 @@ import {
 } from "../ui/dialog";
 import { TicketTypeForm } from "./ticket-type-form";
 import { updateTicketType } from "@/lib/api/events";
-import { UseMutateFunction, useMutation } from "@tanstack/react-query";
+import {
+  UseMutateFunction,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useState } from "react";
 
 export function TicketTypeItem({
@@ -19,6 +24,7 @@ export function TicketTypeItem({
   remainingEventCapacity,
   onDelete,
   disabled,
+  eventId,
 }: {
   ticket: Ticket;
   remainingEventCapacity: number;
@@ -31,37 +37,65 @@ export function TicketTypeItem({
     }
   >;
   disabled?: boolean;
+  eventId: string;
 }) {
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { mutate, data: updatedTicket } = useMutation({
-    mutationKey: ["ticket", ticket.id],
+  const { mutate } = useMutation({
     mutationFn: (formValues: Partial<Ticket>) =>
       updateTicketType({
         ...formValues,
         id: ticket.id,
       } as Ticket),
+    onMutate: async (formValues) => {
+      await queryClient.cancelQueries({ queryKey: ["event", eventId] });
+      const previousEvents = queryClient.getQueryData<any>(["event", eventId]);
+      queryClient.setQueriesData(
+        { queryKey: ["event", eventId] },
+        (old: { event: AnEvent }) => {
+          return {
+            event: {
+              ...old.event,
+              tickets: old.event.tickets.map((t: Ticket) =>
+                t.id === formValues.id ? formValues : t
+              ),
+            },
+          };
+        }
+      );
+      return { previousEvents };
+    },
+    onError: (err, newTicket, context) => {
+      queryClient.setQueriesData(
+        { queryKey: ["events"] },
+        context?.previousEvents
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
     onSuccess: (updatedTicket) => {
+      console.log(updatedTicket);
+      console.log(ticket);
       return updatedTicket;
     },
   });
-
-  const displayTicket = updatedTicket || ticket;
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger disabled={disabled}>
         <Card className="hover:shadow-lg transition-all">
           <CardHeader>
-            <CardTitle>{displayTicket.title}</CardTitle>
+            <CardTitle>{ticket.title}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between">
               <span>Price:</span>
-              <span>{displayTicket.price}</span>
+              <span>{ticket.price}</span>
             </div>
             <div className="flex justify-between">
               <span>Capacity:</span>
-              <span>{displayTicket.capacity}</span>
+              <span>{ticket.capacity}</span>
             </div>
           </CardContent>
         </Card>
@@ -80,7 +114,7 @@ export function TicketTypeItem({
             }
             setDialogOpen(false);
           }}
-          initialData={displayTicket}
+          initialData={ticket}
           onDeleteFn={(id) => onDelete(id)}
         />
       </DialogContent>
