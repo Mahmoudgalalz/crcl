@@ -61,20 +61,26 @@ export function useUsers() {
     onSuccess: (walletUpdate) => {
       console.log("Top-up mutation started");
 
-      queryClient.setQueryData(["users"], (oldUsers: User[] | undefined) => {
-        if (!oldUsers) return oldUsers;
-        return oldUsers.map((user: User) =>
-          user.id === walletUpdate?.userId
-            ? {
-                ...user,
-                wallet: {
-                  ...user.wallet,
-                  balance: walletUpdate.balance,
-                },
-              }
-            : user
-        );
-      });
+      queryClient.setQueryData(
+        ["users", pageIndex, searchTerm],
+        (oldData: { users: User[]; meta: unknown } | undefined) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            users: oldData.users.map((user: User) =>
+              user.id === walletUpdate?.userId
+                ? {
+                    ...user,
+                    wallet: {
+                      ...user.wallet,
+                      balance: walletUpdate.balance,
+                    },
+                  }
+                : user
+            ),
+          };
+        }
+      );
 
       const user = users?.users.find(
         (user) => user.id === walletUpdate?.userId
@@ -82,7 +88,7 @@ export function useUsers() {
 
       toast({
         title: "Wallet topped up",
-        description: `Successfully added ${walletUpdate?.balance} to ${user?.name}'s wallet.`,
+        description: `Successfully added ${topUpAmount} to ${user?.name}'s wallet.`,
       });
     },
   });
