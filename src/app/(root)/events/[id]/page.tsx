@@ -276,6 +276,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                     remainingEventCapacity={remainingEventCapacity!}
                     onDelete={deleteTicketType}
                     disabled={isEditDisabled}
+                    eventId={params.id}
                   />
                 ))}
             </div>

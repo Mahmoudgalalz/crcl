@@ -118,7 +118,10 @@ export function useBooths() {
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => deleteBooths(row.original.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteBooths(row.original.id);
+            }}
           >
             <UserX className="mr-2 h-4 w-4" />
             Revoke Access

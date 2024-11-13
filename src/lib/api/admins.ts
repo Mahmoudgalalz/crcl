@@ -27,7 +27,9 @@ export async function createAdmin(admin: SuperUser) {
 export async function deleteAdmin(id: string) {
   try {
     console.log("Deleting admin with ID:", id);
-    const response = await axiosInstance.delete<SuperUser>(`/admin/${id}`);
+    const response = await axiosInstance.delete<SuperUser>(
+      `/users/super/${id}`
+    );
     const data = response.data;
     return data;
   } catch (error) {
