@@ -1,6 +1,4 @@
 "use client";
-
-import { useCallback, useMemo, useState } from "react";
 import { useReaders } from "@/hooks/use-readers";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,43 +20,19 @@ import {
   PaginationNext,
 } from "../ui/pagination";
 import { CreateOpsUserForm } from "./create-ops-user-form";
-import { debounce } from "@/lib/utils";
 
 export default function ReaderTable() {
-  const { readers, columns, useTable, addReader, ROWS_PER_PAGE } = useReaders();
-
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const debouncedSetSearchQuery = useMemo(
-    () =>
-      debounce((...args: unknown[]) => setSearchQuery(args[0] as string), 300),
-    []
-  );
-
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      debouncedSetSearchQuery(e.target.value);
-    },
-    [debouncedSetSearchQuery]
-  );
-
-  const filteredData = useMemo(() => {
-    return (
-      readers?.filter(
-        (user) =>
-          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase())
-      ) ?? []
-    );
-  }, [readers, searchQuery]);
-
-  const table = useTable(filteredData);
-
-  const memoizedTable = useMemo(() => {
-    return table;
-  }, [table]);
-
-  const currentPageData = memoizedTable.getRowModel().rows;
+  const {
+    columns,
+    currentPageData,
+    memoizedTable,
+    addReader,
+    ROWS_PER_PAGE,
+    page,
+    setPage,
+    pagesLimit,
+    handleSearchChange,
+  } = useReaders();
 
   return (
     <div className="space-y-4 min-w-full">
@@ -129,31 +103,18 @@ export default function ReaderTable() {
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              onClick={() => memoizedTable.previousPage()}
-              className={
-                !memoizedTable.getCanPreviousPage()
-                  ? "pointer-events-none opacity-50"
-                  : ""
-              }
+              onClick={() => setPage(page - 1)}
+              className={page <= 1 ? "pointer-events-none opacity-50" : ""}
             />
           </PaginationItem>
-          {Array.from({ length: memoizedTable.getPageCount() }, (_, i) => (
-            <PaginationItem key={i}>
-              <PaginationLink
-                onClick={() => memoizedTable.setPageIndex(i)}
-                isActive={memoizedTable.getState().pagination.pageIndex === i}
-              >
-                {i + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
+          <PaginationItem>
+            <PaginationLink>{page}</PaginationLink>
+          </PaginationItem>
           <PaginationItem>
             <PaginationNext
-              onClick={() => memoizedTable.nextPage()}
+              onClick={() => setPage(page + 1)}
               className={
-                !memoizedTable.getCanNextPage()
-                  ? "pointer-events-none opacity-50"
-                  : ""
+                page >= pagesLimit ? "pointer-events-none opacity-50" : ""
               }
             />
           </PaginationItem>

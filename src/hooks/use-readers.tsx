@@ -2,7 +2,7 @@ import { deleteUser, getReaders, createUser } from "@/lib/api/users";
 import { User } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./use-toast";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,15 +11,32 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { debounce } from "@/lib/utils";
 
 const ROWS_PER_PAGE = 5;
 
 export function useReaders() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const debouncedSetSearchQuery = useMemo(
+    () =>
+      debounce((...args: unknown[]) => setSearchQuery(args[0] as string), 300),
+    []
+  );
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      debouncedSetSearchQuery(e.target.value);
+      setPage(1);
+    },
+    [debouncedSetSearchQuery]
+  );
 
   const { data: readers } = useQuery({
-    queryKey: ["reader"],
-    queryFn: getReaders,
+    queryKey: ["reader", page, searchQuery],
+    queryFn: () => getReaders(page, searchQuery),
   });
 
   const { mutate: deleteReader } = useMutation({
@@ -112,18 +129,28 @@ export function useReaders() {
     [deleteReader]
   );
 
-  const useTable = (data: User[]) =>
+  const useTable = () =>
     useReactTable({
-      data,
+      data: readers?.users || [],
       columns,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
+      pageCount: -1,
       initialState: {
         pagination: {
           pageSize: ROWS_PER_PAGE,
         },
       },
+      manualPagination: true,
     });
+
+  const table = useTable();
+
+  const memoizedTable = useMemo(() => {
+    return table;
+  }, [table]);
+
+  const currentPageData = memoizedTable?.getRowModel().rows;
 
   return {
     readers,
@@ -131,5 +158,11 @@ export function useReaders() {
     useTable,
     ROWS_PER_PAGE,
     addReader,
+    setPage,
+    page,
+    pagesLimit: readers?.meta?.totalPages,
+    currentPageData,
+    memoizedTable,
+    handleSearchChange,
   };
 }
