@@ -144,7 +144,9 @@ export function BoothTable() {
                       <TableCell
                         key={`empty-${index}-${columnIndex}`}
                         className="p-4"
-                      ></TableCell>
+                      >
+                        &nbsp;
+                      </TableCell>
                     ))}
                   </TableRow>
                 ))}

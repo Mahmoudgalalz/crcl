@@ -1,13 +1,21 @@
 import { ApiSuccessResponse, Transaction, User } from "../types";
 import { axiosInstance } from "./instance";
 
-export async function getReaders() {
+export async function getReaders(page: number, search: string) {
   try {
-    const resForReader = await axiosInstance.get<{
-      status: string;
-      message: string;
-      data: User[];
-    }>("/users?status=ACTIVE&types=READER");
+    const resForReader = await axiosInstance.get<
+      ApiSuccessResponse<{
+        users: User[];
+        meta: {
+          total: number;
+          page: number;
+          pageSize: number;
+          totalPages: number;
+        };
+      }>
+    >(
+      `/users?status=ACTIVE&types=READER&page=${page}&limit=5&search=${search}`
+    );
 
     const reader = resForReader.data.data;
     return reader;
