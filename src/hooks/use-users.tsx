@@ -8,6 +8,12 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { Badge } from "@/components/ui/badge";
 
@@ -130,13 +136,30 @@ export function useUsers() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <Badge
-          variant={row.original.status === "ACTIVE" ? "default" : "destructive"}
-        >
-          {row.original.status}
-        </Badge>
-      ),
+      cell: ({ row }) =>
+        row.original.deletedAt === null ? (
+          <Badge
+            variant={
+              row.original.status === "ACTIVE" ? "default" : "destructive"
+            }
+          >
+            {row.original.status}
+          </Badge>
+        ) : (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Badge variant={"destructive"}>DEACTIVATED</Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  Deactivated at :{" "}
+                  {new Date(row.original.deletedAt).toISOString().split("T")[0]}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ),
     },
     {
       accessorKey: "wallet.balance",

@@ -43,6 +43,7 @@ export type User = {
   status: UserStatus;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: number | null;
 };
 
 export type AnEvent = {
