@@ -151,7 +151,7 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
     },
   });
 
-  const image = event.image.replace("localhost:2002", "api.crclevents.com");
+  const image = event?.image?.replace("localhost:2002", "api.crclevents.com");
 
   const userType = localStorage.getItem("type") as SuperUserType;
 
