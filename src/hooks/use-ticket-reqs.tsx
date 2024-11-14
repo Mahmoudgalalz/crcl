@@ -53,6 +53,7 @@ export function useTicketReqs(eventId: string) {
   });
 
   const { mutate: changeTicketStatus } = useMutation({
+    mutationKey: ["event", eventId, "tickets"],
     mutationFn: async ({
       ticketId,
       newStatus,
@@ -63,6 +64,9 @@ export function useTicketReqs(eventId: string) {
       userId: string;
     }) => await changeTicketReqStatuss(ticketId, newStatus, userId),
     onMutate(variables) {
+      console.log(variables.ticketId);
+      console.log("IIIIIIII");
+
       queryClient.cancelQueries({ queryKey: ["event", eventId, "tickets"] });
       const previousTickets = queryClient.getQueryData([
         "event",
@@ -70,23 +74,35 @@ export function useTicketReqs(eventId: string) {
         "tickets",
       ]);
       queryClient.setQueryData(
-        ["event", eventId, "tickets"],
-        (old: TicketRequest[]) => {
-          return old.map((ticket) => {
-            if (ticket.id === variables.ticketId) {
-              return {
-                ...ticket,
-                status: variables.newStatus,
-              };
-            }
-            return ticket;
-          });
+        ["event", eventId, "tickets", page, debouncedSearchTerm],
+        (old: {
+          data: TicketRequest[];
+          meta: {
+            total: number;
+            page: number;
+            pageSize: number;
+            totalPages: number;
+          };
+        }) => {
+          return {
+            data: old.data.map((ticket) => {
+              if (ticket.id === variables.ticketId) {
+                return {
+                  ...ticket,
+                  status: variables.newStatus,
+                };
+              }
+              return ticket;
+            }),
+            meta: old.meta,
+          };
         }
       );
 
       return { previousTickets };
     },
     onSuccess: () => {
+      console.log(filteredTicketRequests);
       toast({
         title: "Success",
         description: "Ticket request status changed successfully",
@@ -101,7 +117,7 @@ export function useTicketReqs(eventId: string) {
   });
 
   const filteredTicketRequests =
-    ticketRequests?.data.filter((req) =>
+    ticketRequests?.data?.filter((req) =>
       statusFilter === "ALL" ? true : req.status === statusFilter
     ) || [];
 
