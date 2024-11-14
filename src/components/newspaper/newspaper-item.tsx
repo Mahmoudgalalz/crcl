@@ -79,11 +79,7 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
   const [isChangeStatus, setIsChangeStatus] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  const image =
-    process.env.NODE_ENV === "production"
-      ? newspaper.image &&
-        newspaper.image.replace("localhost:2002", "api.crclevents.com")
-      : newspaper.image?.replace("https", "http");
+  const image = newspaper.image.replace("localhost:2002", "api.crclevents.com");
 
   return (
     <Card key={newspaper.id} className="flex flex-col">

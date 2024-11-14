@@ -15,11 +15,7 @@ import { StatusBadge } from "../status-badge";
 export function EventItem({ event }: { event: AnEvent }) {
   console.log(event);
 
-  const image =
-    process.env.NODE_ENV === "production"
-      ? event.image
-      : event.image?.replace("https", "http") &&
-        event.image.replace("localhost:2002", "api.crclevents.com");
+  const image = event.image.replace("localhost:2002", "api.crclevents.com");
 
   return (
     <Link href={`/events/${event.id}`} key={event.id}>
