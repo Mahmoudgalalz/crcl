@@ -153,8 +153,9 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
 
   const image =
     process.env.NODE_ENV === "production"
-      ? event?.image
-      : event?.image?.replace("https", "http");
+      ? event.image &&
+        event.image.replace("localhost:2002", "api.crclevents.com")
+      : event.image?.replace("https", "http");
 
   const userType = localStorage.getItem("type") as SuperUserType;
 

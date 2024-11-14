@@ -79,6 +79,12 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
   const [isChangeStatus, setIsChangeStatus] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  const image =
+    process.env.NODE_ENV === "production"
+      ? newspaper.image &&
+        newspaper.image.replace("localhost:2002", "api.crclevents.com")
+      : newspaper.image?.replace("https", "http");
+
   return (
     <Card key={newspaper.id} className="flex flex-col">
       <CardHeader>
@@ -89,7 +95,7 @@ export function NewspaperItem({ newspaper }: { newspaper: Newspaper }) {
       </CardHeader>
       <CardContent className="flex-grow">
         <img
-          src={newspaper.image ?? ""}
+          src={image ?? ""}
           alt={newspaper.title}
           className="w-full h-40 object-cover mb-4 rounded"
           width={600}
