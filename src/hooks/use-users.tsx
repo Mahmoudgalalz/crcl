@@ -149,11 +149,11 @@ export function useUsers() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <Badge variant={"destructive"}>DELETED</Badge>
+                <Badge variant={"destructive"}>DEACTIVATED</Badge>
               </TooltipTrigger>
               <TooltipContent>
                 <p>
-                  Deleted at :{" "}
+                  Deactivated at :{" "}
                   {new Date(row.original.deletedAt).toISOString().split("T")[0]}
                 </p>
               </TooltipContent>
