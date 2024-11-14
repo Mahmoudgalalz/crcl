@@ -102,13 +102,14 @@ export function TicketReqDetails({
             className="text-white bg-green-700 rounded-full hover:bg-green-800"
             size="sm"
             disabled={info.row.original.status === "APPROVED"}
-            onClick={() =>
+            onClick={() => {
+              console.log(info.row.original.id);
               changeTicketStatus({
                 ticketId: info.row.original.id,
                 newStatus: "APPROVED",
                 userId: info.row.original.userId,
-              })
-            }
+              });
+            }}
           >
             <Check className="mr-2 size-4" />
             Approve
