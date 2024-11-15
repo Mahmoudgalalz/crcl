@@ -1,9 +1,11 @@
 import { Analytics } from "../types";
 import { axiosInstance } from "./instance";
 
-export async function getAnalytics() {
+export async function getAnalytics(fromDate: Date, toDate: Date) {
   try {
-    const response = await axiosInstance.get<Analytics>(`/analytics?all=true`);
+    const response = await axiosInstance.get<Analytics>(
+      `/analytics?all=true&fromDate=${fromDate.toISOString()}&toDate=${toDate.toISOString()}`
+    );
 
     console.log(response);
 
