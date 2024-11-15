@@ -11,6 +11,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Calendar } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 
 const chartConfig = {
   Upcoming: {
@@ -36,66 +38,74 @@ export function EventDistributionChart({
   }, [chartData]);
 
   return (
-    <ChartContainer
-      config={chartConfig}
-      className="mx-auto aspect-square max-h-[250px]"
-    >
-      <PieChart>
-        <ChartTooltip
-          cursor={false}
-          content={<ChartTooltipContent hideLabel />}
-        />
-        <Pie
-          data={chartData}
-          dataKey="value"
-          nameKey="name"
-          innerRadius={60}
-          strokeWidth={5}
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle>Event Distribution</CardTitle>
+        <Calendar className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]"
         >
-          {chartData.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={
-                chartConfig[entry.name as keyof typeof chartConfig]?.color ||
-                "hsl(var(--chart-1))"
-              }
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
             />
-          ))}
-          <Label
-            content={({ viewBox }) => {
-              if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                return (
-                  <text
-                    x={viewBox.cx}
-                    y={viewBox.cy}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    <tspan
-                      x={viewBox.cx}
-                      y={viewBox.cy}
-                      className="fill-foreground text-3xl font-bold"
-                    >
-                      {totalEvents.toLocaleString()}
-                    </tspan>
-                    <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy || 0) + 24}
-                      className="fill-muted-foreground text-sm"
-                    >
-                      Events
-                    </tspan>
-                  </text>
-                );
-              }
-            }}
-          />
-        </Pie>
-        <ChartLegend
-          content={<ChartLegendContent nameKey="name" />}
-          className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-2/4 [&>*]:justify-center text-black"
-        />
-      </PieChart>
-    </ChartContainer>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={60}
+              strokeWidth={5}
+            >
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    chartConfig[entry.name as keyof typeof chartConfig]
+                      ?.color || "hsl(var(--chart-1))"
+                  }
+                />
+              ))}
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-3xl font-bold"
+                        >
+                          {totalEvents.toLocaleString()}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground text-sm"
+                        >
+                          Events
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </Pie>
+            <ChartLegend
+              content={<ChartLegendContent nameKey="name" />}
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-2/4 [&>*]:justify-center text-black"
+            />
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 }

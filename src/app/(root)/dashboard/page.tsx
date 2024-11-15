@@ -1,27 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { getAnalytics } from "@/lib/api/dashboard";
 import { ContentLayout } from "@/components/content-layout";
-import {
-  DollarSign,
-  Calendar,
-  Ticket,
-  ShoppingBag,
-  Users,
-  BarChartIcon,
-} from "lucide-react";
-import { EventDistributionChart } from "@/components/dashboard/event-distro-chart";
-import { MoneyDistributionChart } from "@/components/dashboard/money-distro-chart";
-import { EventReqsCountChart } from "@/components/dashboard/event-reqs-counts";
-import { BoothTransChart } from "@/components/dashboard/booth-trans-chart";
 import { UsersRequestsTable } from "@/components/dashboard/user-requests-table";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
-import { TotalRevenue } from "@/components/dashboard/total-revenue";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Cards } from "@/components/dashboard/cards";
+import { Charts } from "@/components/dashboard/charts";
 
 export default function Dashboard() {
   const [dateRange, setDateRange] = useState({
@@ -56,131 +44,18 @@ export default function Dashboard() {
         </div>
       ) : (
         <ScrollArea className="h-[80dvh]">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 my-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Money
-                </CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data?.totalMoney?.combinedTotal || 0}
-                  <span className="text-sm ml-0.5">EGP</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Wallet: {data?.totalMoney?.walletTotal || 0}
-                  <span className="text-xs ml-0.5">EGP</span> | Payment:
-                  {data?.totalMoney?.paymentTotal || 0}
-                  <span className="text-xs ml-0.5">EGP</span>
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Events
-                </CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data?.eventStats?.totalEvents || 0}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Upcoming: {data?.eventStats?.upcomingEvents || 0} | Past:{" "}
-                  {data?.eventStats?.pastEvents || 0}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Paid Tickets
-                </CardTitle>
-                <Ticket className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data?.totalPaidTickets || 0}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Booth Transactions
-                </CardTitle>
-                <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data?.boothTransactions[0]?._sum?.amount || 0}
-                  <span className="text-sm ml-1">EGP</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Count: {data?.boothTransactions[0]?._count?.id || 0}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Cards data={data} />
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
-            <TotalRevenue />
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Money Distribution</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <MoneyDistributionChart chartData={moneyDistribution} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Event Distribution</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <EventDistributionChart chartData={eventDistribution} />
-              </CardContent>
-            </Card>
-          </div>
+          <Charts
+            eventDistribution={eventDistribution}
+            moneyDistribution={moneyDistribution}
+            eventRequestCounts={data?.eventRequestCounts ?? []}
+            boothTransactions={data?.boothTransactions ?? []}
+          />
 
-          <div className="grid gap-6 md:grid-cols-2 mb-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Event Requests Count</CardTitle>
-                <BarChartIcon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent className="mt-2">
-                <EventReqsCountChart
-                  chartData={data?.eventRequestCounts ?? []}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Booth Transactions</CardTitle>
-                <BarChartIcon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <BoothTransChart chartData={data?.boothTransactions ?? []} />
-              </CardContent>
-            </Card>
-          </div>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle>User Requests Count</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <UsersRequestsTable
-                userRequestCounts={data?.userRequestCounts ?? []}
-              />
-            </CardContent>
-          </Card>
+          <UsersRequestsTable
+            userRequestCounts={data?.userRequestCounts ?? []}
+          />
         </ScrollArea>
       )}
     </ContentLayout>
