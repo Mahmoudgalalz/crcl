@@ -34,7 +34,7 @@ export function Sidebar() {
             className="flex items-center gap-2 !no-underline"
           >
             <img
-              src="https://instagram.fcai2-1.fna.fbcdn.net/v/t51.2885-19/428585771_2777152992441459_5287123038744243977_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fcai2-1.fna.fbcdn.net&_nc_cat=103&_nc_ohc=P5QNQFy7VCsQ7kNvgHobLZ0&_nc_gid=177d8032c78447d284356003d02a85ec&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AYBIgiLj1Rc6AKYmJPDjL2N2KJBm8i95rKUvTlSctT6JUg&oe=66FB3C34&_nc_sid=8b3546"
+              src="/logo.png"
               height={40}
               width={40}
               alt="logo"
