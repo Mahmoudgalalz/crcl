@@ -161,21 +161,40 @@ export type ApiErrorResponse = {
   message: string;
 };
 
-export type TicketRequest = {
+type EventRequest = {
   id: string;
-  userId: string;
-  eventId: string;
-  meta: {
+  status: "APPROVED" | "DECLINED";
+  createdAt: string;
+  user: {
+    id: string;
     name: string;
     email: string;
     number: string;
-    social: string;
+    picture: string | null;
+  };
+  tickets: {
     ticketId: string;
+    requestInfo: {
+      name: string;
+      email: string;
+      number: string;
+      social: string;
+    };
+    ticketInfo: {
+      title?: string;
+      price?: number;
+    };
+    purchaseStatus: {
+      status: "UPCOMMING" | "ATTENDED";
+      payment: PaymentStatus;
+      purchaseId: string;
+      paymentReference: string | null;
+      purchasedAt: string;
+    } | null;
   }[];
-  status: TicketStatus;
-  createdAt: string;
-  updateAt: string;
 };
+
+export type PaymentStatus = "PENDING" | "PAID";
 
 export type Analytics = {
   totalMoney: {
