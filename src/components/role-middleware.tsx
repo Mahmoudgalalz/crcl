@@ -1,5 +1,4 @@
 "use client";
-
 import { SuperUserType } from "@/lib/types";
 import { useEffect } from "react";
 
@@ -18,6 +17,7 @@ export function RolesMiddleware({ children }: { children: React.ReactNode }) {
     console.log("Current route:", currRoute);
     console.log("User type:", userType);
 
+    // Check if user type is valid
     if (!userType || !Object.keys(ALLOWED_ROUTES).includes(userType)) {
       console.log("Invalid user type - redirecting to home");
       window.location.href = "/";
@@ -25,13 +25,17 @@ export function RolesMiddleware({ children }: { children: React.ReactNode }) {
     }
 
     const allowedRoutes = ALLOWED_ROUTES[userType];
+
+    // If current route is not allowed and not home
     if (
       !allowedRoutes.includes("*") &&
       !allowedRoutes.includes(currRoute) &&
       currRoute !== ""
     ) {
-      console.log("Unauthorized access - redirecting to home");
-      window.location.href = "/";
+      // Get the first allowed route for this user type
+      const defaultRoute = allowedRoutes[0];
+      console.log(`Unauthorized access - redirecting to ${defaultRoute}`);
+      window.location.href = `/${defaultRoute}`;
       return;
     }
   }, []);
