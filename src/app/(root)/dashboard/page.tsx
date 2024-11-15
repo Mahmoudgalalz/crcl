@@ -56,6 +56,8 @@ export default function Dashboard() {
             moneyDistribution={moneyDistribution}
             eventRequestCounts={data?.eventRequestCounts ?? []}
             boothTransactions={boothData ?? []}
+            revenueByEvent={data?.userRequestCounts}
+            date={dateRange}
           />
           <UsersRequestsTable
             userRequestCounts={data?.userRequestCounts?.eventDetails ?? []}

@@ -55,6 +55,10 @@ export function Cards({
           <div className="text-2xl font-bold">
             {data?.totalPaidTickets.paid || 0}
           </div>
+          <p className="text-xs text-muted-foreground">
+            Unpaid: {data?.totalPaidTickets.unpaid || 0} | Pending:{" "}
+            {data?.totalPaidTickets.pending || 0}
+          </p>
         </CardContent>
       </Card>
       <Card>

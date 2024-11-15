@@ -51,8 +51,8 @@ export function BoothTransChart({ chartData }: { chartData: BoothAnalytics }) {
               tickFormatter={(value) => value.slice(0, 10)}
             />
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent />}
+              formatter={(value) => value + " EGP"}
             />
             <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={8}>
               <LabelList

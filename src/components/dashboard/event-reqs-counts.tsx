@@ -53,8 +53,8 @@ export function EventReqsCountChart({
               tickFormatter={(value) => value.slice(0, 10)}
             />
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent />}
+              formatter={(value) => value + " Requests"}
             />
             <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={8}>
               <LabelList
