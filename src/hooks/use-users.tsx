@@ -116,7 +116,7 @@ export function useUsers() {
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },
     { accessorKey: "email", header: "Email" },
-    { accessorKey: "type", header: "Type" },
+    // { accessorKey: "type", header: "Type" },
     {
       accessorKey: "status",
       header: "Status",
