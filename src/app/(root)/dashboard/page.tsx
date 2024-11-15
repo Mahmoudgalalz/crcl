@@ -20,6 +20,7 @@ import { BoothTransChart } from "@/components/dashboard/booth-trans-chart";
 import { UsersRequestsTable } from "@/components/dashboard/user-requests-table";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
+import { TotalRevenue } from "@/components/dashboard/total-revenue";
 
 export default function Dashboard() {
   const [dateRange, setDateRange] = useState({
@@ -54,17 +55,6 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle>User Requests Count</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <UsersRequestsTable
-                userRequestCounts={data?.userRequestCounts ?? []}
-              />
-            </CardContent>
-          </Card>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 my-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -135,6 +125,28 @@ export default function Dashboard() {
             </Card>
           </div>
 
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
+            <TotalRevenue />
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle>Money Distribution</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <MoneyDistributionChart chartData={moneyDistribution} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle>Event Distribution</CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <EventDistributionChart chartData={eventDistribution} />
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid gap-6 md:grid-cols-2 mb-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -157,27 +169,17 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
-
-          <div className="grid gap-6 md:grid-cols-2 mb-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Money Distribution</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <MoneyDistributionChart chartData={moneyDistribution} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Event Distribution</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <EventDistributionChart chartData={eventDistribution} />
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle>User Requests Count</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <UsersRequestsTable
+                userRequestCounts={data?.userRequestCounts ?? []}
+              />
+            </CardContent>
+          </Card>
         </>
       )}
     </ContentLayout>
