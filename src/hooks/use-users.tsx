@@ -22,8 +22,7 @@ import { UsersActions } from "@/components/users/users-actions";
 
 export function useUsers() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [topUpAmount, setTopUpAmount] = useState<number | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
   const [pageIndex, setPageIndex] = useState(1);
 
   const queryClient = useQueryClient();
@@ -59,14 +58,11 @@ export function useUsers() {
     },
     []
   );
-
   const { mutate: mutateTopUp } = useMutation({
     mutationFn: async ({ id, amount }: { id: string; amount: number }) =>
       await updateUserWallet(id, amount),
 
     onSuccess: (walletUpdate) => {
-      console.log("Top-up mutation started");
-
       queryClient.setQueryData(
         ["users", pageIndex, searchTerm],
         (oldData: { users: User[]; meta: unknown } | undefined) => {
@@ -92,12 +88,18 @@ export function useUsers() {
         (user) => user.id === walletUpdate?.userId
       );
 
-      toast({
-        title: "Wallet topped up",
-        description: `Successfully added ${topUpAmount} to ${user?.name}'s wallet.`,
-      });
+      if (user) {
+        toast({
+          title: "Wallet topped up",
+          description: `${user.name}'s wallet has been topped up to ${walletUpdate?.balance}`,
+        });
+      }
     },
   });
+
+  const handleTopUp = (userId: string, amount: number) => {
+    mutateTopUp({ id: userId, amount });
+  };
 
   const toggleUserStatus = (userId: string, user: User) => {
     const newStatus = user.status === "ACTIVE" ? "BLOCKED" : "ACTIVE";
@@ -108,24 +110,6 @@ export function useUsers() {
     toast({
       title: `${user.name} is now ${newStatus}`,
     });
-  };
-
-  const handleTopUp = () => {
-    if (selectedUser && topUpAmount) {
-      const amount = parseInt(topUpAmount.toString(), 10);
-      if (isNaN(amount) || amount <= 0) {
-        toast({
-          title: "Invalid amount",
-          description: "Please enter a valid positive number.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      mutateTopUp({ id: selectedUser.id, amount });
-      setTopUpAmount(null);
-      setSelectedUser(null);
-    }
   };
 
   const columns = [
@@ -173,11 +157,7 @@ export function useUsers() {
         <UsersActions
           row={row}
           handleTopUp={handleTopUp}
-          selectedUser={selectedUser}
-          setSelectedUser={setSelectedUser}
-          setTopUpAmount={setTopUpAmount}
           toggleUserStatus={toggleUserStatus}
-          topUpAmount={topUpAmount}
         />
       ),
     },
