@@ -1,8 +1,8 @@
+import { BoothAnalytics } from "@/lib/types";
 import { BoothTransChart } from "./booth-trans-chart";
 import { EventDistributionChart } from "./event-distro-chart";
 import { EventReqsCountChart } from "./event-reqs-counts";
 import { MoneyDistributionChart } from "./money-distro-chart";
-import { TotalRevenue } from "./total-revenue";
 
 export function Charts({
   moneyDistribution,
@@ -19,35 +19,23 @@ export function Charts({
     value: number;
   }[];
   eventRequestCounts: {
-    _count: {
-      id: number;
-    };
     eventId: string;
+    eventTitle: string;
+    requestCount: number;
   }[];
-  boothTransactions: {
-    _sum: {
-      amount: number;
-    };
-    _count: {
-      id: number;
-    };
-    to: string;
-  }[];
+  boothTransactions: BoothAnalytics;
 }) {
   return (
     <>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
-        <TotalRevenue />
-
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 mb-6">
         <MoneyDistributionChart chartData={moneyDistribution} />
 
         <EventDistributionChart chartData={eventDistribution} />
-      </div>
-      <div className="grid gap-6 md:grid-cols-2 mb-6">
         <EventReqsCountChart chartData={eventRequestCounts} />
 
         <BoothTransChart chartData={boothTransactions} />
       </div>
+      <div className="grid gap-6 md:grid-cols-2 mb-6"></div>
     </>
   );
 }

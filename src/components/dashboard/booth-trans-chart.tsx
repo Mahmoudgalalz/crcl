@@ -20,11 +20,12 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function BoothTransChart({ chartData }: { chartData: BoothAnalytics }) {
-  const transformedData = chartData.map((data) => ({
-    booth: data.walletId,
-    count: data.totalMoney,
-    amount: data._sum.amount,
-  }));
+  const transformedData = chartData?.length
+    ? chartData.map((data) => ({
+        booth: data.user.name,
+        count: data._sum.amount,
+      }))
+    : [];
 
   return (
     <Card>

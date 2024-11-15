@@ -51,16 +51,16 @@ export default function Dashboard() {
         <ScrollArea className="h-[80dvh]">
           <Cards data={data} boothData={boothData} />
 
-          {/* <Charts
+          <Charts
             eventDistribution={eventDistribution}
             moneyDistribution={moneyDistribution}
             eventRequestCounts={data?.eventRequestCounts ?? []}
-            boothTransactions={data?.boothTransactions ?? []}
-          /> */}
-
-          {/* <UsersRequestsTable
-            userRequestCounts={data?.userRequestCounts ?? []}
-          /> */}
+            boothTransactions={boothData ?? []}
+          />
+          <UsersRequestsTable
+            userRequestCounts={data?.userRequestCounts?.eventDetails ?? []}
+            date={dateRange}
+          />
         </ScrollArea>
       )}
     </ContentLayout>

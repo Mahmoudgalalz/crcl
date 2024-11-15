@@ -25,8 +25,8 @@ export function EventReqsCountChart({
   chartData: Analytics["eventRequestCounts"];
 }) {
   const transformedData = chartData.map((data) => ({
-    eventId: data.eventId,
-    count: data._count.id,
+    eventId: data.eventTitle,
+    count: data.requestCount,
   }));
 
   return (
