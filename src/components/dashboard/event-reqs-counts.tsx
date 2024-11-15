@@ -33,7 +33,7 @@ export function EventReqsCountChart({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle>Event Requests Count</CardTitle>
-        <BarChartIcon className="h-4 w-4 text-muted-foreground" />
+        <BarChartIcon className="h-6 w-6 text-muted-foreground" />
       </CardHeader>
       <CardContent className="mt-2">
         <ChartContainer config={chartConfig}>

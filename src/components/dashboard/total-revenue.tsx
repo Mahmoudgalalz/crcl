@@ -4,6 +4,7 @@ import { Line, LineChart } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { DollarSign } from "lucide-react";
 
 const data = [
   {
@@ -54,7 +55,8 @@ export function TotalRevenue() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-normal">Total Revenue</CardTitle>
+        <CardTitle>Total Revenue</CardTitle>
+        <DollarSign className="h-6 w-6 text-muted-foreground" />
       </CardHeader>
       <CardContent className="pb-0">
         <div className="text-2xl font-bold">$15,231.89</div>
