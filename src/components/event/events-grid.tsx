@@ -48,7 +48,7 @@ export function EventsGrid({ events }: { events?: AnEvent[] }) {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            className="lg:w-[200px] sm:w-auto pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
           >
             <option value="ALL">All Statuses</option>
             <option value="DRAFTED">Drafted</option>
