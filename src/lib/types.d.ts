@@ -129,6 +129,7 @@ export enum TicketStatus {
   DECLINED = "DECLINED",
   ATTENDED = "ATTENDED",
   PAST_DUE = "PAST_DUE",
+  NA = "N/A",
 }
 
 export enum EventStatus {
