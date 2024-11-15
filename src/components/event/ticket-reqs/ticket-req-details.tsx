@@ -81,12 +81,12 @@ export function TicketReqDetails({
                 <TableCell>{ticket.ticketInfo.title}</TableCell>
                 <TableCell>{ticket.ticketInfo.price}</TableCell>
                 <TableCell>
-                  {ticket.purchaseStatus ? (
-                    <StatusBadge
-                      status={ticket.purchaseStatus.payment as TicketStatus}
-                    />
+                {ticket.purchaseStatus?.payment ? (
+                  <StatusBadge
+                    status={ticket.purchaseStatus.payment as TicketStatus}
+                  />
                   ) : (
-                    "N/A"
+                  "N/A"
                   )}
                 </TableCell>
               </TableRow>

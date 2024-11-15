@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export function StatusBadge({
   status,
 }: {
-  status: EventStatus | NewsStatus | TicketStatus | PaymentStatus;
+  status: EventStatus | NewsStatus | TicketStatus | PaymentStatus | 'N/A';
 }) {
   return (
     <Badge
