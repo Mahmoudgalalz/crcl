@@ -38,11 +38,11 @@ export function NewspaperGrid({ newspapers }: { newspapers?: Newspaper[] }) {
             size={20}
           />
         </div>
-        <div className="relative">
+        <div className="relative ">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            className="lg:w-[200px] sm:w-auto pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
           >
             <option value="ALL">All Statuses</option>
             <option value="DRAFTED">Drafted</option>
@@ -55,7 +55,7 @@ export function NewspaperGrid({ newspapers }: { newspapers?: Newspaper[] }) {
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {filteredNewspapers?.map((newspaper) => (
           <NewspaperItem key={newspaper.id} newspaper={newspaper} />
         ))}

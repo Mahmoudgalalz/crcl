@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { StatusBadge } from "@/components/status-badge";
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import {
@@ -18,15 +16,15 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowRightCircle, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { AnEvent } from "@/lib/types";
+import type { EventRequest, TicketStatus } from "@/lib/types";
 import type { UseMutateFunction } from "@tanstack/react-query";
+import { Row } from "@tanstack/react-table";
 
 export function TicketReqDetails({
   info,
   changeTicketStatus,
-  event,
 }: {
-  info: any;
+  info: Row<EventRequest>;
   changeTicketStatus: UseMutateFunction<
     boolean,
     Error,
@@ -39,8 +37,9 @@ export function TicketReqDetails({
       previousTickets: unknown;
     }
   >;
-  event: AnEvent;
 }) {
+  const ticketRequest = info.original;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -55,11 +54,10 @@ export function TicketReqDetails({
         </DialogHeader>
         <div className="flex flex-col gap-2">
           <div>
-            Current Status: <StatusBadge status={info.row.original.status} />
+            Current Status:{" "}
+            <StatusBadge status={ticketRequest.status as TicketStatus} />
           </div>
-          <div>
-            Number of requested tickets: {info.row.original.meta.length}
-          </div>
+          <div>Number of requested tickets: {ticketRequest.tickets.length}</div>
         </div>
         <Table>
           <TableHeader>
@@ -70,28 +68,26 @@ export function TicketReqDetails({
               <TableHead>Social</TableHead>
               <TableHead>Ticket Type</TableHead>
               <TableHead>Ticket Price</TableHead>
+              <TableHead>Purchase Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {info.row.original.meta?.map((reqUser: any, idx: number) => (
-              <TableRow key={`ReqUser${idx}for${info.row.original.id}`}>
-                <TableCell>{reqUser.name}</TableCell>
-                <TableCell>{reqUser.email}</TableCell>
-                <TableCell>{reqUser.number}</TableCell>
-                <TableCell>{reqUser.social}</TableCell>
+            {ticketRequest.tickets.map((ticket, idx) => (
+              <TableRow key={`Ticket${idx}for${ticketRequest.id}`}>
+                <TableCell>{ticket.requestInfo.name}</TableCell>
+                <TableCell>{ticket.requestInfo.email}</TableCell>
+                <TableCell>{ticket.requestInfo.number}</TableCell>
+                <TableCell>{ticket.requestInfo.social}</TableCell>
+                <TableCell>{ticket.ticketInfo.title}</TableCell>
+                <TableCell>{ticket.ticketInfo.price}</TableCell>
                 <TableCell>
-                  {
-                    event?.tickets.find(
-                      (ticketType) => ticketType.id === reqUser.ticketId
-                    )?.title
-                  }
-                </TableCell>
-                <TableCell>
-                  {
-                    event?.tickets.find(
-                      (ticketType) => ticketType.id === reqUser.ticketId
-                    )?.price
-                  }
+                  {ticket.purchaseStatus ? (
+                    <StatusBadge
+                      status={ticket.purchaseStatus.payment as TicketStatus}
+                    />
+                  ) : (
+                    "N/A"
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -101,13 +97,12 @@ export function TicketReqDetails({
           <Button
             className="text-white bg-green-700 rounded-full hover:bg-green-800"
             size="sm"
-            disabled={info.row.original.status === "APPROVED"}
+            disabled={ticketRequest.status === "APPROVED"}
             onClick={() => {
-              console.log(info.row.original.id);
               changeTicketStatus({
-                ticketId: info.row.original.id,
+                ticketId: ticketRequest.id,
                 newStatus: "APPROVED",
-                userId: info.row.original.userId,
+                userId: ticketRequest.user.id,
               });
             }}
           >
@@ -117,12 +112,12 @@ export function TicketReqDetails({
           <Button
             className="text-white bg-red-700 rounded-full hover:bg-red-800"
             size="sm"
-            disabled={info.row.original.status === "DECLINED"}
+            disabled={ticketRequest.status === "DECLINED"}
             onClick={() =>
               changeTicketStatus({
-                ticketId: info.row.original.id,
+                ticketId: ticketRequest.id,
                 newStatus: "DECLINED",
-                userId: info.row.original.userId,
+                userId: ticketRequest.user.id,
               })
             }
           >
