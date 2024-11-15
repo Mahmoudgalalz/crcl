@@ -1,18 +1,23 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { EventStatus, NewsStatus, TicketStatus } from "@/lib/types";
+import type {
+  EventStatus,
+  NewsStatus,
+  PaymentStatus,
+  TicketStatus,
+} from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function StatusBadge({
   status,
 }: {
-  status: EventStatus | NewsStatus | TicketStatus;
+  status: EventStatus | NewsStatus | TicketStatus | PaymentStatus;
 }) {
   return (
     <Badge
       variant="outline"
       className={cn(
-        status === "PUBLISHED" || status === "APPROVED"
+        status === "PUBLISHED" || status === "APPROVED" || status === "PAID"
           ? "bg-emerald-500 text-emerald-50"
           : "",
         status === "DRAFTED" ? "bg-yellow-500 text-yellow-50" : "",

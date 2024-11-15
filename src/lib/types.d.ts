@@ -161,21 +161,40 @@ export type ApiErrorResponse = {
   message: string;
 };
 
-export type TicketRequest = {
+type EventRequest = {
   id: string;
-  userId: string;
-  eventId: string;
-  meta: {
+  status: "APPROVED" | "DECLINED";
+  createdAt: string;
+  user: {
+    id: string;
     name: string;
     email: string;
     number: string;
-    social: string;
+    picture: string | null;
+  };
+  tickets: {
     ticketId: string;
+    requestInfo: {
+      name: string;
+      email: string;
+      number: string;
+      social: string;
+    };
+    ticketInfo: {
+      title?: string;
+      price?: number;
+    };
+    purchaseStatus: {
+      status: "UPCOMMING" | "ATTENDED";
+      payment: PaymentStatus;
+      purchaseId: string;
+      paymentReference: string | null;
+      purchasedAt: string;
+    } | null;
   }[];
-  status: TicketStatus;
-  createdAt: string;
-  updateAt: string;
 };
+
+export type PaymentStatus = "PENDING" | "PAID";
 
 export type Analytics = {
   totalMoney: {
@@ -183,28 +202,55 @@ export type Analytics = {
     paymentTotal: number;
     combinedTotal: number;
   };
-  boothTransactions: Array<{
-    _sum: { amount: number };
-    _count: { id: number };
-    to: string;
-  }>;
   eventStats: {
     totalEvents: number;
     upcomingEvents: number;
     pastEvents: number;
   };
-  eventRequestCounts: Array<{ _count: { id: number }; eventId: string }>;
-  totalPaidTickets: number;
-  userRequestCounts: Array<{
-    period: string;
-    data: Array<{
-      userId: string;
-      eventId: string;
-      eventName: string;
-      requestCount: number;
-    }>;
-  }>;
+  eventRequestCounts: {
+    eventId: string;
+    eventTitle: string;
+    requestCount: number;
+  }[];
+
+  totalPaidTickets: {
+    paid: number;
+    unpaid: number;
+    pending: number;
+  };
+  userRequestCounts: {
+    totalEvents: number;
+    combinedRevenue: number;
+    totalPaidTickets: number;
+    totalUnpaidTickets: number;
+    totalPendingTickets: number;
+    totalRequests: number;
+    eventDetails: {
+      id: string;
+      title: string;
+      location: string;
+      date: string;
+      totalRevenue: number;
+      totalPaidTickets: number;
+      totalUnpaidTickets: number;
+      totalPendingTickets: number;
+      totalRequests: number;
+    }[];
+  };
 };
+
+export type BoothAnalytics = {
+  _sum: {
+    amount: number;
+  };
+  walletId: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  totalMoney: number;
+}[];
 
 export type Transaction = {
   id: string;

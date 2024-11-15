@@ -1,5 +1,5 @@
 "use client";
-import { AnEvent, ApiSuccessResponse, Ticket, TicketRequest } from "../types";
+import { AnEvent, ApiSuccessResponse, EventRequest, Ticket } from "../types";
 import { axiosInstance } from "./instance";
 
 export async function getEvents() {
@@ -138,11 +138,12 @@ export async function getTicketRequets(
   try {
     const response = await axiosInstance.get<
       ApiSuccessResponse<{
-        data: TicketRequest[];
+        data: EventRequest[];
         meta: {
           total: number;
           page: number;
-          limit: number;
+          pageSize: number;
+          totalPages: number;
         };
       }>
     >(
@@ -151,7 +152,7 @@ export async function getTicketRequets(
       }`
     );
 
-    const data = response.data.data;
+    const data = response.data;
     return data;
   } catch (error) {
     console.error(error);

@@ -47,7 +47,7 @@ export default function EventTicketRequests() {
   } = useTicketReqs(eventId);
 
   return (
-    <ContentLayout title={`${event?.title}'s Ticket Requests`}>
+    <ContentLayout title="Event Ticket Requests">
       <div className="container mx-auto">
         <Button
           variant="outline"
@@ -88,7 +88,6 @@ export default function EventTicketRequests() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All</SelectItem>
-                <SelectItem value="BOOKED">Booked</SelectItem>
                 <SelectItem value="APPROVED">Approved</SelectItem>
                 <SelectItem value="DECLINED">Declined</SelectItem>
               </SelectContent>
