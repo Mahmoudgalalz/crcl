@@ -39,12 +39,19 @@ export function useUsers() {
       console.log(modUser);
       await queryClient.cancelQueries({ queryKey: ["users"] });
 
-      queryClient.setQueryData(["users"], (oldUsers: User[] | undefined) => {
-        if (!oldUsers) return oldUsers;
-        return oldUsers.map((user: User) =>
-          user.id === modUser?.id ? modUser : user
-        );
-      });
+      queryClient.setQueryData(
+        ["users", pageIndex, searchTerm],
+        (oldUsers: { users: User[]; meta: unknown }) => {
+          console.log("Old users", oldUsers);
+          if (!oldUsers) return oldUsers;
+          return {
+            users: oldUsers.users.map((user: User) =>
+              user.id === modUser?.id ? { ...user, ...modUser } : user
+            ),
+            meta: oldUsers?.meta,
+          };
+        }
+      );
     },
   });
 
@@ -116,7 +123,7 @@ export function useUsers() {
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },
     { accessorKey: "email", header: "Email" },
-    { accessorKey: "type", header: "Type" },
+    // { accessorKey: "type", header: "Type" },
     {
       accessorKey: "status",
       header: "Status",
@@ -185,6 +192,6 @@ export function useUsers() {
     pageIndex,
     setPageIndex,
     table: memoizedTable,
-    pagesLimit: users?.meta.totalPages,
+    pagesLimit: users?.meta?.totalPages,
   };
 }
