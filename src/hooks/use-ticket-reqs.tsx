@@ -142,7 +142,7 @@ export function useTicketReqs(eventId: string) {
         return ticketStatuses.map((ticket) => (
           <StatusBadge
             key={ticket.ticketId}
-            status={ticket.purchaseStatus.payment ?? "PENDING"}
+            status={ticket.purchaseStatus?.payment ?? "N/A"}
           />
         ));
       },
