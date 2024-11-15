@@ -1,30 +1,13 @@
 import { DollarSign, Calendar, Ticket, ShoppingBag } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { Analytics, BoothAnalytics } from "@/lib/types";
 
 export function Cards({
   data,
+  boothData,
 }: {
-  data: {
-    totalMoney: {
-      combinedTotal: number;
-      walletTotal: number;
-      paymentTotal: number;
-    };
-    eventStats: {
-      totalEvents: number;
-      upcomingEvents: number;
-      pastEvents: number;
-    };
-    totalPaidTickets: number;
-    boothTransactions: {
-      _sum: {
-        amount: number;
-      };
-      _count: {
-        id: number;
-      };
-    }[];
-  };
+  data: Analytics;
+  boothData: BoothAnalytics;
 }) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 my-6">
@@ -70,7 +53,7 @@ export function Cards({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {data?.totalPaidTickets || 0}
+            {data?.totalPaidTickets.paid || 0}
           </div>
         </CardContent>
       </Card>
@@ -83,11 +66,13 @@ export function Cards({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {data?.boothTransactions[0]?._sum?.amount || 0}
+            {boothData
+              .map((booth) => booth._sum?.amount || 0)
+              .reduce((a, b) => a + b, 0)}
             <span className="text-sm ml-1">EGP</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            Count: {data?.boothTransactions[0]?._count?.id || 0}
+            Count: {boothData.length}
           </p>
         </CardContent>
       </Card>

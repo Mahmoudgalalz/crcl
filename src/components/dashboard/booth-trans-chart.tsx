@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/chart";
 import { BarChartIcon } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { BoothAnalytics } from "@/lib/types";
 
 const chartConfig = {
   booth: {
@@ -18,22 +19,10 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function BoothTransChart({
-  chartData,
-}: {
-  chartData: {
-    _sum: {
-      amount: number;
-    };
-    _count: {
-      id: number;
-    };
-    to: string;
-  }[];
-}) {
+export function BoothTransChart({ chartData }: { chartData: BoothAnalytics }) {
   const transformedData = chartData.map((data) => ({
-    booth: data.to,
-    count: data._count.id,
+    booth: data.walletId,
+    count: data.totalMoney,
     amount: data._sum.amount,
   }));
 

@@ -51,18 +51,31 @@ export function UsersRequestsTable({
 }: {
   userRequestCounts:
     | {
-        period: string;
-        data: UserRequest[];
+        id: string;
+        title: string;
+        location: string;
+        date: string;
+        totalRevenue: number;
+        totalPaidTickets: number;
+        totalUnpaidTickets: number;
+        totalPendingTickets: number;
+        totalRequests: number;
       }[]
     | undefined;
 }) {
   const table = useReactTable({
-    data: userRequestCounts?.map(({ data }) => data).flat() || [],
+    data:
+      userRequestCounts
+        ?.map(({ totalRequests, id, title, location }) => ({
+          userId: id,
+          eventId: title,
+          eventName: location,
+          requestCount: totalRequests,
+        }))
+        .flat() || [],
     columns: columns.map((column) => ({
       ...column,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-expect-error
-      accessorFn: (row) => row[column.accessorKey as keyof UserRequest],
+      accessorFn: (row) => row[column.id as keyof UserRequest],
     })),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAnalytics } from "@/lib/api/dashboard";
+import { getBoothAnalytics, getGeneralAnalytics } from "@/lib/api/dashboard";
 import { ContentLayout } from "@/components/content-layout";
 import { UsersRequestsTable } from "@/components/dashboard/user-requests-table";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
@@ -18,8 +18,13 @@ export default function Dashboard() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["analytics", dateRange],
-    queryFn: () => getAnalytics(dateRange.from, dateRange.to),
+    queryKey: ["general analytics", dateRange],
+    queryFn: () => getGeneralAnalytics(dateRange.from, dateRange.to),
+  });
+
+  const { data: boothData } = useQuery({
+    queryKey: ["booth analytics"],
+    queryFn: () => getBoothAnalytics(),
   });
 
   const moneyDistribution = [
@@ -44,18 +49,18 @@ export default function Dashboard() {
         </div>
       ) : (
         <ScrollArea className="h-[80dvh]">
-          <Cards data={data} />
+          <Cards data={data} boothData={boothData} />
 
-          <Charts
+          {/* <Charts
             eventDistribution={eventDistribution}
             moneyDistribution={moneyDistribution}
             eventRequestCounts={data?.eventRequestCounts ?? []}
             boothTransactions={data?.boothTransactions ?? []}
-          />
+          /> */}
 
-          <UsersRequestsTable
+          {/* <UsersRequestsTable
             userRequestCounts={data?.userRequestCounts ?? []}
-          />
+          /> */}
         </ScrollArea>
       )}
     </ContentLayout>
