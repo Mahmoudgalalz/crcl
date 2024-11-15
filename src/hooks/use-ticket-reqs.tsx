@@ -3,7 +3,7 @@ import {
   getEvent,
   changeTicketReqStatuss,
 } from "@/lib/api/events";
-import { EventRequest, PaymentStatus, TicketStatus } from "@/lib/types";
+import { EventRequest, TicketStatus } from "@/lib/types";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useToast } from "./use-toast";
@@ -152,7 +152,6 @@ export function useTicketReqs(eventId: string) {
       cell: (info) => (
         <TicketReqDetails
           changeTicketStatus={changeTicketStatus}
-          event={event}
           info={info.row}
         />
       ),

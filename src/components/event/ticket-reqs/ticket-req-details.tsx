@@ -16,14 +16,13 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowRightCircle, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { AnEvent, EventRequest, TicketStatus } from "@/lib/types";
+import type { EventRequest, TicketStatus } from "@/lib/types";
 import type { UseMutateFunction } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
 
 export function TicketReqDetails({
   info,
   changeTicketStatus,
-  event,
 }: {
   info: Row<EventRequest>;
   changeTicketStatus: UseMutateFunction<
@@ -38,7 +37,6 @@ export function TicketReqDetails({
       previousTickets: unknown;
     }
   >;
-  event: AnEvent | undefined;
 }) {
   const ticketRequest = info.original;
 
