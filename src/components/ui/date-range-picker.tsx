@@ -47,14 +47,14 @@ export function DateRangePicker({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {format(date.from, "MMM d")} -{" "}
+                  {format(date.to, "MMM d, yyyy")}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date.from, "MMM d, yyyy")
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Pick a date range</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -64,14 +64,8 @@ export function DateRangePicker({
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={(range: DateRange) => {
-              if (range.to) {
-                setDate({ from: range.from, to: range.to });
-              } else {
-                setDate((prevDate) => ({ ...prevDate, from: range.from }));
-              }
-            }}
-            numberOfMonths={2}
+            onSelect={(range) => setDate({ from: range.from, to: range.to })}
+            numberOfMonths={1}
           />
         </PopoverContent>
       </Popover>

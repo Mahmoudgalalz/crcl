@@ -9,16 +9,17 @@ import {
   DollarSign,
   Calendar,
   Ticket,
+  ShoppingBag,
   Users,
-  BarChart as BarChartIcon,
+  BarChartIcon,
 } from "lucide-react";
 import { EventDistributionChart } from "@/components/dashboard/event-distro-chart";
 import { MoneyDistributionChart } from "@/components/dashboard/money-distro-chart";
 import { EventReqsCountChart } from "@/components/dashboard/event-reqs-counts";
+import { BoothTransChart } from "@/components/dashboard/booth-trans-chart";
 import { UsersRequestsTable } from "@/components/dashboard/user-requests-table";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
-import { BoothInfo } from "@/components/dashboard/booth-info";
 
 export default function Dashboard() {
   const [dateRange, setDateRange] = useState({
@@ -49,26 +50,7 @@ export default function Dashboard() {
       </div>
       {isLoading ? (
         <div className="flex items-center justify-center min-h-[70vh]">
-          <svg
-            className="animate-spin h-16 w-16 text-primary"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
+          <div className="w-16 h-16 border-4 border-primary border-solid rounded-full animate-spin border-t-transparent"></div>
         </div>
       ) : (
         <>
@@ -83,7 +65,7 @@ export default function Dashboard() {
               />
             </CardContent>
           </Card>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 my-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 my-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -134,6 +116,23 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Booth Transactions
+                </CardTitle>
+                <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {data?.boothTransactions[0]?._sum?.amount || 0}
+                  <span className="text-sm ml-1">EGP</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Count: {data?.boothTransactions[0]?._count?.id || 0}
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 mb-6">
@@ -150,6 +149,18 @@ export default function Dashboard() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle>Booth Transactions</CardTitle>
+                <BarChartIcon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <BoothTransChart chartData={data?.boothTransactions ?? []} />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 mb-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>Money Distribution</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -157,19 +168,16 @@ export default function Dashboard() {
                 <MoneyDistributionChart chartData={moneyDistribution} />
               </CardContent>
             </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle>Event Distribution</CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <EventDistributionChart chartData={eventDistribution} />
+              </CardContent>
+            </Card>
           </div>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle>Event Distribution</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <EventDistributionChart chartData={eventDistribution} />
-            </CardContent>
-          </Card>
-
-          <BoothInfo boothTransactions={data?.boothTransactions ?? []} />
         </>
       )}
     </ContentLayout>
