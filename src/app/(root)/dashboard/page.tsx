@@ -22,7 +22,7 @@ export default function Dashboard() {
     queryFn: () => getGeneralAnalytics(dateRange.from, dateRange.to),
   });
 
-  const { data: boothData } = useQuery({
+  const { data: boothData, isLoading: isBoothLoadig } = useQuery({
     queryKey: ["booth analytics"],
     queryFn: () => getBoothAnalytics(),
   });
@@ -43,7 +43,7 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <DateRangePicker date={dateRange} setDate={setDateRange} />
       </div>
-      {isLoading ? (
+      {isLoading || isBoothLoadig ? (
         <div className="flex items-center justify-center min-h-[70vh]">
           <div className="w-16 h-16 border-4 border-primary border-solid rounded-full animate-spin border-t-transparent"></div>
         </div>

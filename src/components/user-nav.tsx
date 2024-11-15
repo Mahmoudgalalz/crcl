@@ -74,20 +74,23 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/dashboard" className="flex items-center">
-              <LayoutGrid className="w-4 h-4 mr-3 text-muted-foreground" />
-              Dashboard
-            </Link>
-          </DropdownMenuItem>
-          {type === "ADMIN" ? (
+          {type === "ADMIN" ||
+            (type === "FINANCE" && (
+              <DropdownMenuItem className="hover:cursor-pointer" asChild>
+                <Link href="/dashboard" className="flex items-center">
+                  <LayoutGrid className="w-4 h-4 mr-3 text-muted-foreground" />
+                  Dashboard
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          {type === "ADMIN" && (
             <DropdownMenuItem className="hover:cursor-pointer" asChild>
               <Link href="/admin" className="flex items-center">
                 <Settings className="w-4 h-4 mr-3 text-muted-foreground" />
                 Admin
               </Link>
             </DropdownMenuItem>
-          ) : null}
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
