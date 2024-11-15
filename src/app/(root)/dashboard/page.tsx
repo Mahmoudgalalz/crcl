@@ -21,6 +21,7 @@ import { UsersRequestsTable } from "@/components/dashboard/user-requests-table";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
 import { TotalRevenue } from "@/components/dashboard/total-revenue";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Dashboard() {
   const [dateRange, setDateRange] = useState({
@@ -45,7 +46,7 @@ export default function Dashboard() {
 
   return (
     <ContentLayout title="Dashboard">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center h-[10dvh] max-h-[15dvh] border-b-2 -mt-6">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <DateRangePicker date={dateRange} setDate={setDateRange} />
       </div>
@@ -54,7 +55,7 @@ export default function Dashboard() {
           <div className="w-16 h-16 border-4 border-primary border-solid rounded-full animate-spin border-t-transparent"></div>
         </div>
       ) : (
-        <>
+        <ScrollArea className="h-[80dvh]">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 my-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -180,7 +181,7 @@ export default function Dashboard() {
               />
             </CardContent>
           </Card>
-        </>
+        </ScrollArea>
       )}
     </ContentLayout>
   );
