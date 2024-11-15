@@ -80,12 +80,14 @@ export function UserNav() {
               Dashboard
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/settings" className="flex items-center">
-              <Settings className="w-4 h-4 mr-3 text-muted-foreground" />
-              Settings
-            </Link>
-          </DropdownMenuItem>
+          {type === "ADMIN" ? (
+            <DropdownMenuItem className="hover:cursor-pointer" asChild>
+              <Link href="/admin" className="flex items-center">
+                <Settings className="w-4 h-4 mr-3 text-muted-foreground" />
+                Admin
+              </Link>
+            </DropdownMenuItem>
+          ) : null}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

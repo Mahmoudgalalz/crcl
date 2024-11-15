@@ -33,13 +33,7 @@ export function Sidebar() {
             href="/dashboard"
             className="flex items-center gap-2 !no-underline"
           >
-            <img
-              src="/logo.png"
-              height={40}
-              width={40}
-              alt="logo"
-              className="rounded-full"
-            />
+            <img src="/logo.png" height={40} width={40} alt="logo" />
             <h1
               className={cn(
                 "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300 text-[#AA8C72] no-underline",
