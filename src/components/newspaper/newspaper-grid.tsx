@@ -4,23 +4,27 @@ import { NewspaperItem } from "./newspaper-item";
 import { Search, Filter } from "lucide-react";
 import { Input } from "../ui/input";
 
-export function NewspaperGrid({ newspapers }: { newspapers?: Newspaper[] }) {
-  const [searchTerm, setSearchTerm] = useState("");
+export function NewspaperGrid({
+  newspapers,
+  searchQuery,
+  setSearchQuery,
+}: {
+  newspapers?: Newspaper[];
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
+}) {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   const filteredNewspapers = useMemo(() => {
     return newspapers
       ?.filter((newspaper) =>
-        newspaper.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .filter((newspaper) =>
         statusFilter === "ALL" ? true : newspaper.status === statusFilter
       )
       .sort((a, b) => {
         const statusOrder = { DRAFTED: 1, PUBLISHED: 2, DELETED: 3 };
         return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
       });
-  }, [newspapers, searchTerm, statusFilter]);
+  }, [newspapers, statusFilter]);
 
   return (
     <>
@@ -29,8 +33,8 @@ export function NewspaperGrid({ newspapers }: { newspapers?: Newspaper[] }) {
           <Input
             type="text"
             placeholder="Search newspapers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Search
