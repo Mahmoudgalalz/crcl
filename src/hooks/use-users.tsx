@@ -2,7 +2,7 @@ import { toast } from "@/hooks/use-toast";
 import { type User } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUsers, updateUserStatus, updateUserWallet } from "@/lib/api/users";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -22,13 +22,35 @@ import { UsersActions } from "@/components/users/users-actions";
 
 export function useUsers() {
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(1);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  useEffect(() => {
+    const debounced = debounce(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    debounced();
+
+    return () => {
+      debounced.cancel();
+    };
+  }, [searchTerm]);
 
   const queryClient = useQueryClient();
   const { data: users } = useQuery({
-    queryKey: ["users", pageIndex, searchTerm],
-    queryFn: () => getUsers(pageIndex, searchTerm),
+    queryKey: [
+      "users",
+      {
+        page: pageIndex,
+        searchTerm: debouncedSearchTerm,
+      },
+    ],
+    queryFn: () => getUsers(pageIndex, debouncedSearchTerm),
   });
 
   const { mutate: mutateUserStatus } = useMutation({
@@ -40,7 +62,7 @@ export function useUsers() {
       await queryClient.cancelQueries({ queryKey: ["users"] });
 
       queryClient.setQueryData(
-        ["users", pageIndex, searchTerm],
+        ["users"],
         (oldUsers: { users: User[]; meta: unknown }) => {
           console.log("Old users", oldUsers);
           if (!oldUsers) return oldUsers;
@@ -55,23 +77,13 @@ export function useUsers() {
     },
   });
 
-  const handleSearch = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const debouncedSearch = debounce((value: string) => {
-        setSearchTerm(value);
-        setPageIndex(1);
-      }, 300);
-      debouncedSearch(event.target.value);
-    },
-    []
-  );
   const { mutate: mutateTopUp } = useMutation({
     mutationFn: async ({ id, amount }: { id: string; amount: number }) =>
       await updateUserWallet(id, amount),
 
     onSuccess: (walletUpdate) => {
       queryClient.setQueryData(
-        ["users", pageIndex, searchTerm],
+        ["users"],
         (oldData: { users: User[]; meta: unknown } | undefined) => {
           if (!oldData) return oldData;
           return {

@@ -95,7 +95,11 @@ export async function getUsers(page: number, search: string) {
           totalPages: number;
         };
       }>
-    >(`/users?types=USER&page=${page}&limit=10&search=${search}`);
+    >(
+      `/users?types=USER&page=${page}&limit=10&search=${
+        search ? search.replace(" ", "+") : ""
+      }`
+    );
 
     return res.data.data;
   } catch (error) {

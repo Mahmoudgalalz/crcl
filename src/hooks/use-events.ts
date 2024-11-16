@@ -1,19 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createEvent, getEvents } from "@/lib/api/events";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type AnEvent } from "@/lib/types";
+import { debounce } from "@/lib/utils";
 
 export const useEvents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  useEffect(() => {
+    const debounced = debounce(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
 
+    debounced();
+
+    return () => {
+      debounced.cancel();
+    };
+  }, [searchQuery]);
   const queryClient = useQueryClient();
 
   const { data: eventsData } = useQuery({
-    queryKey: ["events"],
-    queryFn: getEvents,
+    queryKey: ["events", { page, searchQuery: debouncedSearchQuery }],
+    queryFn: () => getEvents(page, debouncedSearchQuery),
     refetchOnWindowFocus: true,
     select(data) {
-      return data.events;
+      return data.data;
     },
   });
 
@@ -39,15 +53,21 @@ export const useEvents = () => {
 
       console.log(previousEvents);
 
-      queryClient.setQueryData(["events"], {
-        events: [
-          // Change 'eventsData' to 'events'
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-expect-error
-          ...(previousEvents.events ?? []),
-          newEventData,
-        ],
-      });
+      queryClient.setQueriesData(
+        {
+          queryKey: ["events"],
+          exact: false,
+        },
+        {
+          events: [
+            // Change 'eventsData' to 'events'
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-expect-error
+            ...(previousEvents.events ?? []),
+            newEventData,
+          ],
+        }
+      );
 
       return { previousEvents };
     },
@@ -58,5 +78,9 @@ export const useEvents = () => {
     dialogOpen,
     setDialogOpen,
     mutateTocreateEvent,
+    searchQuery,
+    setSearchQuery,
+    page,
+    setPage,
   };
 };
