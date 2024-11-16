@@ -13,8 +13,8 @@ const mockUsers = Array.from({ length: 20 }, (_, i) => ({
 
 interface UserListProps {
   mode: "single" | "multiple";
-  selectedUsers: string[];
-  onSelectionChange: (users: string[]) => void;
+  selectedUsers: string[] | string;
+  onSelectionChange: ((users: string[]) => void) | ((user: string) => void);
 }
 
 export function UserList({

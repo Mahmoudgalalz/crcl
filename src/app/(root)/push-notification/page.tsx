@@ -32,6 +32,21 @@ export default function PushNotificationsPage() {
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
 
+  const isReceiverSelected = () => {
+    switch (selectedTab) {
+      case "individual":
+        return selectedIndividualUser.length > 0;
+      case "multiple":
+        return selectedMultipleUsers.length > 0;
+      case "all":
+        return true; // Always valid as it targets all users
+      case "groups":
+        return selectedGroup !== null;
+      default:
+        return false;
+    }
+  };
+
   const handleSend = async () => {
     if (!notification.title || !notification.description) {
       toast({
@@ -49,7 +64,7 @@ export default function PushNotificationsPage() {
       let successMessage = "";
       switch (selectedTab) {
         case "individual":
-          successMessage = "Notification sent successfully";
+          successMessage = `Notification sent successfully to ${selectedIndividualUser[0]}`;
           break;
         case "multiple":
           successMessage = `Notification sent to ${selectedMultipleUsers.length} users`;
@@ -66,7 +81,6 @@ export default function PushNotificationsPage() {
         title: "Success",
         description: successMessage,
       });
-      setNotification({ title: "", description: "" });
       setSelectedIndividualUser([]);
       setSelectedMultipleUsers([]);
       setSelectedGroup(null);
@@ -166,7 +180,8 @@ export default function PushNotificationsPage() {
                   disabled={
                     isSending ||
                     !notification.title ||
-                    !notification.description
+                    !notification.description ||
+                    !isReceiverSelected()
                   }
                 >
                   <SendIcon className="h-4 w-4 mr-2" />
