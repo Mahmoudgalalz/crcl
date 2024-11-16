@@ -1,34 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { SearchIcon, UsersIcon, PlusIcon } from "lucide-react";
+import { SearchIcon, PlusIcon, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-interface Group {
-  id: string;
-  name: string;
-  description: string;
-  memberCount: number;
-}
-
-const initialGroups: Group[] = Array.from({ length: 10 }, (_, i) => ({
-  id: `group-${i + 1}`,
-  name: `Group ${i + 1}`,
-  description: `Description for Group ${i + 1}`,
-  memberCount: Math.floor(Math.random() * 50) + 10,
-}));
+import { useNotifications } from "@/hooks/use-notifications";
 
 interface GroupListProps {
   selectedGroup: string | null;
@@ -36,28 +23,29 @@ interface GroupListProps {
 }
 
 export function GroupList({ selectedGroup, onGroupSelect }: GroupListProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [groups, setGroups] = useState<Group[]>(initialGroups);
-  const [newGroup, setNewGroup] = useState({ name: "", description: "" });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const filteredGroups = groups.filter((group) =>
-    group.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleNewGroupSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newGroupId = `group-${groups.length + 1}`;
-    const groupToAdd: Group = {
-      id: newGroupId,
-      name: newGroup.name,
-      description: newGroup.description,
-      memberCount: 1, // Start with 1 member (the creator)
-    };
-    setGroups([...groups, groupToAdd]);
-    setNewGroup({ name: "", description: "" });
-    setIsDialogOpen(false);
-  };
+  const {
+    groups,
+    handleDeleteGroup,
+    handleEditGroupSubmit,
+    handleNewGroupSubmit,
+    isDeleteDialogOpen,
+    isDialogOpen,
+    isEditDialogOpen,
+    setEditingGroup,
+    setGroupToDelete,
+    setNewGroup,
+    setSearchQuery,
+    setIsDeleteDialogOpen,
+    setIsDialogOpen,
+    setIsEditDialogOpen,
+    newGroup,
+    editingGroup,
+    groupToDelete,
+    searchQuery,
+  } = useNotifications({
+    selectedGroup,
+    onGroupSelect,
+  });
 
   return (
     <div className="space-y-4">
@@ -113,12 +101,12 @@ export function GroupList({ selectedGroup, onGroupSelect }: GroupListProps) {
 
       <ScrollArea className="h-[400px] pr-4">
         <div className="space-y-2">
-          {filteredGroups.map((group) => (
+          {groups?.map((group) => (
             <div
               key={group.id}
-              className={`p-3 rounded-lg cursor-pointer transition-colors ${
+              className={`p-3 rounded-lg cursor-pointer transition-colors border ${
                 selectedGroup === group.id
-                  ? "bg-primary/5 hover:bg-primary/10"
+                  ? "bg-primary/10 hover:bg-primary/10"
                   : "hover:bg-accent"
               }`}
               onClick={() => onGroupSelect(group.id)}
@@ -131,12 +119,32 @@ export function GroupList({ selectedGroup, onGroupSelect }: GroupListProps) {
                   <p className="text-xs text-muted-foreground">
                     {group.description}
                   </p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="gap-1 text-xs">
-                      <UsersIcon className="h-3 w-3" />
-                      {group.memberCount} members
-                    </Badge>
-                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingGroup(group);
+                      setIsEditDialogOpen(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">Edit group</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setGroupToDelete(group);
+                      setIsDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Delete group</span>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -151,6 +159,70 @@ export function GroupList({ selectedGroup, onGroupSelect }: GroupListProps) {
           </p>
         </div>
       )}
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Group</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditGroupSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-group-name">Group Name</Label>
+              <Input
+                id="edit-group-name"
+                value={editingGroup?.name || ""}
+                onChange={(e) =>
+                  setEditingGroup(
+                    editingGroup
+                      ? { ...editingGroup, name: e.target.value }
+                      : null
+                  )
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-group-description">Description</Label>
+              <Textarea
+                id="edit-group-description"
+                value={editingGroup?.description || ""}
+                onChange={(e) =>
+                  setEditingGroup(
+                    editingGroup
+                      ? { ...editingGroup, description: e.target.value }
+                      : null
+                  )
+                }
+                required
+              />
+            </div>
+            <Button type="submit">Save Changes</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Group</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the group &quot;
+              {groupToDelete?.name}&quot;? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteGroup}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

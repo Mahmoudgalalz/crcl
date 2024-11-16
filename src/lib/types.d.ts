@@ -263,3 +263,11 @@ export type Transaction = {
   tokenPrice: number;
   walletId: string;
 };
+
+export type NotificationGroup = {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
