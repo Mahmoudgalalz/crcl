@@ -1,15 +1,15 @@
 import { ApiSuccessResponse, Newspaper } from "../types";
 import { axiosInstance } from "./instance";
 
-export async function getNewspaper() {
+export async function getNewspaper(page: number, search: string) {
   try {
     const response = await axiosInstance.get<
       ApiSuccessResponse<{
         newspapers: Newspaper[];
         total: number;
       }>
-    >("/newspaper");
-    const data = response.data.data.newspapers;
+    >("/newspaper?limit=6&page=" + page + (search ? `&search=${search}` : ""));
+    const data = response.data.data;
     return data;
   } catch (error) {
     console.error(error);
