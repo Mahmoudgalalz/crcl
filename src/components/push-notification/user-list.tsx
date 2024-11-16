@@ -47,7 +47,7 @@ export function UserList({
     isLoading,
     isError,
   } = useInfiniteQuery({
-    queryKey: ["users", searchQuery],
+    queryKey: ["users"],
     queryFn: ({ pageParam }) =>
       getUsers(pageParam ? Number(pageParam) : null, searchQuery),
     initialPageParam: 1,

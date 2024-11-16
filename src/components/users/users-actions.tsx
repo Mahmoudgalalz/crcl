@@ -86,8 +86,11 @@ export function UsersActions({
       return await addUserToGroup(groupId, [user.id]);
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(
-        ["users"],
+      queryClient.setQueriesData(
+        {
+          queryKey: ["users"],
+          exact: false,
+        },
         (oldUsers: { users: User[]; meta: unknown }) => {
           return {
             users: oldUsers.users.map((oldUser) => {
@@ -119,8 +122,11 @@ export function UsersActions({
       return await delUsersFromGroup(groupId, [user.id]);
     },
     onSuccess: (_, groupId) => {
-      queryClient.setQueryData(
-        ["users"],
+      queryClient.setQueriesData(
+        {
+          queryKey: ["users"],
+          exact: false,
+        },
         (oldUsers: { users: User[]; meta: unknown }) => {
           return {
             users: oldUsers.users.map((oldUser) => {
@@ -140,10 +146,6 @@ export function UsersActions({
       );
     },
   });
-
-  const filteredGroups = groups?.filter((group) =>
-    group.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="flex space-x-2">
@@ -372,12 +374,17 @@ export function UsersActions({
                           Available Groups
                         </h3>
                         <div className="space-y-2">
-                          {filteredGroups
+                          {groups
                             ?.filter(
                               (group) =>
                                 !user.Notifications.some(
                                   (notification) => notification.id === group.id
                                 )
+                            )
+                            .filter((group) =>
+                              group.name
+                                .toLowerCase()
+                                .includes(searchQuery.toLowerCase())
                             )
                             .map((group: NotificationGroup) => (
                               <Card key={group.id} className="p-3">

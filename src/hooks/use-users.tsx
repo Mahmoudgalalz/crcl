@@ -43,7 +43,13 @@ export function useUsers() {
 
   const queryClient = useQueryClient();
   const { data: users } = useQuery({
-    queryKey: ["users", pageIndex, debouncedSearchTerm],
+    queryKey: [
+      "users",
+      {
+        page: pageIndex,
+        searchTerm: debouncedSearchTerm,
+      },
+    ],
     queryFn: () => getUsers(pageIndex, debouncedSearchTerm),
   });
 
@@ -56,7 +62,7 @@ export function useUsers() {
       await queryClient.cancelQueries({ queryKey: ["users"] });
 
       queryClient.setQueryData(
-        ["users", pageIndex, searchTerm],
+        ["users"],
         (oldUsers: { users: User[]; meta: unknown }) => {
           console.log("Old users", oldUsers);
           if (!oldUsers) return oldUsers;
@@ -77,7 +83,7 @@ export function useUsers() {
 
     onSuccess: (walletUpdate) => {
       queryClient.setQueryData(
-        ["users", pageIndex, searchTerm],
+        ["users"],
         (oldData: { users: User[]; meta: unknown } | undefined) => {
           if (!oldData) return oldData;
           return {

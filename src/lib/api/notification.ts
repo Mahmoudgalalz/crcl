@@ -110,31 +110,29 @@ export async function PushNotificationToMultipleUsers(
   }
 }
 
-export async function addUserToGroup(groupId: string, userIds: string[]) {
+export async function addUserToGroup(groupId: string, usersIds: string[]) {
   try {
-    const response = await axiosInstance.patch(
-      `/notifications/${groupId}/users`,
-      {
-        userIds,
-      }
-    );
-    return response.data;
+    const response = await axiosInstance.patch<
+      ApiSuccessResponse<NotificationGroup>
+    >(`/notifications/${groupId}/users`, {
+      usersIds,
+    });
+    return response.data.data;
   } catch (error) {
     console.error(error);
     throw error;
   }
 }
 
-export async function delUsersFromGroup(groupId: string, userIds: string[]) {
+export async function delUsersFromGroup(groupId: string, usersIds: string[]) {
   try {
-    const response = await axiosInstance.delete(
-      `/notifications/${groupId}/users`,
-      {
-        data: {
-          userIds,
-        },
-      }
-    );
+    const response = await axiosInstance.delete<
+      ApiSuccessResponse<NotificationGroup>
+    >(`/notifications/${groupId}/users`, {
+      data: {
+        usersIds,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error(error);
