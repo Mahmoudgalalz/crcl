@@ -59,3 +59,55 @@ export async function updateNotificationsGroup(
     throw error;
   }
 }
+
+export async function PushNotificationToGroup(
+  title: string,
+  message: string,
+  groupId: string
+) {
+  try {
+    const response = await axiosInstance.post(`/notifications/bulk-push`, {
+      title,
+      message,
+      notificationId: groupId,
+    });
+    return response.status;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function PushNotificationToAll(title: string, message: string) {
+  try {
+    const response = await axiosInstance.post(`/notifications/bulk-push`, {
+      title,
+      message,
+      all: true,
+    });
+    return response.status;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function PushNotificationToMultipleUsers(
+  userIds: string[],
+  title: string,
+  message: string
+) {
+  try {
+    const response = await axiosInstance.post(`/notifications/bulk-push`, {
+      title,
+      message,
+      userIds,
+    });
+    return response.status;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+//  notificationId?: string;

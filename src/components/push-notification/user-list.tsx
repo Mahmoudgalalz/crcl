@@ -52,8 +52,8 @@ export function UserList({
       getUsers(pageParam ? Number(pageParam) : null, searchQuery),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
-      lastPage.meta.totalPages > lastPage.meta.page
-        ? lastPage.meta.page + 1
+      lastPage?.meta.totalPages > lastPage?.meta.page
+        ? lastPage?.meta.page + 1
         : null,
   });
 

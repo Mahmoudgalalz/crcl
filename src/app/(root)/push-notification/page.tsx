@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { UserList } from "@/components/push-notification/user-list";
 import { GroupList } from "@/components/push-notification/group-list";
 import { NotificationForm } from "@/components/push-notification/notification-form";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 export default function PushNotificationsPage() {
   const [selectedTab, setSelectedTab] = useState("multiple");
@@ -23,8 +24,15 @@ export default function PushNotificationsPage() {
     []
   );
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
+
+  const {
+    isLoading,
+    isSuccess,
+    pushToAllUsers,
+    pushToGroup,
+    pushToMultilpleUsers,
+  } = usePushNotifications();
 
   const isReceiverSelected = () => {
     switch (selectedTab) {
@@ -33,7 +41,7 @@ export default function PushNotificationsPage() {
       case "multiple":
         return selectedMultipleUsers.length > 0;
       case "all":
-        return true; // Always valid as it targets all users
+        return true;
       case "groups":
         return selectedGroup !== null;
       default:
@@ -51,41 +59,33 @@ export default function PushNotificationsPage() {
       return;
     }
 
-    setIsSending(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    switch (selectedTab) {
+      case "multiple":
+        pushToMultilpleUsers({
+          users: selectedMultipleUsers,
+          title: notification.title,
+          message: notification.description,
+        });
+        break;
+      case "all":
+        pushToAllUsers({
+          title: notification.title,
+          message: notification.description,
+        });
+        break;
+      case "groups":
+        pushToGroup({
+          groupId: selectedGroup!,
+          title: notification.title,
+          message: notification.description,
+        });
+        break;
+    }
 
-      let successMessage = "";
-      switch (selectedTab) {
-        case "individual":
-          successMessage = `Notification sent successfully to ${selectedIndividualUser[0]}`;
-          break;
-        case "multiple":
-          successMessage = `Notification sent to ${selectedMultipleUsers.length} users`;
-          break;
-        case "all":
-          successMessage = "Notification sent to all users";
-          break;
-        case "groups":
-          successMessage = "Notification sent to group members";
-          break;
-      }
-
-      toast({
-        title: "Success",
-        description: successMessage,
-      });
+    if (isSuccess) {
       setSelectedIndividualUser([]);
       setSelectedMultipleUsers([]);
       setSelectedGroup(null);
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to send notification",
-      });
-    } finally {
-      setIsSending(false);
     }
   };
 
@@ -156,14 +156,14 @@ export default function PushNotificationsPage() {
                   className="w-full mt-6"
                   onClick={handleSend}
                   disabled={
-                    isSending ||
+                    isLoading ||
                     !notification.title ||
                     !notification.description ||
                     !isReceiverSelected()
                   }
                 >
                   <SendIcon className="h-4 w-4 mr-2" />
-                  {isSending ? "Sending..." : "Send Notification"}
+                  {isLoading ? "Sending..." : "Send Notification"}
                 </Button>
               </Card>
             </div>

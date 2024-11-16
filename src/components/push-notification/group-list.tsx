@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useNotificationsGroups } from "@/hooks/use-notifications-groups";
 
 interface GroupListProps {
   selectedGroup: string | null;
@@ -42,7 +42,7 @@ export function GroupList({ selectedGroup, onGroupSelect }: GroupListProps) {
     editingGroup,
     groupToDelete,
     searchQuery,
-  } = useNotifications({
+  } = useNotificationsGroups({
     selectedGroup,
     onGroupSelect,
   });
