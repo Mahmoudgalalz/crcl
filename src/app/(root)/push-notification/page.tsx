@@ -22,10 +22,14 @@ export default function PushNotificationsPage() {
     title: "",
     description: "",
   });
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedIndividualUser, setSelectedIndividualUser] = useState<
+    string[]
+  >([]);
+  const [selectedMultipleUsers, setSelectedMultipleUsers] = useState<string[]>(
+    []
+  );
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
-
   const { toast } = useToast();
 
   const handleSend = async () => {
@@ -48,7 +52,7 @@ export default function PushNotificationsPage() {
           successMessage = "Notification sent successfully";
           break;
         case "multiple":
-          successMessage = `Notification sent to ${selectedUsers.length} users`;
+          successMessage = `Notification sent to ${selectedMultipleUsers.length} users`;
           break;
         case "all":
           successMessage = "Notification sent to all users";
@@ -63,7 +67,8 @@ export default function PushNotificationsPage() {
         description: successMessage,
       });
       setNotification({ title: "", description: "" });
-      setSelectedUsers([]);
+      setSelectedIndividualUser([]);
+      setSelectedMultipleUsers([]);
       setSelectedGroup(null);
     } catch {
       toast({
@@ -114,8 +119,8 @@ export default function PushNotificationsPage() {
                   <h3 className="font-medium mb-4">Select User</h3>
                   <UserList
                     mode="single"
-                    selectedUsers={selectedUsers}
-                    onSelectionChange={setSelectedUsers}
+                    selectedUsers={selectedIndividualUser}
+                    onSelectionChange={setSelectedIndividualUser}
                   />
                 </TabsContent>
 
@@ -123,13 +128,13 @@ export default function PushNotificationsPage() {
                   <h3 className="font-medium mb-4">Select Multiple Users</h3>
                   <UserList
                     mode="multiple"
-                    selectedUsers={selectedUsers}
-                    onSelectionChange={setSelectedUsers}
+                    selectedUsers={selectedMultipleUsers}
+                    onSelectionChange={setSelectedMultipleUsers}
                   />
                 </TabsContent>
 
-                <TabsContent value="all" className="mt-0 h-full">
-                  <div className="text-center py-6 flex items-center justify-center flex-col h-full">
+                <TabsContent value="all" className="mt-0">
+                  <div className="text-center py-6">
                     <Users2Icon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <h3 className="font-medium text-lg mb-2">
                       Send to All Users
