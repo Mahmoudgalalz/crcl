@@ -110,4 +110,34 @@ export async function PushNotificationToMultipleUsers(
   }
 }
 
-//  notificationId?: string;
+export async function addUserToGroup(groupId: string, userIds: string[]) {
+  try {
+    const response = await axiosInstance.patch(
+      `/notifications/${groupId}/users`,
+      {
+        userIds,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function delUsersFromGroup(groupId: string, userIds: string[]) {
+  try {
+    const response = await axiosInstance.delete(
+      `/notifications/${groupId}/users`,
+      {
+        data: {
+          userIds,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
