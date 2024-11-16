@@ -147,8 +147,8 @@ export default function PushNotificationsPage() {
                   />
                 </TabsContent>
 
-                <TabsContent value="all" className="mt-0">
-                  <div className="text-center py-6">
+                <TabsContent value="all" className="mt-0 h-full">
+                  <div className="text-center py-6 flex flex-col items-center justify-center h-full">
                     <Users2Icon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <h3 className="font-medium text-lg mb-2">
                       Send to All Users
