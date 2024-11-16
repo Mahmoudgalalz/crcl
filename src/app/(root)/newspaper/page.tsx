@@ -12,15 +12,38 @@ import { NewspaperForm } from "@/components/newspaper/newspaper-form";
 import { Plus } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createNewspaper, getNewspaper } from "@/lib/api/newspaper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Newspaper } from "@/lib/types";
 import { NewspaperGrid } from "@/components/newspaper/newspaper-grid";
+import { debounce } from "@/lib/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationNext,
+} from "@/components/ui/pagination";
 
 export default function NewspaperPage() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  useEffect(() => {
+    const debounced = debounce(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    debounced();
+
+    return () => {
+      debounced.cancel();
+    };
+  }, [searchQuery]);
   const { data: newspapers } = useQuery({
-    queryKey: ["newspapers"],
-    queryFn: getNewspaper,
+    queryKey: ["newspapers", { page, searchQuery: debouncedSearchQuery }],
+    queryFn: () => getNewspaper(page, debouncedSearchQuery),
   });
 
   const { mutate: mutateTocreateNewspaper } = useMutation({
@@ -41,8 +64,11 @@ export default function NewspaperPage() {
 
       console.log(previousNewspapers || []);
 
-      queryClient.setQueryData(
-        ["newspapers"],
+      queryClient.setQueriesData(
+        {
+          queryKey: ["newspapers"],
+          exact: false,
+        },
         [...(previousNewspapers || []), newNewspaper]
       );
 
@@ -91,7 +117,36 @@ export default function NewspaperPage() {
             .map((newspaper) => (
               <NewspaperItem key={newspaper.id} newspaper={newspaper} />
             ))} */}
-        <NewspaperGrid newspapers={newspapers} />
+        <NewspaperGrid
+          newspapers={newspapers?.newspapers}
+          setSearchQuery={setSearchQuery}
+          searchQuery={searchQuery}
+        />
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setPage(page - 1)}
+                className={page === 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+
+            <PaginationItem>
+              <PaginationLink>{page}</PaginationLink>
+            </PaginationItem>
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setPage(page + 1)}
+                className={
+                  page === Math.ceil(newspapers?.total / 6)
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
         {/* </div> */}
       </div>
     </ContentLayout>
