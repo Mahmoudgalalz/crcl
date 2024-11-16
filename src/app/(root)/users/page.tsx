@@ -21,70 +21,72 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function UsersPage() {
-  const {
-    setPageIndex,
-    pageIndex,
-    pagesLimit,
-    table,
-    handleSearch,
-  } = useUsers();
+  const { setPageIndex, pageIndex, pagesLimit, table, handleSearch } =
+    useUsers();
 
   const [localSearchTerm, setLocalSearchTerm] = useState("");
 
   return (
     <ContentLayout title="Users">
-      <div className="container mx-auto">
-        <h1 className="text-2xl font-bold mb-5">Users Management</h1>
-        <div className="flex justify-between items-center mb-4">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search users..."
-              value={localSearchTerm}
-              onChange={(e) => {
-                setLocalSearchTerm(e.target.value);
-                handleSearch(e);
-              }}
-              className="pl-8"
-            />
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold mb-5">
+            Users Management
+          </CardTitle>
+          <div className="flex justify-between items-center mb-4">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search users..."
+                value={localSearchTerm}
+                onChange={(e) => {
+                  setLocalSearchTerm(e.target.value);
+                  handleSearch(e);
+                }}
+                className="pl-8"
+              />
+            </div>
           </div>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {table.getAllColumns().map((column) => (
-                <TableHead key={column.id}>
-                  {column.columnDef.header as string}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!table.getRowModel().rows.length ? (
+        </CardHeader>
+        <CardContent className="rounded-md border  border-r-0 border-l-0  w-full ">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
-                  No users found.
-                </TableCell>
+                {table.getAllColumns().map((column) => (
+                  <TableHead key={column.id}>
+                    {column.columnDef.header as string}
+                  </TableHead>
+                ))}
               </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {cell.column.columnDef.cell
-                        ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                          //@ts-expect-error
-                          cell.column.columnDef.cell(cell)
-                        : (cell.getValue() as string)}
-                    </TableCell>
-                  ))}
+            </TableHeader>
+            <TableBody>
+              {!table.getRowModel().rows.length ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">
+                    No users found.
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {cell.column.columnDef.cell
+                          ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            //@ts-expect-error
+                            cell.column.columnDef.cell(cell)
+                          : (cell.getValue() as string)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
         <div className="flex items-center justify-between px-2 py-4">
           <Pagination>
             <PaginationContent>
@@ -112,7 +114,7 @@ export default function UsersPage() {
             </PaginationContent>
           </Pagination>
         </div>
-      </div>
+      </Card>
     </ContentLayout>
   );
 }
