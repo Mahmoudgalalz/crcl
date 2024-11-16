@@ -1,12 +1,6 @@
 "use client";
 import { useState } from "react";
-import {
-  BellIcon,
-  SendIcon,
-  UsersIcon,
-  UserIcon,
-  Users2Icon,
-} from "lucide-react";
+import { BellIcon, SendIcon, UsersIcon, Users2Icon } from "lucide-react";
 import { ContentLayout } from "@/components/content-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -17,7 +11,7 @@ import { GroupList } from "@/components/push-notification/group-list";
 import { NotificationForm } from "@/components/push-notification/notification-form";
 
 export default function PushNotificationsPage() {
-  const [selectedTab, setSelectedTab] = useState("individual");
+  const [selectedTab, setSelectedTab] = useState("multiple");
   const [notification, setNotification] = useState({
     title: "",
     description: "",
@@ -105,14 +99,7 @@ export default function PushNotificationsPage() {
             onValueChange={setSelectedTab}
             className="h-full"
           >
-            <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
-              <TabsTrigger
-                value="individual"
-                className="flex items-center gap-2"
-              >
-                <UserIcon className="h-4 w-4" />
-                Individual
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 lg:w-2/5">
               <TabsTrigger value="multiple" className="flex items-center gap-2">
                 <UsersIcon className="h-4 w-4" />
                 Select Users
@@ -129,15 +116,6 @@ export default function PushNotificationsPage() {
 
             <div className="mt-6 grid gap-6 md:grid-cols-2">
               <Card className="p-6">
-                <TabsContent value="individual" className="mt-0">
-                  <h3 className="font-medium mb-4">Select User</h3>
-                  <UserList
-                    mode="single"
-                    selectedUsers={selectedIndividualUser}
-                    onSelectionChange={setSelectedIndividualUser}
-                  />
-                </TabsContent>
-
                 <TabsContent value="multiple" className="mt-0">
                   <h3 className="font-medium mb-4">Select Multiple Users</h3>
                   <UserList
