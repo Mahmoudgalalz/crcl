@@ -1,15 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { SearchIcon, CheckIcon } from "lucide-react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
-
-const mockUsers = Array.from({ length: 20 }, (_, i) => ({
-  id: `user-${i + 1}`,
-  name: `User ${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`,
-}));
+import { getUsers } from "@/lib/api/users";
+import type { User } from "@/lib/types";
+import { debounce } from "@/lib/utils";
 
 interface UserListProps {
   mode: "single" | "multiple";
@@ -23,12 +21,47 @@ export function UserList({
   onSelectionChange,
 }: UserListProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
 
-  const filteredUsers = mockUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const { ref: loadMoreRef, inView } = useInView();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      setSearchQuery(query);
+    }, 300),
+    []
   );
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: ["users"],
+    queryFn: ({ pageParam }) =>
+      getUsers(pageParam ? Number(pageParam) : null, searchQuery),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage?.meta.totalPages > lastPage?.meta.page
+        ? lastPage?.meta.page + 1
+        : null,
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleUserClick = (userId: string) => {
     if (mode === "single") {
@@ -42,46 +75,83 @@ export function UserList({
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    debouncedSearch(value);
+  };
+
+  const allUsers = data?.pages.flatMap((page) => page.users) ?? [];
+
   return (
     <div className="space-y-4">
       <div className="relative">
         <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search users..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={inputValue}
+          onChange={handleInputChange}
           className="pl-8"
         />
       </div>
 
       <ScrollArea className="h-[400px] pr-4">
         <div className="space-y-2">
-          {filteredUsers.map((user) => (
-            <div
-              key={user.id}
-              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
-                selectedUsers.includes(user.id)
-                  ? "bg-primary/5 hover:bg-primary/10"
-                  : "hover:bg-accent"
-              }`}
-              onClick={() => handleUserClick(user.id)}
-            >
-              <div className="flex items-center gap-3">
-                <Avatar className="h-8 w-8">
-                  <img src={user.avatar} alt={user.name} />
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium">{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Loading users...
+            </p>
+          ) : isError ? (
+            <p className="text-sm text-destructive text-center py-4">
+              Error loading users
+            </p>
+          ) : allUsers.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No users found
+            </p>
+          ) : (
+            <>
+              {allUsers.map((user: User) => (
+                <div
+                  key={user.id}
+                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+                    selectedUsers.includes(user.id)
+                      ? "bg-primary/5 hover:bg-primary/10"
+                      : "hover:bg-accent"
+                  }`}
+                  onClick={() => handleUserClick(user.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <img src={user.picture} alt={user.name.charAt(0)} />
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedUsers.includes(user.id) && (
+                      <CheckIcon className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {selectedUsers.includes(user.id) && (
-                  <CheckIcon className="h-4 w-4 text-primary" />
-                )}
-              </div>
-            </div>
-          ))}
+              ))}
+              {hasNextPage && (
+                <div ref={loadMoreRef} className="py-2 text-center">
+                  {isFetchingNextPage ? (
+                    <p className="text-sm text-muted-foreground">
+                      Loading more...
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Load more</p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </ScrollArea>
 
@@ -96,3 +166,5 @@ export function UserList({
     </div>
   );
 }
+
+export default UserList;

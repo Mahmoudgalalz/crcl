@@ -2,25 +2,19 @@
 import { AnEvent, ApiSuccessResponse, EventRequest, Ticket } from "../types";
 import { axiosInstance } from "./instance";
 
-export async function getEvents() {
+export async function getEvents(page: number, search: string) {
   try {
     const response = await axiosInstance.get<
       ApiSuccessResponse<{
         events: AnEvent[];
         total: number;
       }>
-    >("/events?limit=50");
-    const data: {
-      events: AnEvent[];
-      total: number;
-    } = response.data.data;
+    >("/events?limit=6&page=" + page + (search ? `&search=${search}` : ""));
+    const data = response.data;
     return data;
   } catch (error) {
     console.error(error);
-    return [] as unknown as {
-      events: AnEvent[];
-      total: number;
-    };
+    throw error;
   }
 }
 

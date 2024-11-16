@@ -41,6 +41,8 @@ export type User = {
   wallet?: Wallet;
   tickets: TicketPurchase[];
   status: UserStatus;
+  Notifications: NotificationGroup[];
+  notificationToken: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: number | null;
@@ -262,4 +264,12 @@ export type Transaction = {
   amount: number;
   tokenPrice: number;
   walletId: string;
+};
+
+export type NotificationGroup = {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
 };

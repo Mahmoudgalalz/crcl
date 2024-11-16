@@ -1,18 +1,29 @@
 import React, { useState, useMemo } from "react";
-import { AnEvent } from "@/lib/types";
 import { Search, Filter } from "lucide-react";
 import { EventItem } from "./event-item";
 import { Input } from "../ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { useEvents } from "@/hooks/use-events";
 
-export function EventsGrid({ events }: { events?: AnEvent[] }) {
-  const [searchTerm, setSearchTerm] = useState("");
+export function EventsGrid() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const {
+    page,
+    searchQuery,
+    setPage,
+    setSearchQuery,
+    eventsData: events,
+  } = useEvents();
 
   const filteredEvents = useMemo(() => {
-    return events
-      ?.filter((event) =>
-        event.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+    return events?.events
       .filter((event) =>
         statusFilter === "ALL" ? true : event.status === statusFilter
       )
@@ -26,7 +37,7 @@ export function EventsGrid({ events }: { events?: AnEvent[] }) {
         ];
         return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
       });
-  }, [events, searchTerm, statusFilter]);
+  }, [events, statusFilter]);
 
   return (
     <div className="container mx-auto py-10">
@@ -35,8 +46,8 @@ export function EventsGrid({ events }: { events?: AnEvent[] }) {
           <Input
             type="text"
             placeholder="Search events..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Search
@@ -68,6 +79,31 @@ export function EventsGrid({ events }: { events?: AnEvent[] }) {
           <EventItem event={event} key={event.id} />
         ))}
       </div>
+      <Pagination className="mt-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => setPage(page - 1)}
+              className={page === 1 ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+
+          <PaginationItem>
+            <PaginationLink>{page}</PaginationLink>
+          </PaginationItem>
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => setPage(page + 1)}
+              className={
+                page === Math.ceil(events?.total / 6)
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

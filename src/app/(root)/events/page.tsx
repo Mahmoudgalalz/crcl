@@ -17,8 +17,7 @@ import { AnEvent } from "@/lib/types";
 import { useEvents } from "@/hooks/use-events";
 
 export default function EventsPage() {
-  const { dialogOpen, setDialogOpen, eventsData, mutateTocreateEvent } =
-    useEvents();
+  const { dialogOpen, setDialogOpen, mutateTocreateEvent } = useEvents();
 
   return (
     <ContentLayout title="Events">
@@ -53,7 +52,7 @@ export default function EventsPage() {
         </div>
       </div>
 
-      <EventsGrid events={eventsData} />
+      <EventsGrid />
     </ContentLayout>
   );
 }
