@@ -49,7 +49,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <ScrollArea className="h-[80dvh]">
-          <Cards data={data} boothData={boothData} />
+          <Cards data={data} boothData={boothData} date={dateRange} />
 
           <Charts
             eventDistribution={eventDistribution}
