@@ -4,28 +4,33 @@ import { Analytics, BoothAnalytics } from "@/lib/types";
 
 export function Cards({
   data,
+  date,
   boothData,
 }: {
   data: Analytics;
+  date: {
+    from: Date;
+    to: Date;
+  };
   boothData: BoothAnalytics;
 }) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 my-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-lg font-medium">Total Money</CardTitle>
+          <CardTitle className="text-lg font-medium">
+            Events Total Revenue
+          </CardTitle>
           <DollarSign className="h-6 w-6 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {data?.totalMoney?.combinedTotal || 0}
+            {data?.userRequestCounts.combinedRevenue || 0}
             <span className="text-sm ml-0.5">EGP</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            Wallet: {data?.totalMoney?.walletTotal || 0}
-            <span className="text-xs ml-0.5">EGP</span> | Payment:
-            {data?.totalMoney?.paymentTotal || 0}
-            <span className="text-xs ml-0.5">EGP</span>
+            In the period from {date.from.toISOString().split("T")[0]} to{" "}
+            {date.to.toISOString().split("T")[0]}
           </p>
         </CardContent>
       </Card>
@@ -36,11 +41,11 @@ export function Cards({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {data?.eventStats?.totalEvents || 0}
+            {data?.userRequestCounts.totalEvents || 0}
           </div>
           <p className="text-xs text-muted-foreground">
-            Upcoming: {data?.eventStats?.upcomingEvents || 0} | Past:{" "}
-            {data?.eventStats?.pastEvents || 0}
+            In the period from {date.from.toISOString().split("T")[0]} to{" "}
+            {date.to.toISOString().split("T")[0]}
           </p>
         </CardContent>
       </Card>
@@ -53,11 +58,11 @@ export function Cards({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {data?.totalPaidTickets.paid || 0}
+            {data?.userRequestCounts.totalPaidTickets || 0}
           </div>
           <p className="text-xs text-muted-foreground">
-            Unpaid: {data?.totalPaidTickets.unpaid || 0} | Pending:{" "}
-            {data?.totalPaidTickets.pending || 0}
+            In the period from {date.from.toISOString().split("T")[0]} to{" "}
+            {date.to.toISOString().split("T")[0]}
           </p>
         </CardContent>
       </Card>
