@@ -85,9 +85,9 @@ export function UserNav() {
             ))}
           {type === "ADMIN" && (
             <DropdownMenuItem className="hover:cursor-pointer" asChild>
-              <Link href="/admin" className="flex items-center">
+              <Link href="/settings" className="flex items-center">
                 <Settings className="w-4 h-4 mr-3 text-muted-foreground" />
-                Admin
+                Settings
               </Link>
             </DropdownMenuItem>
           )}
