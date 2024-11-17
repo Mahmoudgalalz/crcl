@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { debounce } from "@/lib/utils";
 import { UsersActions } from "@/components/users/users-actions";
+import { DateFormatter } from "@/components/date-formatter";
 
 export function useUsers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -156,8 +157,7 @@ export function useUsers() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>
-                  Deactivated at :{" "}
-                  {new Date(row.original.deletedAt).toISOString().split("T")[0]}
+                  <DateFormatter timestamp={row?.original?.deletedAt} />
                 </p>
               </TooltipContent>
             </Tooltip>
