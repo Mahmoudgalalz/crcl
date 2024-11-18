@@ -5,102 +5,93 @@ import {
 } from "@/lib/api/notification";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "./use-toast";
+import { useState, useCallback } from "react";
 
 export function usePushNotifications() {
   const { toast } = useToast();
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const resetSuccess = useCallback(() => {
+    setIsSuccess(false);
+  }, []);
+
+  const handleSuccess = useCallback(
+    (message: string) => {
+      setIsSuccess(true);
+      toast({
+        title: "Success",
+        description: message,
+      });
+    },
+    [toast]
+  );
+
+  const handleError = useCallback(
+    (message: string) => {
+      setIsSuccess(false);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    },
+    [toast]
+  );
 
   const {
-    mutate: pushToMultilpleUsers,
-    isPending,
-    isSuccess: isPushToMultipleUsersSuccess,
+    mutateAsync: pushToMultipleUsers,
+    isPending: isMultipleUsersPending,
   } = useMutation({
     mutationKey: ["pushToMultipleUsers"],
-
     mutationFn: async (params: {
       users: string[];
       title: string;
       message: string;
-    }) =>
+    }) => {
       await PushNotificationToMultipleUsers(
         params.users,
         params.title,
         params.message
-      ),
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Notification sent to multiple users",
-      });
+      );
+      handleSuccess("Notification sent to multiple users");
     },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to send notification to multiple users",
-      });
-    },
+    onError: () => handleError("Failed to send notification to multiple users"),
   });
 
-  const {
-    mutate: pushToAllUsers,
-    isPending: isPushToAllUsersPending,
-    isSuccess: isPushToAllUsersSuccess,
-  } = useMutation({
-    mutationKey: ["pushToAllUsers"],
+  const { mutateAsync: pushToAllUsers, isPending: isPushToAllUsersPending } =
+    useMutation({
+      mutationKey: ["pushToAllUsers"],
+      mutationFn: async (params: { title: string; message: string }) => {
+        await PushNotificationToAll(params.title, params.message);
+        handleSuccess("Notification sent to all users");
+      },
+      onError: () => handleError("Failed to send notification to all users"),
+    });
 
-    mutationFn: async (params: { title: string; message: string }) =>
-      await PushNotificationToAll(params.title, params.message),
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Notification sent to all users",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to send notification to all users",
-      });
-    },
-  });
-
-  const {
-    mutate: pushToGroup,
-    isPending: isPushToGroupPending,
-    isSuccess: isPushToGroupSuccess,
-  } = useMutation({
-    mutationKey: ["pushToGroup"],
-
-    mutationFn: async (params: {
-      groupId: string;
-      title: string;
-      message: string;
-    }) =>
-      await PushNotificationToGroup(
-        params.title,
-        params.message,
-        params.groupId
-      ),
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Notification sent to the group",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to send notification to the group",
-      });
-    },
-  });
+  const { mutateAsync: pushToGroup, isPending: isPushToGroupPending } =
+    useMutation({
+      mutationKey: ["pushToGroup"],
+      mutationFn: async (params: {
+        groupId: string;
+        title: string;
+        message: string;
+      }) => {
+        await PushNotificationToGroup(
+          params.title,
+          params.message,
+          params.groupId
+        );
+        handleSuccess("Notification sent to the group");
+      },
+      onError: () => handleError("Failed to send notification to the group"),
+    });
 
   return {
-    isLoading: isPending || isPushToAllUsersPending || isPushToGroupPending,
-    isSuccess:
-      isPushToMultipleUsersSuccess ||
-      isPushToAllUsersSuccess ||
-      isPushToGroupSuccess,
-    pushToMultilpleUsers,
+    isLoading:
+      isMultipleUsersPending || isPushToAllUsersPending || isPushToGroupPending,
+    isSuccess,
+    resetSuccess,
+    pushToMultipleUsers,
     pushToAllUsers,
     pushToGroup,
   };

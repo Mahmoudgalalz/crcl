@@ -8,10 +8,12 @@ export function NewspaperGrid({
   newspapers,
   searchQuery,
   setSearchQuery,
+  setPage,
 }: {
   newspapers?: Newspaper[];
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
+  setPage: (page: number) => void;
 }) {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
@@ -34,7 +36,10 @@ export function NewspaperGrid({
             type="text"
             placeholder="Search newspapers..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
             className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Search
@@ -45,7 +50,10 @@ export function NewspaperGrid({
         <div className="relative ">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
             className="lg:w-[200px] sm:w-auto pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
           >
             <option value="ALL">All Statuses</option>
