@@ -83,7 +83,11 @@ export async function getBoothTrans(id: string, page: number) {
   }
 }
 
-export async function getUsers(page: number, search: string, notification: boolean= false) {
+export async function getUsers(
+  page: number,
+  search: string,
+  notification: boolean = false
+) {
   try {
     const res = await axiosInstance.get<
       ApiSuccessResponse<{
@@ -96,8 +100,8 @@ export async function getUsers(page: number, search: string, notification: boole
         };
       }>
     >(
-      `/users?types=USER&page=${page}&limit=10&notification${notification}&search=${
-        search ? search.replace(" ", "+") : ""
+      `/users?types=USER&page=${page}&limit=10&notification=${notification}${
+        search ? "&search=" + search.replace(" ", "+") : ""
       }`
     );
 
