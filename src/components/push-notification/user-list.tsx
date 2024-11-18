@@ -52,8 +52,8 @@ export function UserList({
       getUsers(pageParam ? Number(pageParam) : null, searchQuery, true),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
-      lastPage?.meta.totalPages > lastPage?.meta.page
-        ? lastPage?.meta.page + 1
+      lastPage?.meta.totalPages > lastPage?.meta?.page
+        ? lastPage?.meta?.page + 1
         : null,
   });
 
@@ -81,7 +81,7 @@ export function UserList({
     debouncedSearch(value);
   };
 
-  const allUsers = data?.pages.flatMap((page) => page.users) ?? [];
+  const allUsers = data?.pages?.flatMap((page) => page?.users) ?? [];
 
   return (
     <div className="space-y-4">
