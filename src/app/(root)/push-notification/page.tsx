@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useCallback, useEffect } from "react";
 import { BellIcon, SendIcon, UsersIcon, Users2Icon } from "lucide-react";
 import { ContentLayout } from "@/components/content-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,9 +18,6 @@ export default function PushNotificationsPage() {
     title: "",
     description: "",
   });
-  const [selectedIndividualUser, setSelectedIndividualUser] = useState<
-    string[]
-  >([]);
   const [selectedMultipleUsers, setSelectedMultipleUsers] = useState<string[]>(
     []
   );
@@ -29,15 +27,14 @@ export default function PushNotificationsPage() {
   const {
     isLoading,
     isSuccess,
+    resetSuccess,
     pushToAllUsers,
     pushToGroup,
-    pushToMultilpleUsers,
+    pushToMultipleUsers,
   } = usePushNotifications();
 
-  const isReceiverSelected = () => {
+  const isReceiverSelected = useCallback(() => {
     switch (selectedTab) {
-      case "individual":
-        return selectedIndividualUser.length > 0;
       case "multiple":
         return selectedMultipleUsers.length > 0;
       case "all":
@@ -47,7 +44,19 @@ export default function PushNotificationsPage() {
       default:
         return false;
     }
-  };
+  }, [selectedTab, selectedMultipleUsers, selectedGroup]);
+
+  const resetSelection = useCallback(() => {
+    setSelectedMultipleUsers([]);
+    setSelectedGroup(null);
+  }, []);
+
+  useEffect(() => {
+    if (isSuccess) {
+      resetSelection();
+      resetSuccess();
+    }
+  }, [isSuccess, resetSelection, resetSuccess]);
 
   const handleSend = async () => {
     if (!notification.title || !notification.description) {
@@ -59,41 +68,41 @@ export default function PushNotificationsPage() {
       return;
     }
 
-    switch (selectedTab) {
-      case "multiple":
-        pushToMultilpleUsers({
-          users: selectedMultipleUsers,
-          title: notification.title,
-          message: notification.description,
-        });
-        break;
-      case "all":
-        pushToAllUsers({
-          title: notification.title,
-          message: notification.description,
-        });
-        break;
-      case "groups":
-        pushToGroup({
-          groupId: selectedGroup!,
-          title: notification.title,
-          message: notification.description,
-        });
-        break;
-    }
+    const params = {
+      title: notification.title,
+      message: notification.description,
+    };
 
-    if (isSuccess) {
-      setSelectedIndividualUser([]);
-      setSelectedMultipleUsers([]);
-      setSelectedGroup(null);
+    try {
+      switch (selectedTab) {
+        case "multiple":
+          await pushToMultipleUsers({
+            users: selectedMultipleUsers,
+            ...params,
+          });
+          break;
+        case "all":
+          await pushToAllUsers(params);
+          break;
+        case "groups":
+          if (selectedGroup) {
+            await pushToGroup({
+              groupId: selectedGroup,
+              ...params,
+            });
+          }
+          break;
+      }
+    } catch (error) {
+      console.error("Failed to send notification:", error);
     }
   };
 
   return (
     <ContentLayout title="Push Notifications">
-      <div className="container mx-auto min-h-max ">
-        <h1 className="text-2xl font-semibold"> Push Notifications</h1>
-        <div className="space-y-6 mt-4 h-full ">
+      <div className="container mx-auto min-h-max">
+        <h1 className="text-2xl font-semibold">Push Notifications</h1>
+        <div className="space-y-6 mt-4 h-full">
           <Tabs
             value={selectedTab}
             onValueChange={setSelectedTab}
