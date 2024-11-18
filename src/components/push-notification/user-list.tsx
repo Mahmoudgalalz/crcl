@@ -49,7 +49,7 @@ export function UserList({
   } = useInfiniteQuery({
     queryKey: ["users"],
     queryFn: ({ pageParam }) =>
-      getUsers(pageParam ? Number(pageParam) : null, searchQuery),
+      getUsers(pageParam ? Number(pageParam) : null, searchQuery, true),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage?.meta.totalPages > lastPage?.meta.page
