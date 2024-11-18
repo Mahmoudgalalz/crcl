@@ -121,6 +121,7 @@ export default function NewspaperPage() {
           newspapers={newspapers?.newspapers}
           setSearchQuery={setSearchQuery}
           searchQuery={searchQuery}
+          setPage={setPage}
         />
         <Pagination className="mt-4">
           <PaginationContent>
