@@ -14,7 +14,7 @@ export async function getReaders(page: number, search: string) {
         };
       }>
     >(
-      `/users?status=ACTIVE&types=READER&page=${page}&limit=5&search=${search}`
+      `/users?status=ACTIVE&types=READER&page=${page}&limit=5&search=${search}&notification=false`
     );
 
     const reader = resForReader.data.data;
