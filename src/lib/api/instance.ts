@@ -1,10 +1,7 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL:
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:2002"
-      : "https://api.crclevents.com",
+  baseURL: process.env.BASE_URL,
 });
 
 const getLocalStorageItem = (key: string): string | null => {
