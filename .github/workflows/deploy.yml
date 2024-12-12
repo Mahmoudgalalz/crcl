@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Deploying to Server
       uses: appleboy/ssh-action@v1.0.0
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/dev'
       with:
         host: ${{ secrets.DEV_SERVER }}
         username: ${{ secrets.USER }}
