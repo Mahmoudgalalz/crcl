@@ -40,6 +40,7 @@ export const debounce = <T extends (...args: unknown[]) => unknown>(
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
+
     timeoutId = setTimeout(() => {
       func(...args);
     }, delay);
