@@ -28,6 +28,14 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
+  env: {
+    API_BASE_URL:
+      process.env.NODE_ENV === "production"
+        ? "https://api.crclevents.com"
+        : process.env.NODE_ENV === "test"
+        ? "https://devapi.crclevents.com"
+        : "http://localhost:2002",
+  },
 };
 
 export default nextConfig;

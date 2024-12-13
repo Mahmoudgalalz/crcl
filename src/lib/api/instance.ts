@@ -1,12 +1,6 @@
 import axios from "axios";
-
 export const axiosInstance = axios.create({
-  baseURL:
-    process.env.NODE_ENV === "production"
-      ? "https://api.crclevents.com"
-      : process.env.NODE_ENV === "development"
-      ? "http://localhost:2002"
-      : process.env.NODE_ENV === "test" && "https://devapi.crclevents.com",
+  baseURL: process.env.API_BASE_URL,
 });
 
 const getLocalStorageItem = (key: string): string | null => {
@@ -23,7 +17,10 @@ const redirectToLogin = () => {
 };
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log("NODE_ENV:", process.env.NODE_ENV);
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
@@ -37,6 +34,7 @@ axiosInstance.interceptors.response.use(
 
 axiosInstance.interceptors.request.use(
   (config) => {
+    console.log("NODE_ENV:", process.env.NODE_ENV);
     const currentToken = getLocalStorageItem("token");
     if (currentToken) {
       config.headers.Authorization = `Bearer ${currentToken}`;
