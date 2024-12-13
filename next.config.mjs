@@ -30,10 +30,10 @@ const nextConfig = {
   },
   env: {
     API_BASE_URL:
-      process.env.NODE_ENV === "production"
-        ? "https://api.crclevents.com"
-        : process.env.NODE_ENV === "test"
+      process.env.STAGE === "dev"
         ? "https://devapi.crclevents.com"
+        : process.env.NODE_ENV === "production"
+        ? "https://api.crclevents.com"
         : "http://localhost:2002",
   },
 };
