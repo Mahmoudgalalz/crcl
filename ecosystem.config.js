@@ -1,6 +1,8 @@
 module.exports = {
-  apps : [{
-    name   : "crlc",
-    script : "pnpm start",
-  }]
-}
+  apps: [
+    {
+      name: "crcl",
+      script: "pnpm start",
+    },
+  ],
+};
