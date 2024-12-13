@@ -21,8 +21,8 @@ jobs:
             cd /root/apps/crcl
             git pull origin dev
             pnpm install
-            NODE_ENV=test pnpm build
-            pm2 restart crcl
+            STAGE=dev pnpm build
+            pm2 restart ecosystem.config.js
 
   build:
     name: Deploy to prod
