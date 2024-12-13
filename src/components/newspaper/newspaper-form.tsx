@@ -29,8 +29,8 @@ import { uploadImage } from "@/lib/api/upload-image";
 import { toast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  description: z.string().min(2).max(200),
-  title: z.string().min(2).max(50),
+  description: z.string().min(2),
+  title: z.string().min(2),
   image: z.string().optional(),
   status: z.enum(["DRAFTED", "PUBLISHED", "DELETED"]),
 });
