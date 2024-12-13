@@ -30,11 +30,11 @@ import {
 import { Tag, TagInput } from "emblor";
 
 const formSchema = z.object({
-  title: z.string().min(2).max(50),
-  date: z.string().min(2).max(50),
-  time: z.string().min(2).max(50),
-  location: z.string().min(2).max(50),
-  description: z.string().min(2).max(50),
+  title: z.string().min(2),
+  date: z.string().min(2),
+  time: z.string().min(2),
+  location: z.string().min(2),
+  description: z.string().min(2),
   image: z.string().optional(),
   capacity: z.number().min(1),
   artists: z.array(
