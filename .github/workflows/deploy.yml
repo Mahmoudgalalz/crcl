@@ -8,26 +8,26 @@ jobs:
     name: Deploy to dev
     runs-on: ubuntu-latest
     steps:
-    - name: Deploying to Server
-      uses: appleboy/ssh-action@v1.0.0
-      if: github.ref == 'refs/heads/dev'
-      with:
-        host: ${{ secrets.DEV_SERVER }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.DEV_SSH_KEY }}
-        script: |
-          export NVM_DIR=~/.nvm
-          source ~/.nvm/nvm.sh
-          cd /root/apps/crcl
-          git pull origin dev
-          pnpm install
-          pnpm build
-          pm2 restart ecosystem.config.js
+      - name: Deploying to Server
+        uses: appleboy/ssh-action@v1.0.0
+        if: github.ref == 'refs/heads/dev'
+        with:
+          host: ${{ secrets.DEV_SERVER }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.DEV_SSH_KEY }}
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            cd /root/apps/crcl
+            git pull origin dev
+            pnpm install
+            NODE_ENV=test pnpm build
+            pm2 restart ecosystem.config.js
 
   build:
-      name: Deploy to prod
-      runs-on: ubuntu-latest
-      steps:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploying to Server
         uses: appleboy/ssh-action@v1.0.0
         if: github.ref == 'refs/heads/main'
