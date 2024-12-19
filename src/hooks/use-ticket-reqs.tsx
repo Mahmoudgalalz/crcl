@@ -195,5 +195,6 @@ export function useTicketReqs(eventId: string) {
     columns,
     searchTerm,
     setSearchTerm,
+    numberOfRequests: ticketRequests?.data?.meta.total || 0,
   };
 }

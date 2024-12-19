@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import { useUsers } from "@/hooks/use-users";
 import {
   Pagination,
@@ -24,8 +24,14 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function UsersPage() {
-  const { setPageIndex, pageIndex, pagesLimit, table, handleSearch } =
-    useUsers();
+  const {
+    setPageIndex,
+    pageIndex,
+    pagesLimit,
+    table,
+    handleSearch,
+    numberOfUsers,
+  } = useUsers();
 
   const [localSearchTerm, setLocalSearchTerm] = useState("");
 
@@ -33,8 +39,14 @@ export default function UsersPage() {
     <ContentLayout title="Users">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold mb-5">
-            Users Management
+          <CardTitle className="mb-5 flex items-center gap-2 justify-between">
+            <h2 className="text-2xl font-bold ">Users Management</h2>
+            <span className="p-3 bg-slate-50 rounded-xl border flex items-center gap-2">
+              <Users className="h-5 w-5 text-muted-foreground" />
+              <span className="font-semibold">
+                {numberOfUsers} {numberOfUsers === 1 ? "User" : "Users"}
+              </span>
+            </span>
           </CardTitle>
           <div className="flex justify-between items-center mb-4">
             <div className="relative">

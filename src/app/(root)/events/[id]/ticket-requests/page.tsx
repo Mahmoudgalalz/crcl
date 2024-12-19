@@ -30,6 +30,7 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
+import { SendInvitationModal } from "@/components/event/ticket-reqs/send-invitaion-modal";
 
 export default function EventTicketRequests() {
   const params = useParams();
@@ -44,6 +45,7 @@ export default function EventTicketRequests() {
     table,
     searchTerm,
     setSearchTerm,
+    numberOfRequests,
   } = useTicketReqs(eventId);
 
   return (
@@ -62,12 +64,15 @@ export default function EventTicketRequests() {
             <h1 className="text-2xl font-bold mb-2">{event!.title}</h1>
             <p className="text-muted-foreground mb-4">
               Date: {new Date(event!.date).toISOString().split("T")[0]} |
-              Location: {event!.location}
+              Location: {event!.location} | Total Requests: {numberOfRequests}
             </p>
           </>
         )}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Tickets Requests</h2>
+          <div className="flex gap-2 items-end justify-end">
+            <h2 className="text-xl font-semibold">Tickets Requests</h2>
+          </div>
+
           <div className="flex gap-2 items-center">
             <div className="relative flex-grow">
               <Input
@@ -92,6 +97,15 @@ export default function EventTicketRequests() {
                 <SelectItem value="DECLINED">Declined</SelectItem>
               </SelectContent>
             </Select>
+            <SendInvitationModal
+              eventId={eventId}
+              ticketTypes={
+                event?.tickets.map((ticket) => ({
+                  id: ticket.id,
+                  name: ticket.title,
+                })) || []
+              }
+            />
           </div>
         </div>
         <div className="space-y-4">
