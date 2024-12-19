@@ -30,6 +30,7 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
+import { SendInvitationModal } from "@/components/event/ticket-reqs/send-invitaion-modal";
 
 export default function EventTicketRequests() {
   const params = useParams();
@@ -92,6 +93,15 @@ export default function EventTicketRequests() {
                 <SelectItem value="DECLINED">Declined</SelectItem>
               </SelectContent>
             </Select>
+            <SendInvitationModal
+              eventId={eventId}
+              ticketTypes={
+                event?.tickets.map((ticket) => ({
+                  id: ticket.id,
+                  name: ticket.title,
+                })) || []
+              }
+            />
           </div>
         </div>
         <div className="space-y-4">
