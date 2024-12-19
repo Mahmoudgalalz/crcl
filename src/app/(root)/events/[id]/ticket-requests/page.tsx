@@ -45,6 +45,7 @@ export default function EventTicketRequests() {
     table,
     searchTerm,
     setSearchTerm,
+    numberOfRequests,
   } = useTicketReqs(eventId);
 
   return (
@@ -68,7 +69,14 @@ export default function EventTicketRequests() {
           </>
         )}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Tickets Requests</h2>
+          <div className="flex gap-2 items-end justify-end">
+            <h2 className="text-xl font-semibold">Tickets Requests</h2>
+            <span className="text-sm text-zinc-500">
+              Number of Requests:
+              {numberOfRequests}
+            </span>
+          </div>
+
           <div className="flex gap-2 items-center">
             <div className="relative flex-grow">
               <Input
