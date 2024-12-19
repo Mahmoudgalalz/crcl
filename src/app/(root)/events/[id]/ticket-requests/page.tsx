@@ -64,17 +64,13 @@ export default function EventTicketRequests() {
             <h1 className="text-2xl font-bold mb-2">{event!.title}</h1>
             <p className="text-muted-foreground mb-4">
               Date: {new Date(event!.date).toISOString().split("T")[0]} |
-              Location: {event!.location}
+              Location: {event!.location} | Total Requests: {numberOfRequests}
             </p>
           </>
         )}
         <div className="flex items-center justify-between mb-4">
           <div className="flex gap-2 items-end justify-end">
             <h2 className="text-xl font-semibold">Tickets Requests</h2>
-            <span className="text-sm text-zinc-500">
-              Number of Requests:
-              {numberOfRequests}
-            </span>
           </div>
 
           <div className="flex gap-2 items-center">

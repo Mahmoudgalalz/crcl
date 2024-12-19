@@ -205,5 +205,6 @@ export function useUsers() {
     setPageIndex,
     table: memoizedTable,
     pagesLimit: users?.meta?.totalPages,
+    numberOfUsers: users?.meta?.total,
   };
 }
