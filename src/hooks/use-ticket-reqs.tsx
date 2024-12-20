@@ -118,7 +118,7 @@ export function useTicketReqs(eventId: string) {
   });
 
   const filteredTicketRequests =
-    ticketRequests?.data?.data.filter((req) =>
+    ticketRequests?.data?.data?.filter((req) =>
       statusFilter === "ALL" ? true : req.status === statusFilter
     ) || [];
 
@@ -196,5 +196,6 @@ export function useTicketReqs(eventId: string) {
     searchTerm,
     setSearchTerm,
     numberOfRequests: ticketRequests?.data?.meta.total || 0,
+    numberOfInvites: ticketRequests?.data?.invitations || 0,
   };
 }

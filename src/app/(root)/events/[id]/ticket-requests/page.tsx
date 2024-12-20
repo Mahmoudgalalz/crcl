@@ -46,6 +46,7 @@ export default function EventTicketRequests() {
     searchTerm,
     setSearchTerm,
     numberOfRequests,
+    numberOfInvites,
   } = useTicketReqs(eventId);
 
   return (
@@ -64,7 +65,8 @@ export default function EventTicketRequests() {
             <h1 className="text-2xl font-bold mb-2">{event!.title}</h1>
             <p className="text-muted-foreground mb-4">
               Date: {new Date(event!.date).toISOString().split("T")[0]} |
-              Location: {event!.location} | Total Requests: {numberOfRequests}
+              Location: {event!.location} | Total Requests: {numberOfRequests} |
+              Total Invitations: {numberOfInvites}
             </p>
           </>
         )}
