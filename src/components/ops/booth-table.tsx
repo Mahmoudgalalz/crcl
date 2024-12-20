@@ -84,6 +84,7 @@ export function BoothTable() {
   const memoizedTable = useTable(filteredData);
   const currentPageData = memoizedTable.getRowModel().rows;
 
+  console.log(transactionsData?.boothTransactions.currentPage);
   return (
     <div className="space-y-4 min-w-full">
       <div className="flex items-center justify-between">
@@ -246,7 +247,7 @@ export function BoothTable() {
               transactionsData?.boothTransactions.transactions ?? []
             }
             tokenPrice={transactionsData?.tokenPrice.tokenPrice ?? null}
-            totalPages={transactionsData?.boothTransactions.totalPages ?? 1}
+            totalPages={transactionsData?.boothTransactions.totalPages ?? 0}
             currentPage={currentPage}
             onPageChange={handlePageChange}
             isLoading={isLoading}

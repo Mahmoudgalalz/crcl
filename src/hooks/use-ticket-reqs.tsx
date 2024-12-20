@@ -26,6 +26,7 @@ export function useTicketReqs(eventId: string) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [numberOfInvites, setNumberOfInvites] = useState(0);
 
   useEffect(() => {
     const handler = debounce(() => {
@@ -43,7 +44,17 @@ export function useTicketReqs(eventId: string) {
   const { data: ticketRequests } = useQuery({
     queryKey: ["event", eventId, "tickets", page, debouncedSearchTerm],
     queryFn: () => getTicketRequets(eventId, page, debouncedSearchTerm),
+    select(data) {
+      return data;
+    },
   });
+
+  useEffect(() => {
+    if (debouncedSearchTerm === "" && ticketRequests?.data?.invitations) {
+      setNumberOfInvites(ticketRequests.data.invitations);
+    }
+  }, [debouncedSearchTerm, ticketRequests]);
+
   const { data: event, isFetched: eventFetched } = useQuery({
     queryKey: ["event", eventId],
     queryFn: () => getEvent(eventId),
@@ -118,7 +129,7 @@ export function useTicketReqs(eventId: string) {
   });
 
   const filteredTicketRequests =
-    ticketRequests?.data?.data.filter((req) =>
+    ticketRequests?.data?.data?.filter((req) =>
       statusFilter === "ALL" ? true : req.status === statusFilter
     ) || [];
 
@@ -195,5 +206,7 @@ export function useTicketReqs(eventId: string) {
     columns,
     searchTerm,
     setSearchTerm,
+    numberOfRequests: ticketRequests?.data?.meta.total || 0,
+    numberOfInvites: numberOfInvites,
   };
 }

@@ -33,6 +33,13 @@ export function LoginForm() {
     },
   });
 
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token?.length > 10) {
+      window.location.href = "/dashboard";
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const loggedIn = await login(values.email, values.password);
