@@ -1,6 +1,6 @@
 import axios from "axios";
 export const axiosInstance = axios.create({
-  baseURL: "https://devapi.crclevents.com",
+  baseURL: process.env.API_BASE_URL,
 });
 
 const getLocalStorageItem = (key: string): string | null => {
