@@ -49,6 +49,45 @@ export default function EventTicketRequests() {
     numberOfInvites,
   } = useTicketReqs(eventId);
 
+  const renderPagination = () => {
+    const pageCount = table.getPageCount();
+    const pageIndex = table.getState().pagination.pageIndex;
+    const maxPageNumbers = 5;
+    const startPage = Math.max(0, pageIndex - Math.floor(maxPageNumbers / 2));
+    const endPage = Math.min(pageCount - 1, startPage + maxPageNumbers - 1);
+
+    const pages = [];
+
+    if (startPage > 0) {
+      pages.push(0);
+      if (startPage > 1) pages.push("...");
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < pageCount - 1) {
+      if (endPage < pageCount - 2) pages.push("...");
+      pages.push(pageCount - 1);
+    }
+
+    return pages.map((page, index) => (
+      <PaginationItem key={index}>
+        {typeof page === "number" ? (
+          <PaginationLink
+            onClick={() => table.setPageIndex(page)}
+            isActive={table.getState().pagination.pageIndex === page}
+          >
+            {page + 1}
+          </PaginationLink>
+        ) : (
+          <span className="px-2">...</span>
+        )}
+      </PaginationItem>
+    ));
+  };
+
   return (
     <ContentLayout title="Event Ticket Requests">
       <div className="container mx-auto">
@@ -153,16 +192,7 @@ export default function EventTicketRequests() {
                   }
                 />
               </PaginationItem>
-              {Array.from({ length: table.getPageCount() }, (_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    onClick={() => table.setPageIndex(i)}
-                    isActive={table.getState().pagination.pageIndex === i}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
+              {renderPagination()}
               <PaginationItem>
                 <PaginationNext
                   onClick={() => table.nextPage()}
