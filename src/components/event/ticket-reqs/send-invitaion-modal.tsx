@@ -87,12 +87,7 @@ export function SendInvitationModal({
         name: data.name,
         email: data.email,
         number: data.phone,
-        type:
-          data.type === "free"
-            ? data.ticketId === "Lounge"
-              ? "Lounge"
-              : "invitation - " + data.ticketId
-            : "paid",
+        type: data.type === "free" ? "Invitation - " + data.ticketId : "paid",
         eventId: data.eventId,
         ...(data.type === "free" ? {} : { ticketId: data.ticketId }),
       };
