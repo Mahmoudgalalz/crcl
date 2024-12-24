@@ -89,8 +89,8 @@ export function SendInvitationModal({
         number: data.phone,
         type:
           data.type === "free"
-            ? data.ticketId === "Family and Friends"
-              ? "Family and Friends"
+            ? data.ticketId === "Lounge"
+              ? "Lounge"
               : "invitation - " + data.ticketId
             : "paid",
         eventId: data.eventId,
@@ -237,9 +237,7 @@ export function SendInvitationModal({
                       <SelectContent>
                         <SelectItem value="Regular">Regular</SelectItem>
                         <SelectItem value="VIP">VIP</SelectItem>
-                        <SelectItem value="Family and Friends">
-                          Family and Friends
-                        </SelectItem>
+                        <SelectItem value="Lounge">Lounge</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
