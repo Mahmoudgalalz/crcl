@@ -72,6 +72,7 @@ export function TransactionsTable({
     transactions,
     id: boothData.id,
   });
+  console.log("transactions");
   return (
     <Card>
       <CardHeader>
@@ -149,15 +150,15 @@ export function TransactionsTable({
                 <PaginationPrevious
                   onClick={() => onPageChange(currentPage - 1)}
                   className={
-                    currentPage === 0 ? "pointer-events-none opacity-50" : ""
+                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
                   }
                 />
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => (
-                <PaginationItem key={i}>
+                <PaginationItem key={i + "page"}>
                   <PaginationLink
-                    onClick={() => onPageChange(i)}
-                    isActive={currentPage === i}
+                    onClick={() => onPageChange(i + 1)}
+                    isActive={currentPage === i + 1}
                   >
                     {i + 1}
                   </PaginationLink>

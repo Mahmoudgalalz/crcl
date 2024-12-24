@@ -133,6 +133,8 @@ export async function getTicketRequets(
     const response = await axiosInstance.get<
       ApiSuccessResponse<{
         data: EventRequest[];
+        invitations: number;
+
         meta: {
           total: number;
           page: number;

@@ -30,6 +30,7 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
+import { SendInvitationModal } from "@/components/event/ticket-reqs/send-invitaion-modal";
 
 export default function EventTicketRequests() {
   const params = useParams();
@@ -44,7 +45,48 @@ export default function EventTicketRequests() {
     table,
     searchTerm,
     setSearchTerm,
+    numberOfRequests,
+    numberOfInvites,
   } = useTicketReqs(eventId);
+
+  const renderPagination = () => {
+    const pageCount = table.getPageCount();
+    const pageIndex = table.getState().pagination.pageIndex;
+    const maxPageNumbers = 5;
+    const startPage = Math.max(0, pageIndex - Math.floor(maxPageNumbers / 2));
+    const endPage = Math.min(pageCount - 1, startPage + maxPageNumbers - 1);
+
+    const pages = [];
+
+    if (startPage > 0) {
+      pages.push(0);
+      if (startPage > 1) pages.push("...");
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < pageCount - 1) {
+      if (endPage < pageCount - 2) pages.push("...");
+      pages.push(pageCount - 1);
+    }
+
+    return pages.map((page, index) => (
+      <PaginationItem key={index}>
+        {typeof page === "number" ? (
+          <PaginationLink
+            onClick={() => table.setPageIndex(page)}
+            isActive={table.getState().pagination.pageIndex === page}
+          >
+            {page + 1}
+          </PaginationLink>
+        ) : (
+          <span className="px-2">...</span>
+        )}
+      </PaginationItem>
+    ));
+  };
 
   return (
     <ContentLayout title="Event Ticket Requests">
@@ -62,12 +104,16 @@ export default function EventTicketRequests() {
             <h1 className="text-2xl font-bold mb-2">{event!.title}</h1>
             <p className="text-muted-foreground mb-4">
               Date: {new Date(event!.date).toISOString().split("T")[0]} |
-              Location: {event!.location}
+              Location: {event!.location} | Total Requests: {numberOfRequests} |
+              Total Invitations: {numberOfInvites}
             </p>
           </>
         )}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Tickets Requests</h2>
+          <div className="flex gap-2 items-end justify-end">
+            <h2 className="text-xl font-semibold">Tickets Requests</h2>
+          </div>
+
           <div className="flex gap-2 items-center">
             <div className="relative flex-grow">
               <Input
@@ -92,6 +138,15 @@ export default function EventTicketRequests() {
                 <SelectItem value="DECLINED">Declined</SelectItem>
               </SelectContent>
             </Select>
+            <SendInvitationModal
+              eventId={eventId}
+              ticketTypes={
+                event?.tickets.map((ticket) => ({
+                  id: ticket.id,
+                  name: ticket.title,
+                })) || []
+              }
+            />
           </div>
         </div>
         <div className="space-y-4">
@@ -137,16 +192,7 @@ export default function EventTicketRequests() {
                   }
                 />
               </PaginationItem>
-              {Array.from({ length: table.getPageCount() }, (_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    onClick={() => table.setPageIndex(i)}
-                    isActive={table.getState().pagination.pageIndex === i}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
+              {renderPagination()}
               <PaginationItem>
                 <PaginationNext
                   onClick={() => table.nextPage()}

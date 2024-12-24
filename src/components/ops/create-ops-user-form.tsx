@@ -1,7 +1,7 @@
 import { Gender, User, UserType } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { UseMutateFunction } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Control } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -168,7 +168,16 @@ export function CreateOpsUserForm({
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <CustomPhoneInput control={form.control} />
+                        <CustomPhoneInput
+                          control={
+                            form.control as Control<
+                              {
+                                phone: string;
+                              },
+                              unknown
+                            >
+                          }
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
