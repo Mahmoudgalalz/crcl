@@ -7,25 +7,26 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogFooter } from "../ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "@/lib/api/instance";
 
 export function DangerTab() {
-  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useQuery({
+  const { data } = useQuery({
     queryKey: ["maintenanceMode"],
     queryFn: () => axiosInstance.get("status"),
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-expect-error
-    onSuccess: (data) => {
-      setIsMaintenanceMode(data.data === null ? false : true);
-    },
   });
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setIsMaintenanceMode(data.data.maintenance);
+    }
+  }, [data]);
 
   const handleMaintenanceModeToggle = () => {
     setIsDialogOpen(true);
