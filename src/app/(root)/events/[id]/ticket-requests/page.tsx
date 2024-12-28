@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { SendInvitationModal } from "@/components/event/ticket-reqs/send-invitaion-modal";
+import { axiosInstance } from "@/lib/api/instance";
 
 export default function EventTicketRequests() {
   const params = useParams();
@@ -48,6 +49,26 @@ export default function EventTicketRequests() {
     numberOfRequests,
     numberOfInvites,
   } = useTicketReqs(eventId);
+
+  const handleExport = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/export${eventId}`, {
+        responseType: "blob",
+      });
+
+      const blob = response.data;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `ticket-requests-${eventId}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting data:", error);
+    }
+  };
 
   const renderPagination = () => {
     const pageCount = table.getPageCount();
@@ -180,31 +201,37 @@ export default function EventTicketRequests() {
               ))}
             </TableBody>
           </Table>
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => table.previousPage()}
-                  className={
-                    !table.getCanPreviousPage()
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }
-                />
-              </PaginationItem>
-              {renderPagination()}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => table.nextPage()}
-                  className={
-                    !table.getCanNextPage()
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <div className="flex justify-between items-center mt-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => table.previousPage()}
+                    className={
+                      !table.getCanPreviousPage()
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+                {renderPagination()}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => table.nextPage()}
+                    className={
+                      !table.getCanNextPage()
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="mr-2 h-6 w-6" />
+              Export
+            </Button>
+          </div>
         </div>
       </div>
     </ContentLayout>
