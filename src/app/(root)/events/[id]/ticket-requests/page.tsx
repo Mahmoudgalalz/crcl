@@ -52,7 +52,7 @@ export default function EventTicketRequests() {
 
   const handleExport = async () => {
     try {
-      const response = await axiosInstance.get(`/events/export${eventId}`, {
+      const response = await axiosInstance.get(`/events/export/${eventId}`, {
         responseType: "blob",
       });
 
