@@ -1,6 +1,9 @@
+"use client";
+
 import { ContentLayout } from "@/components/content-layout";
 import { AdminsTable } from "@/components/settings/admin-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DangerTab } from "@/components/settings/danger-tab";
 
 export default function SettingsPage() {
   return (
@@ -12,11 +15,15 @@ export default function SettingsPage() {
         <TabsList>
           <TabsTrigger value="admins">Admins</TabsTrigger>
           <TabsTrigger value="wallet">Wallet</TabsTrigger>
+          <TabsTrigger value="danger">Danger</TabsTrigger>
         </TabsList>
         <TabsContent value="admins">
           <AdminsTab />
         </TabsContent>
         <TabsContent value="wallet">Wallet Settings Here!</TabsContent>
+        <TabsContent value="danger">
+          <DangerTab />
+        </TabsContent>
       </Tabs>
     </ContentLayout>
   );
