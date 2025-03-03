@@ -6,28 +6,36 @@ import {
   updateEvent,
 } from "@/lib/api/events";
 import { useState } from "react";
-import type { Ticket, AnEvent, SuperUserType } from "@/lib/types";
+import type { Ticket, AnEvent, SuperUserType, TicketAggregates } from "@/lib/types";
 import { useToast } from "./use-toast";
 
 export const useEvent = ({ params }: { params: { id: string } }) => {
   const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
   const [addTicketTypeDialogOpen, setAddTicketTypeDialogOpen] = useState(false);
-  const [eventStatusDialog, setEventStatusDialog] = useState(false);
+  const [eventStatusDialog, setEventStatusDialogOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: event } = useQuery({
+  const { data: responseData = { event: undefined, ticketsAggregate: [] } } = useQuery({
     queryKey: ["event", params.id],
     queryFn: () => getEvent(params.id),
-    select: (data) => data.event,
+    select: (data) => data,
   });
+
+  const { event, ticketsAggregate } = responseData;
 
   const remainingEventCapacity =
     event?.capacity &&
     event?.tickets &&
     event.capacity -
       event.tickets.reduce((acc, ticket) => acc + ticket.capacity, 0);
+
+  // Helper function to get the ticket sales data
+  const getTicketSalesData = (ticketId: string) => {
+    const aggregateData = ticketsAggregate?.find(agg => agg.ticket.id === ticketId);
+    return aggregateData?.paymentStatusCounts || {};
+  };
 
   const { mutate: mutateEvent } = useMutation({
     mutationKey: ["event", params.id],
@@ -45,12 +53,15 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
       }
     },
     onSuccess: async (newEventData) => {
-      console.log(newEventData);
       await queryClient.cancelQueries({ queryKey: ["event", params.id] });
 
-      const previousEvent = queryClient.getQueryData(["event", params.id]);
+      const previousData = queryClient.getQueryData(["event", params.id]) as {
+        event: AnEvent;
+        ticketsAggregate: TicketAggregates[];
+      };
       const eventsData = queryClient.getQueryData(["events"]) as {
         events: AnEvent[];
+        ticketsAggregate: TicketAggregates[];
       };
       const events = eventsData?.events ?? [];
 
@@ -67,15 +78,15 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
       });
 
       queryClient.setQueryData(["event", params.id], {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
-        event: { ...newEventData, tickets: previousEvent.event.tickets },
+        event: { ...newEventData, tickets: previousData.event.tickets },
+        ticketsAggregate: previousData.ticketsAggregate
       });
 
-      return { previousEvent };
+      return { previousData };
     },
   });
 
+  // Update other mutations to preserve ticketsAggregate data when modifying state
   const { mutate: createTicket } = useMutation({
     mutationKey: ["event", params.id, "createTicket"],
     mutationFn: async (formValues: Partial<Ticket>) => {
@@ -89,25 +100,27 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
     onMutate: async (newTicketData) => {
       await queryClient.cancelQueries({ queryKey: ["event", params.id] });
 
-      const previousEvent = queryClient.getQueryData(["event", params.id]);
+      const previousData = queryClient.getQueryData(["event", params.id]) as {
+        event: AnEvent;
+        ticketsAggregate: TicketAggregates[];
+      };
 
       queryClient.setQueryData(["event", params.id], {
         event: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-expect-error
-          ...previousEvent.event,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-expect-error
-          tickets: [...previousEvent.event.tickets, newTicketData],
+          ...previousData.event,
+          tickets: [...previousData.event.tickets, newTicketData],
         },
+        ticketsAggregate: previousData.ticketsAggregate
       });
 
-      return { previousEvent };
+      return { previousData };
     },
     onError(error, variables, context) {
-      queryClient.setQueryData(["event", params.id], context?.previousEvent);
+      queryClient.setQueryData(["event", params.id], context?.previousData);
     },
     onSuccess: () => {
+      // Invalidate and refetch to get updated ticketsAggregate
+      queryClient.invalidateQueries({ queryKey: ["event", params.id] });
       setAddTicketTypeDialogOpen(false);
     },
   });
@@ -121,27 +134,26 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
       }
       return response;
     },
-    onMutate: async (newTicketData) => {
+    onMutate: async (ticketId) => {
       await queryClient.cancelQueries({ queryKey: ["event", params.id] });
 
-      const previousEvent = queryClient.getQueryData(["event", params.id]);
+      const previousData = queryClient.getQueryData(["event", params.id]) as {
+        event: AnEvent;
+        ticketsAggregate: TicketAggregates[];
+      };
 
       queryClient.setQueryData(["event", params.id], {
         event: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-expect-error
-          ...previousEvent.event,
-          tickets:
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-expect-error
-            previousEvent.event.tickets.filter((t) => t.id !== newTicketData),
+          ...previousData.event,
+          tickets: previousData.event.tickets.filter((t) => t.id !== ticketId),
         },
+        ticketsAggregate: previousData.ticketsAggregate // Preserve ticketsAggregate until refetch
       });
 
-      return { previousEvent };
+      return { previousData };
     },
     onError(error, variables, context) {
-      queryClient.setQueryData(["event", params.id], context?.previousEvent);
+      queryClient.setQueryData(["event", params.id], context?.previousData);
       toast({
         variant: "destructive",
         title: "Unable to delete ticket type",
@@ -149,6 +161,10 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
           "An error occurred while deleting ticket type, it has been booked already",
       });
     },
+    onSuccess: () => {
+      // Invalidate and refetch to get updated ticketsAggregate
+      queryClient.invalidateQueries({ queryKey: ["event", params.id] });
+    }
   });
 
   const image = event?.image?.replace("localhost:2002", "api.crclevents.com");
@@ -159,12 +175,14 @@ export const useEvent = ({ params }: { params: { id: string } }) => {
 
   return {
     event,
+    ticketsAggregate,
+    getTicketSalesData, // Expose this helper function
     image,
     editEventDialogOpen,
     setEditEventDialogOpen,
     mutateEvent,
     eventStatusDialog,
-    setEventStatusDialog,
+    setEventStatusDialogOpen,
     addTicketTypeDialogOpen,
     setAddTicketTypeDialogOpen,
     createTicket,

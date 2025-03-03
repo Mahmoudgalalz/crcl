@@ -28,14 +28,7 @@ export function TicketTypeItem({
 }: {
   ticket: Ticket;
   remainingEventCapacity: number;
-  onDelete: UseMutateFunction<
-    boolean,
-    Error,
-    string,
-    {
-      previousEvent: unknown;
-    }
-  >;
+  onDelete: UseMutateFunction<boolean, Error, string, { previousData: { event: AnEvent } }>;
   disabled?: boolean;
   eventId: string;
 }) {
@@ -49,7 +42,7 @@ export function TicketTypeItem({
       } as Ticket),
     onMutate: async (formValues) => {
       await queryClient.cancelQueries({ queryKey: ["event", eventId] });
-      const previousEvents = queryClient.getQueryData<any>(["event", eventId]);
+      const previousEvents: { event: AnEvent } = queryClient.getQueryData<any>(["event", eventId]);
       queryClient.setQueriesData(
         { queryKey: ["event", eventId] },
         (old: { event: AnEvent }) => {
@@ -115,7 +108,12 @@ export function TicketTypeItem({
             setDialogOpen(false);
           }}
           initialData={ticket}
-          onDeleteFn={(id) => onDelete(id)}
+          onDeleteFn={() => {
+            if (ticket.id) {
+              onDelete(ticket.id);
+            }
+            setDialogOpen(false);
+          }}
         />
       </DialogContent>
     </Dialog>

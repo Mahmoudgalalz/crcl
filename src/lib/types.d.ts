@@ -15,6 +15,16 @@ export type Announcement = {
   promoVideo?: string;
 };
 
+export type TicketAggregates = {
+  ticket: Ticket;
+  paymentStatusCounts: PaymentStatusCounts;
+};
+
+export type PaymentStatusCounts = {
+  PENDING?: number;
+  PAID?: number;
+};
+
 export type SuperUser = {
   id: string;
   name: string;
@@ -66,6 +76,7 @@ export type AnEvent = {
 };
 
 export type Ticket = {
+  deletedAt?: null;
   id: string;
   title: string;
   description: string;

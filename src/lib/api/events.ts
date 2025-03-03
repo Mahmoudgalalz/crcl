@@ -1,5 +1,5 @@
 "use client";
-import { AnEvent, ApiSuccessResponse, EventRequest, Ticket } from "../types";
+import { AnEvent, ApiSuccessResponse, EventRequest, Ticket, TicketAggregates } from "../types";
 import { axiosInstance } from "./instance";
 
 export async function getEvents(page: number, search: string) {
@@ -38,16 +38,16 @@ export async function getEvent(id: string) {
     const response = await axiosInstance.get<
       ApiSuccessResponse<{
         event: AnEvent;
+        ticketsAggregate: TicketAggregates[];
       }>
     >(`/events/${id}`);
-    const data: {
-      event: AnEvent;
-    } = response.data.data;
+    const data = response.data.data;
     return data;
   } catch (error) {
     console.error(error);
     return {} as unknown as {
       event: AnEvent;
+      ticketsAggregate: TicketAggregates[];
     };
   }
 }
