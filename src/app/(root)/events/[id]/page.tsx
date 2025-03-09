@@ -32,6 +32,7 @@ import { EventForm } from "@/components/event/event-form";
 import { StatusBadge } from "@/components/status-badge";
 import { TicketTypeForm } from "@/components/event/ticket-type-form";
 import { TicketTypeItem } from "@/components/event/ticket-type-item";
+import { TicketSalesTable } from "@/components/event/ticket-sales-table";
 import type { AnEvent, EventStatus, Ticket } from "@/lib/types";
 import {
   Select,
@@ -45,12 +46,13 @@ import { useEvent } from "@/hooks/use-event";
 export default function EventPage({ params }: { params: { id: string } }) {
   const {
     event,
+    ticketsAggregate,
     image,
     editEventDialogOpen,
     setEditEventDialogOpen,
     mutateEvent,
     eventStatusDialog,
-    setEventStatusDialog,
+    setEventStatusDialogOpen,
     addTicketTypeDialogOpen,
     setAddTicketTypeDialogOpen,
     createTicket,
@@ -78,6 +80,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
             </Button>
           </Link>
         </div>
+        
+        {/* Event Details Card */}
         <Card className="mb-6 max-w-3xl min-w-[800px]">
           <CardHeader>
             <img
@@ -141,7 +145,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                 </Dialog>
                 <Dialog
                   open={eventStatusDialog}
-                  onOpenChange={setEventStatusDialog}
+                  onOpenChange={setEventStatusDialogOpen}
                 >
                   <DialogTrigger asChild>
                     <Button
@@ -176,7 +180,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
                         mutateEvent({
                           status: value as EventStatus,
                         });
-                        setEventStatusDialog(false);
+                        setEventStatusDialogOpen(false);
                       }}
                     >
                       <SelectTrigger>
@@ -282,6 +286,16 @@ export default function EventPage({ params }: { params: { id: string } }) {
             </div>
           </CardContent>
         </Card>
+        
+        {/* Ticket Sales Table - Updated to not require tickets anymore since they're in ticketsAggregate */}
+        {event && ticketsAggregate && ticketsAggregate.length > 0 && (
+          <div className="mt-8 mb-6 max-w-3xl min-w-[800px]">
+            <TicketSalesTable 
+              tickets={event.tickets || []}
+              ticketsAggregate={ticketsAggregate} 
+            />
+          </div>
+        )}
       </div>
     </ContentLayout>
   );
