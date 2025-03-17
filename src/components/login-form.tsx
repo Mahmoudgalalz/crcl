@@ -17,6 +17,7 @@ import { CardContent, CardFooter } from "./ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SuperUserType } from "@/lib/types";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   email: z.string().min(2).max(50).email(),
@@ -33,12 +34,12 @@ export function LoginForm() {
     },
   });
 
-  if (typeof window !== "undefined") {
+  useEffect(() => {
     const token = localStorage.getItem("token");
     if (token?.length > 10) {
       window.location.href = "/dashboard";
     }
-  }
+  }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {

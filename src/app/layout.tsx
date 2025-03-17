@@ -35,7 +35,7 @@ export default function RootLayout({
           >
             {children}
             <Toaster />
-          </body>{" "}
+          </body>
         </Providers>
       </html>
     </ViewTransitions>

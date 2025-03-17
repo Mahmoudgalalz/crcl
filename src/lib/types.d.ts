@@ -73,6 +73,10 @@ export type AnEvent = {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  coordinates?: {
+    lat: number | string;
+    lng: number | string;
+  };
 };
 
 export type Ticket = {
