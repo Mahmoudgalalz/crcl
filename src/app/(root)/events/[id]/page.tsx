@@ -114,19 +114,30 @@ export default function EventPage({ params }: { params: { id: string } }) {
                         Edit the event details.
                       </DialogDescription>
                       <EventForm
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-expect-error
                         initialData={{
                           ...event,
+                          // Convert Date object to ISO string for the form
+                          date: event?.date ? new Date(event.date).toISOString().slice(0, 16) : "",
+                          // Ensure other properties match expected types
+                          capacity: event?.capacity ? Number(event.capacity) : 0,
+                          time: event?.time || "",
                           artists: [
                             ...(event?.artists?.map((artist, idx) => ({
                               id: String(idx),
                               text: artist,
                             })) ?? []),
                           ],
+                          // Explicitly handle coordinates to ensure they are properly passed
+                          coordinates: event?.coordinates ? {
+                            lat: typeof event.coordinates.lat === 'number' 
+                              ? event.coordinates.lat 
+                              : parseFloat(String(event.coordinates.lat || '0')),
+                            lng: typeof event.coordinates.lng === 'number' 
+                              ? event.coordinates.lng 
+                              : parseFloat(String(event.coordinates.lng || '0')),
+                          } : undefined,
                         }}
                         onSubmitFn={async (data) => {
-                          console.log(data);
                           const eventData = {
                             ...data,
                             date: new Date(data.date),
