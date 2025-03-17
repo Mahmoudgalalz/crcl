@@ -442,10 +442,17 @@ export function EventForm({
                           type="number"
                           placeholder="Latitude"
                           value={field.value?.lat?.toString() || ''}
-                          readOnly
-                          disabled
                           step="any"
-                          className="mt-1 bg-gray-50 cursor-not-allowed"
+                          className="mt-1"
+                          onChange={(e) => {
+                            const lat = parseFloat(e.target.value);
+                            if (!isNaN(lat)) {
+                              setValue('coordinates', {
+                                ...field.value,
+                                lat
+                              });
+                            }
+                          }}
                         />
                       </div>
                       <div className="flex-1">
@@ -455,14 +462,21 @@ export function EventForm({
                           type="number"
                           placeholder="Longitude"
                           value={field.value?.lng?.toString() || ''}
-                          readOnly
-                          disabled
                           step="any"
-                          className="mt-1 bg-gray-50 cursor-not-allowed"
+                          className="mt-1"
+                          onChange={(e) => {
+                            const lng = parseFloat(e.target.value);
+                            if (!isNaN(lng)) {
+                              setValue('coordinates', {
+                                ...field.value,
+                                lng
+                              });
+                            }
+                          }}
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500">These coordinates can only be updated by clicking on the map below.</p>
+                    <p className="text-xs text-gray-500">You can set coordinates by clicking on the map below or entering values directly.</p>
                     <LocationSelector
                       value={field.value}
                       onChange={(coords) => {
