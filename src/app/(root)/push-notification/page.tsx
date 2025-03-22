@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { BellIcon, SendIcon, UsersIcon, Users2Icon } from "lucide-react";
+import { BellIcon, SendIcon, UsersIcon, } from "lucide-react";
 import { ContentLayout } from "@/components/content-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -35,8 +35,6 @@ export default function PushNotificationsPage() {
 
   const isReceiverSelected = useCallback(() => {
     switch (selectedTab) {
-      case "multiple":
-        return selectedMultipleUsers.length > 0;
       case "all":
         return true;
       case "groups":
@@ -44,7 +42,7 @@ export default function PushNotificationsPage() {
       default:
         return false;
     }
-  }, [selectedTab, selectedMultipleUsers, selectedGroup]);
+  }, [selectedTab, selectedGroup]);
 
   const resetSelection = useCallback(() => {
     setSelectedMultipleUsers([]);
@@ -108,14 +106,10 @@ export default function PushNotificationsPage() {
             onValueChange={setSelectedTab}
             className="h-full"
           >
-            <TabsList className="grid w-full grid-cols-3 lg:w-2/5">
+            <TabsList className="grid w-full grid-cols-2 lg:w-2/5">
               <TabsTrigger value="multiple" className="flex items-center gap-2">
                 <UsersIcon className="h-4 w-4" />
                 Select Users
-              </TabsTrigger>
-              <TabsTrigger value="all" className="flex items-center gap-2">
-                <Users2Icon className="h-4 w-4" />
-                All Users
               </TabsTrigger>
               <TabsTrigger value="groups" className="flex items-center gap-2">
                 <BellIcon className="h-4 w-4" />
@@ -134,18 +128,6 @@ export default function PushNotificationsPage() {
                   />
                 </TabsContent>
 
-                <TabsContent value="all" className="mt-0 h-full">
-                  <div className="text-center py-6 flex flex-col items-center justify-center h-full">
-                    <Users2Icon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="font-medium text-lg mb-2">
-                      Send to All Users
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      This will send the notification to all registered users in
-                      the system.
-                    </p>
-                  </div>
-                </TabsContent>
 
                 <TabsContent value="groups" className="mt-0">
                   <h3 className="font-medium mb-4">Select Group</h3>
