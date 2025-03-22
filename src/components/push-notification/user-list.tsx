@@ -47,7 +47,7 @@ export function UserList({
     isLoading,
     isError,
   } = useInfiniteQuery({
-    queryKey: ["users"],
+    queryKey: ["users", searchQuery], // Add searchQuery to the query key
     queryFn: ({ pageParam }) =>
       getUsers(pageParam ? Number(pageParam) : null, searchQuery, true),
     initialPageParam: 1,
@@ -78,6 +78,7 @@ export function UserList({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
+    console.log(value);
     debouncedSearch(value);
   };
 
